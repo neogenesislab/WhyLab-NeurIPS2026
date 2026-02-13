@@ -37,12 +37,19 @@ class DiscoveryAgent:
         """
         self.logger.info("🧠 Nucleus(Discovery) 활성화: 데이터 분석 시작 (Rows: %d)", len(df))
 
+        # 분석 대상 칼럼만 선택 (파생 칼럼 제외 → singular matrix 방지)
+        analysis_cols = list(metadata.get("feature_names", []))
+        for col_key in ("treatment_col", "outcome_col"):
+            col = metadata.get(col_key)
+            if col and col not in analysis_cols:
+                analysis_cols.append(col)
+        analysis_df = df[analysis_cols] if analysis_cols else df
+
         # 1. LLM 기반 사전 지식(Prior Knowledge) 수립
         prior_dag = self._reason_with_llm(metadata)
         
         # 2. 통계적 인과 발견 (PC Algorithm)
-        # 실제 causal-learn 라이브러리가 있다면 사용, 없다면 Heuristic fallback
-        stat_dag = self._discover_statistically(df)
+        stat_dag = self._discover_statistically(analysis_df)
 
         # 3. 하이브리드 병합 (Ensemble)
         final_dag = self._merge_graphs(prior_dag, stat_dag)
@@ -79,36 +86,53 @@ class DiscoveryAgent:
         return dag
 
     def _discover_statistically(self, df: pd.DataFrame) -> nx.DiGraph:
-        """PC 알고리즘 등 통계적 방법으로 인과관계를 발견합니다."""
-        self.logger.info("   [2] Statistical Discovery: 조건부 독립성 검정 중...")
-        
+        """PC 알고리즘으로 조건부 독립성 기반 인과관계를 발견합니다."""
+        self.logger.info("   [2] Statistical Discovery: PC Algorithm 실행 중...")
+
+        numeric_df = df.select_dtypes(include=[np.number])
+        columns = numeric_df.columns.tolist()
+        data = numeric_df.values
+
         dag = nx.DiGraph()
-        columns = df.columns.tolist()
         dag.add_nodes_from(columns)
-        
-        # Placeholder: 상관계수 기반으로 엣지 후보 생성 (실제 PC 알고리즘 대체)
-        # 실제 구현에선 causal-learn의 cdt.causality.graph.PC 등을 사용해야 함.
-        corr_matrix = df.corr().abs()
-        threshold = 0.3  # 임계값
-        
-        for i, col_a in enumerate(columns):
-            for j, col_b in enumerate(columns):
-                if i >= j: continue
-                
-                # 강한 상관관계가 있으면 엣지 연결 (방향은 아직 미정)
-                if corr_matrix.iloc[i, j] > threshold:
-                    # 간단한 시간적/논리적 선후관계 가정 (Heuristic)
-                    # 예: 나이 -> 소득
-                    if col_a == "age":
-                        dag.add_edge(col_a, col_b)
-                    elif col_b == "age":
-                        dag.add_edge(col_b, col_a)
-                    else:
-                        # 방향을 모를 때는 일단 양방향(또는 무방향)이 원칙이나
-                        # 여기선 임의로 i -> j (추후 LLM이 교정)
-                        dag.add_edge(col_a, col_b)
-                        
-        self.logger.info("       통계적 패턴 추출 완료.")
+
+        try:
+            from causallearn.search.ConstraintBased.PC import pc
+
+            cg = pc(data, alpha=0.05, indep_test='fisherz', show_progress=False)
+            adj = cg.G.graph  # numpy adjacency matrix
+
+            for i in range(len(columns)):
+                for j in range(len(columns)):
+                    if adj[i, j] == -1 and adj[j, i] == 1:
+                        # i → j (방향 확정)
+                        dag.add_edge(columns[i], columns[j])
+                    elif adj[i, j] == -1 and adj[j, i] == -1:
+                        # i — j (무방향) → 도메인 heuristic으로 방향 결정
+                        if columns[i] in ("age", "income", "credit_score"):
+                            dag.add_edge(columns[i], columns[j])
+                        else:
+                            dag.add_edge(columns[j], columns[i])
+
+            self.logger.info("       PC Algorithm 완료 (엣지 %d개 발견)", dag.number_of_edges())
+
+        except ImportError:
+            self.logger.warning("       causal-learn 미설치 — 상관 heuristic fallback 사용")
+            corr_matrix = numeric_df.corr().abs()
+            threshold = 0.3
+
+            for i, col_a in enumerate(columns):
+                for j, col_b in enumerate(columns):
+                    if i >= j:
+                        continue
+                    if corr_matrix.iloc[i, j] > threshold:
+                        if col_a == "age":
+                            dag.add_edge(col_a, col_b)
+                        elif col_b == "age":
+                            dag.add_edge(col_b, col_a)
+                        else:
+                            dag.add_edge(col_a, col_b)
+
         return dag
 
     def _merge_graphs(self, prior: nx.DiGraph, stat: nx.DiGraph) -> nx.DiGraph:

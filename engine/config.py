@@ -48,10 +48,10 @@ class DataConfig:
     treat_min: float = 100.0             # 최소 한도 (만 원)
     treat_max: float = 5000.0            # 최대 한도 (만 원)
 
-    # 시나리오 A Ground Truth CATE
-    cate_income_coef: float = -0.10      # 소득 ↑ → 한도의 연체 영향 ↓
-    cate_age_coef: float = 0.05          # 나이 ↑ → 한도의 연체 영향 약간 ↑
-    cate_credit_coef: float = -0.08      # 신용 ↑ → 한도의 연체 영향 ↓
+    # 시나리오 A Ground Truth CATE (세그먼트별 극적 차이를 위해 강한 계수)
+    cate_income_coef: float = -0.50      # 소득 ↑ → 한도의 연체 감소 효과 ↑↑
+    cate_age_coef: float = 0.25          # 나이 ↑ → 한도의 연체 감소 효과 ↓
+    cate_credit_coef: float = -0.40      # 신용 ↑ → 한도의 연체 감소 효과 ↑↑
 
     # 시나리오 A Outcome
     outcome_income_coef: float = -0.6    # 소득 ↑ → 연체 ↓

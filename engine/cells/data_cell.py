@@ -174,10 +174,11 @@ class DataCell(BaseCell):
             + rng.normal(0, cfg.outcome_noise_std, n)
         )
         default_prob = _sigmoid(outcome_logit)
-        is_default = (default_prob > 0.5).astype(int)
+        is_default = default_prob  # DML은 연속형 outcome에서 최적 동작 → 확률 유지
 
         df["credit_limit"] = credit_limit
-        df["is_default"] = is_default
+        df["is_default"] = is_default            # 연체 확률 (0~1 연속)
+        df["is_default_binary"] = (default_prob > 0.5).astype(int)  # 이진 참조용
         df["true_cate"] = true_cate
         df["default_prob"] = default_prob
 

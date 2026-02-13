@@ -26,12 +26,17 @@ def discovery_node(state: AgentState) -> Dict[str, Any]:
     """Discovery Agent: 데이터를 분석하여 인과 구조(DAG)를 발견합니다."""
     print("   [Discovery] Analyzing data & building causal graph...")
     
-    # Mock Logic: 시나리오에 따라 다른 DAG 생성
-    if state["scenario"] == "A":
-        dag = ["Credit Score -> Credit Limit", "Credit Limit -> Default Risk"]
-    else:
-        dag = ["Age -> Coupon", "Coupon -> Conversion"]
-        
+    from engine.config import WhyLabConfig
+    from engine.cells.data_cell import DataCell
+    from engine.agents.discovery import DiscoveryAgent
+
+    config = WhyLabConfig()
+    data_out = DataCell(config).execute({"scenario": state["scenario"]})
+    agent = DiscoveryAgent(config)
+    graph = agent.discover(data_out["dataframe"], data_out)
+
+    dag = [f"{u} -> {v}" for u, v in graph.edges()]
+
     return {
         "dag_structure": dag,
         "history": ["Discovery Completed"]
@@ -41,8 +46,14 @@ def estimation_node(state: AgentState) -> Dict[str, Any]:
     """Estimation Agent: 발견된 DAG를 바탕으로 인과 효과를 추정합니다."""
     print(f"   [Estimation] Estimating effect based on DAG: {state['dag_structure']}")
     
-    # Mock Logic
-    effect = -0.05 if state["scenario"] == "A" else 0.12
+    from engine.config import WhyLabConfig
+    from engine.cells.data_cell import DataCell
+    from engine.cells.causal_cell import CausalCell
+
+    config = WhyLabConfig()
+    data_out = DataCell(config).execute({"scenario": state["scenario"]})
+    causal_out = CausalCell(config).execute(data_out)
+    effect = causal_out["ate"]
     
     return {
         "causal_effect": effect,

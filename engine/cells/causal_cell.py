@@ -87,8 +87,14 @@ class CausalCell(BaseCell):
         # 1. 데이터 준비
         # ──────────────────────────────────────────
         Y = df[outcome_col].values.astype(np.float64)
-        T = df[treatment_col].values.astype(np.float64)
+        T_raw = df[treatment_col].values.astype(np.float64)
         X = df[feature_names].values.astype(np.float64)
+
+        # Treatment 정규화: 원본 스케일(예: 100~5000)이 매우 넓으면
+        # DML이 추정하는 "1단위당 효과"가 극미세해짐.
+        # 표준화(z-score) 후 DML에 전달하여 ATE = "σ 1단위 변화당 효과"로 해석.
+        t_mean, t_std = float(T_raw.mean()), float(T_raw.std())
+        T = (T_raw - t_mean) / t_std if t_std > 0 else T_raw
 
         # ──────────────────────────────────────────
         # 2. DML 모델 생성 및 학습 (AutoML 지원)

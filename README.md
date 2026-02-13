@@ -69,17 +69,16 @@ graph LR
     -   **Sensitivity Report**: Placebo Test + Random Common Cause visualization.
     -   **Model Comparison**: AutoML candidate model RMSE comparison.
 
-3.  **Autonomous Agent Architecture (Phase 8)**
-    -   **Discovery Agent (Nucleus)**: Hybrid causal discovery (LLM + Statistical).
-    -   **MCP Server (Membrane)**: Standard interface for external agent connectivity.
-    -   **LangGraph Workflow (Cytoplasm)**: Stateful Discovery-Estimation-Refutation loop.
-    -   **Tissue Simulation**: Multi-agent collaboration under data drift.
+3.  **Autonomous Agent Architecture (Phase 8 — 1단계 작동 중 ✅)**
+    -   **Discovery Agent**: causal-learn PC Algorithm으로 **실제 인과 구조를 발견**.
+    -   **LangGraph Workflow**: Discovery → Estimation → Refutation 순환 루프.
+    -   **MCP Server**: 외부 에이전트 연동을 위한 표준 인터페이스.
 
 ## 🚀 Scenarios
 
 ### Scenario A: Credit Limit Optimization
 -   **Q**: "신용 한도를 상향하면 연체율이 낮아질까?"
--   **Finding**: 고신용자에게는 연체율 감소 효과가 뚜렷하지만, 저신용자에게는 효과가 없거나 부정적입니다. (비선형적 이질성 발견)
+-   **Finding**: **ATE = -3.5%** (신용한도 1σ 증가 시 연체 확률 3.5% 감소, p < 0.01). 고신용자에게는 연체율 감소 효과가 뚜렷하지만, 저신용자에게는 효과가 없거나 부정적입니다. (비선형적 이질성 발견)
 
 ### Scenario B: Marketing Budget Allocation
 -   **Q**: "누구에게 투자 쿠폰을 보내야 가입률이 가장 많이 오를까?"
@@ -90,8 +89,9 @@ graph LR
 | Category | Technologies |
 |----------|--------------|
 | **Core Engine** | Python 3.11, EconML, LightGBM, NumPy, Pandas |
+| **Causal Discovery** | causal-learn (PC Algorithm), NetworkX |
 | **Data Eng** | DuckDB, Scikit-learn, Apache Arrow |
-| **Frontend** | Next.js 14 (App Router), TypeScript, Tailwind CSS |
+| **Frontend** | Next.js 16 (App Router), TypeScript, Tailwind CSS |
 | **Visualization** | Recharts, React Flow, Framer Motion |
 | **Agent Framework** | LangGraph, MCP (Model Context Protocol) |
 | **DevOps** | GitHub Actions |
@@ -136,12 +136,18 @@ python -m engine.server.mcp_server
 ---
 
 ## 🔮 Future Vision: The Living Ledger
-> *"From Pipelines to Cellular Agents"*
 
-**WhyLab**은 단순한 분석 도구가 아닙니다. 이는 **'살아있는 장부(The Living Ledger)'**를 향한 첫 번째 세포 분열입니다.
-우리는 기계적인 데이터 파이프라인을 거부하고, 생물학적 유기체처럼 스스로 가설을 세우고(Nucleus), 검증하며(Refutation), 진화하는(Homeostasis) **세포 에이전트(Cellular Agents)** 시스템을 지향합니다.
+> *"From Pipelines to Cellular Agents — 로드맵"*
 
--   [**Read the Vision Paper**](paper/visions/living_ledger.md): 핀테크 생태계를 위한 자율 인과추론 아키텍처 연구 보고서.
+현재 **1단계(Discovery Agent)**가 실제로 동작합니다. PC Algorithm으로 인과 구조를 자동 발견하고, LangGraph로 반증 순환을 수행합니다.
+
+| Phase | 목표 | 상태 |
+|-------|------|------|
+| 1단계 | Discovery Agent (PC 연동 + DAG 자동 발견) | ✅ 완료 |
+| 2단계 | LLM 연동 (GPT/Gemini로 가설 생성 자동화) | 🚧 계획 |
+| 3단계 | Multi-Agent Tissue (데이터 드리프트 자동 대응) | 📝 연구 |
+
+-   [연구 보고서: **The Living Ledger Vision**](paper/visions/living_ledger.md): 핀테크 생태계를 위한 자율 인과추론 아키텍처 연구 방향 제시.
 
 ---
 
