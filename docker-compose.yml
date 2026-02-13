@@ -1,0 +1,51 @@
+# WhyLab Docker Compose — GPU 재현성 인프라
+services:
+  whylab:
+    build: .
+    # NVIDIA GPU 런타임
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    volumes:
+      - ./results:/whylab/results
+      - ./output:/whylab/output
+    environment:
+      - PYTHONPATH=/whylab
+      - NVIDIA_VISIBLE_DEVICES=all
+
+  # 벤치마크 전용 서비스
+  benchmark:
+    build: .
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    volumes:
+      - ./results:/whylab/results
+    environment:
+      - PYTHONPATH=/whylab
+    command: [ "--benchmark", "ihdp", "acic", "jobs", "--output", "results/" ]
+
+  # 전체 파이프라인 + Debate
+  pipeline:
+    build: .
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    volumes:
+      - ./results:/whylab/results
+      - ./output:/whylab/output
+    environment:
+      - PYTHONPATH=/whylab
+    command: [ "--scenario", "A", "--debate", "--output", "results/" ]
