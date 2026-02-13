@@ -74,23 +74,27 @@ class ExplainCell(BaseCell):
         feature_importance = {}
 
         try:
-            # CausalForestDML 등의 경우 내부 트리 모델 접근 가능
-            # 예외 처리를 통해 다양한 모델 타입 대응
-            if hasattr(model, "cate_model"):
-                explainer = shap.Explainer(model.cate_model)
-                X_shap = df[feature_names].sample(
-                    n=min(cfg.shap_sample_size, len(df)),
-                    random_state=self.config.data.random_seed
-                )
-                shap_values = explainer(X_shap)
-                
-                # 평균 절대 SHAP 값으로 중요도 산출
-                vals = np.abs(shap_values.values).mean(0)
-                feature_importance = dict(zip(feature_names, vals.tolist()))
-                
-                self.logger.info("SHAP 분석 완료: 중요도=%s", feature_importance)
-            else:
-                self.logger.warning("SHAP를 지원하지 않는 모델 타입입니다.")
+            # EconML 모델의 effect() 함수를 SHAP 함수 설명자로 래핑
+            # 이 방식은 LinearDML, CausalForestDML 등 모든 EconML 모델에 범용 적용
+            X_shap = df[feature_names].sample(
+                n=min(cfg.shap_sample_size, len(df)),
+                random_state=self.config.data.random_seed
+            ).values.astype(np.float64)
+
+            # model.effect()를 SHAP가 이해하는 함수로 래핑
+            def predict_cate(X_input):
+                return model.effect(X_input).flatten()
+
+            # 배경 데이터(background) 샘플링 — KernelExplainer 사용
+            background = shap.sample(X_shap, min(100, len(X_shap)))
+            explainer = shap.KernelExplainer(predict_cate, background)
+            shap_values_raw = explainer.shap_values(X_shap[:min(200, len(X_shap))])
+
+            # 평균 절대 SHAP 값으로 중요도 산출
+            vals = np.abs(shap_values_raw).mean(0)
+            feature_importance = dict(zip(feature_names, vals.tolist()))
+
+            self.logger.info("SHAP 분석 완료: 중요도=%s", feature_importance)
 
         except Exception as e:
             self.logger.warning("SHAP 분석 실패 (무시됨): %s", e)
