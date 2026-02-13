@@ -15,6 +15,7 @@ import ExplainabilityPanel from "@/components/ExplainabilityPanel";
 import EstimationAccuracy from "@/components/EstimationAccuracy";
 import AIInsightPanel from "@/components/AIInsightPanel";
 import DiagnosticsPanel from "@/components/DiagnosticsPanel";
+import ChatPanel from "@/components/ChatPanel";
 
 function DashboardContent() {
     const searchParams = useSearchParams();
@@ -109,6 +110,9 @@ function DashboardContent() {
 
             {/* Statistical Diagnostics (Phase 4) */}
             <DiagnosticsPanel data={data} />
+
+            {/* Interactive Chat (Phase 6) */}
+            <ChatPanel data={data} />
         </div>
     );
 }
