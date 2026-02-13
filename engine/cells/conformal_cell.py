@@ -76,10 +76,20 @@ class ConformalCell(BaseCell):
 
         self.logger.info("   분할: Train=%d, Calibration=%d", len(train_idx), len(cal_idx))
 
-        # ── 2. DR-Learner로 CATE 학습 (가장 이론적 보장 강함) ──
+        # ── 2. CATE 학습: mode에 따라 분기 ──
         from engine.cells.meta_learner_cell import DRLearner
 
-        model = DRLearner()
+        conformal_mode = inputs.get("conformal_mode", "split")  # "split" | "cqr"
+
+        if conformal_mode == "cqr":
+            self.logger.info("   ⚡ CQR (Conformalized Quantile Regression)")
+            return self._cqr_conformal(
+                X, T, Y, X_tr, T_tr, Y_tr, X_cal, T_cal, Y_cal,
+                train_idx, cal_idx, alpha, inputs,
+            )
+
+        # Split Conformal (기본)
+        model = DRLearner(config=self.config)
         model.fit(X_tr, T_tr, Y_tr)
         cate_cal = model.predict_cate(X_cal)
 
@@ -99,7 +109,7 @@ class ConformalCell(BaseCell):
 
         # ── 5. 전체 데이터에 대한 예측구간 ──
         # 전체 데이터로 최종 모델 재학습
-        final_model = DRLearner()
+        final_model = DRLearner(config=self.config)
         final_model.fit(X, T, Y)
         cate_all = final_model.predict_cate(X)
 
@@ -121,6 +131,7 @@ class ConformalCell(BaseCell):
         )
 
         conformal_results = {
+            "mode": "split",
             "alpha": alpha,
             "quantile_q": q,
             "mean_width": width,
@@ -133,6 +144,122 @@ class ConformalCell(BaseCell):
             "interpretation": (
                 f"Conformal {(1-alpha)*100:.0f}% 예측구간: "
                 f"폭={width:.5f}, 실제 적중률={covered*100:.1f}%"
+            ),
+        }
+
+        return {
+            **inputs,
+            "conformal_ci_lower": ci_lower,
+            "conformal_ci_upper": ci_upper,
+            "conformal_cate": cate_all,
+            "conformal_results": conformal_results,
+        }
+
+    def _cqr_conformal(
+        self,
+        X: np.ndarray, T: np.ndarray, Y: np.ndarray,
+        X_tr: np.ndarray, T_tr: np.ndarray, Y_tr: np.ndarray,
+        X_cal: np.ndarray, T_cal: np.ndarray, Y_cal: np.ndarray,
+        train_idx: np.ndarray, cal_idx: np.ndarray,
+        alpha: float,
+        inputs: dict,
+    ) -> dict:
+        """CQR (Conformalized Quantile Regression).
+
+        Romano et al. (2019) 기반의 적응적 구간:
+        X에 따라 CI 폭이 변함 — 불확실 영역에서 넓고, 확실 영역에서 좁음.
+
+        Step 1: 분위수 회귀 q_lo(x), q_hi(x) 학습
+        Step 2: Calibration에서 적합도 점수
+          sᵢ = max(q_lo(Xᵢ) - Γᵢ, Γᵢ - q_hi(Xᵢ))
+        Step 3: q = Quantile(1-α, {sᵢ})
+        Step 4: CI(x) = [q_lo(x) - q, q_hi(x) + q]
+        """
+        from lightgbm import LGBMRegressor
+        from engine.gpu_factory import create_lgbm_regressor
+
+        # DR Score로 ITE 근사
+        scores_cal = self._compute_dr_scores(
+            X_cal, T_cal, Y_cal, X_tr, T_tr, Y_tr,
+        )
+        scores_tr = self._compute_dr_scores(
+            X_tr, T_tr, Y_tr, X_tr, T_tr, Y_tr,
+        )
+
+        # 분위수 회귀: 하한 q_{α/2}(x), 상한 q_{1-α/2}(x)
+        q_lo_model = create_lgbm_regressor(self.config, lightweight=True)
+        q_hi_model = create_lgbm_regressor(self.config, lightweight=True)
+
+        # LightGBM quantile objective
+        q_lo_model.set_params(objective="quantile", alpha=alpha / 2)
+        q_hi_model.set_params(objective="quantile", alpha=1 - alpha / 2)
+
+        q_lo_model.fit(X_tr, scores_tr)
+        q_hi_model.fit(X_tr, scores_tr)
+
+        # Calibration에서 적합도 점수
+        q_lo_cal = q_lo_model.predict(X_cal)
+        q_hi_cal = q_hi_model.predict(X_cal)
+
+        conformity = np.maximum(
+            q_lo_cal - scores_cal,
+            scores_cal - q_hi_cal,
+        )
+
+        # 분위수
+        level = np.ceil((1 - alpha) * (len(cal_idx) + 1)) / len(cal_idx)
+        level = min(level, 1.0)
+        q = float(np.quantile(conformity, level))
+
+        self.logger.info("   CQR Quantile q=%.5f", q)
+
+        # 전체 데이터에 적응적 구간 생성
+        q_lo_all = q_lo_model.predict(X)
+        q_hi_all = q_hi_model.predict(X)
+
+        ci_lower = q_lo_all - q
+        ci_upper = q_hi_all + q
+
+        # CATE 점추정 (중앙값)
+        from engine.cells.meta_learner_cell import DRLearner
+        final_model = DRLearner(config=self.config)
+        final_model.fit(X, T, Y)
+        cate_all = final_model.predict_cate(X)
+
+        # 적중률
+        scores_all_cal = self._compute_dr_scores(
+            X_cal, T_cal, Y_cal, X_tr, T_tr, Y_tr,
+        )
+        cal_lo = q_lo_model.predict(X_cal) - q
+        cal_hi = q_hi_model.predict(X_cal) + q
+        covered = np.mean((scores_all_cal >= cal_lo) & (scores_all_cal <= cal_hi))
+
+        widths = ci_upper - ci_lower
+        mean_width = float(np.mean(widths))
+        std_width = float(np.std(widths))
+
+        self.logger.info(
+            "   CQR 결과: 평균폭=%.5f±%.5f, 적중률=%.1f%%",
+            mean_width, std_width, covered * 100,
+        )
+
+        conformal_results = {
+            "mode": "cqr",
+            "alpha": alpha,
+            "quantile_q": q,
+            "mean_width": mean_width,
+            "width_std": std_width,
+            "coverage": float(covered),
+            "target_coverage": 1 - alpha,
+            "n_train": len(train_idx),
+            "n_calibration": len(cal_idx),
+            "ci_lower_mean": float(np.mean(ci_lower)),
+            "ci_upper_mean": float(np.mean(ci_upper)),
+            "adaptive": True,
+            "interpretation": (
+                f"CQR {(1-alpha)*100:.0f}% 적응적 예측구간: "
+                f"평균폭={mean_width:.5f}±{std_width:.5f}, "
+                f"적중률={covered*100:.1f}%"
             ),
         }
 

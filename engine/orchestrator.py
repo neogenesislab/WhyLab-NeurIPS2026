@@ -27,6 +27,7 @@ from engine.cells.sensitivity_cell import SensitivityCell
 from engine.cells.refutation_cell import RefutationCell
 from engine.cells.meta_learner_cell import MetaLearnerCell
 from engine.cells.conformal_cell import ConformalCell
+from engine.cells.debate_cell import DebateCell
 
 class Orchestrator:
     """WhyLab 엔진 오케스트레이터."""
@@ -50,6 +51,7 @@ class Orchestrator:
             "viz": VizCell(self.config),
             "export": ExportCell(self.config),
             "report": ReportCell(self.config),
+            "debate": DebateCell(self.config),               # 3-에이전트 판결
         }
 
     def run_pipeline(self, scenario: str = "A") -> Dict[str, Any]:
@@ -65,11 +67,12 @@ class Orchestrator:
         
         context: Dict[str, Any] = {"scenario_name": f"Scenario {scenario}", "scenario": scenario}
 
-        # 실행 순서 (DAG)
-        # Data → Causal → MetaLearner → Conformal → Explain → Refutation → Sensitivity → Viz → Export → Report
+        # 실행 순서 (DAG) — 11셀 파이프라인
+        # Data → Causal → MetaLearner → Conformal → Explain → Refutation →
+        # Sensitivity → Viz → Export → Report → Debate
         pipeline_sequence = [
             "data", "causal", "meta_learner", "conformal", "explain",
-            "refutation", "sensitivity", "viz", "export", "report",
+            "refutation", "sensitivity", "viz", "export", "report", "debate",
         ]
 
         try:

@@ -220,6 +220,38 @@ class PathConfig:
 
 
 # ──────────────────────────────────────────────
+# 벤치마크 설정
+# ──────────────────────────────────────────────
+
+@dataclass
+class BenchmarkConfig:
+    """학술 벤치마크 평가 설정."""
+
+    datasets: list = field(default_factory=lambda: ["ihdp"])
+    n_replications: int = 10          # 반복 실험 수 (안정성)
+    baseline_methods: list = field(
+        default_factory=lambda: ["linear_dml"]
+    )
+
+
+# ──────────────────────────────────────────────
+# Debate 설정
+# ──────────────────────────────────────────────
+
+@dataclass
+class DebateConfig:
+    """Multi-Agent Debate 설정."""
+
+    max_rounds: int = 3               # 최대 Debate 라운드
+    confidence_threshold: float = 0.7 # CAUSAL 판결 최소 확신도
+    evidence_weights: dict = field(default_factory=lambda: {
+        "statistical": 1.0,
+        "robustness": 1.2,
+        "domain": 0.8,
+    })
+
+
+# ──────────────────────────────────────────────
 # 전역 설정 (Single Source of Truth)
 # ──────────────────────────────────────────────
 
@@ -234,6 +266,8 @@ class WhyLabConfig:
     explain: ExplainConfig = field(default_factory=ExplainConfig)
     viz: VizConfig = field(default_factory=VizConfig)
     paths: PathConfig = field(default_factory=PathConfig)
+    benchmark: BenchmarkConfig = field(default_factory=BenchmarkConfig)
+    debate: DebateConfig = field(default_factory=DebateConfig)
 
 
 # 기본 설정 인스턴스 — import 시 즉시 사용 가능
