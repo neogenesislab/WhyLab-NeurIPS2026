@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Sidebar from "@/components/Sidebar";
 
 export default function DashboardLayout({
@@ -7,10 +8,12 @@ export default function DashboardLayout({
 }) {
     return (
         <div className="flex min-h-screen bg-dots-pattern">
-            <Sidebar />
-            <div className="flex-1 ml-64 p-8 overflow-y-auto">
-                {/* Top Bar Area (Placeholder for Breadcrumbs / User Profile) */}
-                <header className="flex justify-between items-center mb-8">
+            <Suspense fallback={null}>
+                <Sidebar />
+            </Suspense>
+            <div className="flex-1 ml-0 lg:ml-64 p-4 lg:p-8 overflow-y-auto">
+                {/* Top Bar */}
+                <header className="flex justify-between items-center mb-8 pl-10 lg:pl-0">
                     <div className="text-sm breadcrumbs text-slate-400">
                         Dashboard <span className="mx-2">/</span> Overview
                     </div>
