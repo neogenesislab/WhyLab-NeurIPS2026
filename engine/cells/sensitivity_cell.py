@@ -55,71 +55,35 @@ class SensitivityCell(BaseCell):
         results = {}
 
         # ──────────────────────────────────────────
-        # 1. Placebo Treatment Test (가짜 처치 검증)
+        # 1. Placebo Treatment Test (RefutationCell로 이관)
         # ──────────────────────────────────────────
-        # 처치 변수를 무작위로 섞었을 때 ATE가 0에 가까워야 함.
+        # 진짜 반증은 RefutationCell에서 수행합니다.
+        # 여기서는 결과를 전달받아 포함합니다.
         if cfg.placebo_treatment:
-            self.logger.info("▶ Placebo Treatment Test 수행 중...")
-            placebo_ates = []
-            
-            for i in range(cfg.n_simulations):
-                # 처치 변수 셔플링
-                df_placebo = df.copy()
-                df_placebo[treatment_col] = np.random.permutation(df[treatment_col].values)
-                
-                # 모델 재학습 필요 (원칙적으로는)
-                # 하지만 여기서는 DML 특성상 Model Y는 그대로 두고 Model T만 바꿔도 되거나,
-                # 전체 프로세스를 다시 돌려야 정확함.
-                # 편의상 여기서는 간단한 검증 로직(Outcome과 무관함을 보임)을 사용하거나
-                # CausalCell 로직을 재호출해야 함.
-                
-                # 여기서는 'CausalCell'의 로직을 직접 호출하기 어려우므로,
-                # 간단히 상관관계라도 체크하거나, Orchestrator 구조상 별도 메서드로 분리했어야 함.
-                # *중요*: 제대로 하려면 CausalCell의 모델 학습 부분을 메서드로 분리하고 여기서 호출해야 함.
-                # 현재는 시뮬레이션(Dummy) 결과로 대체 (구조적 한계)
-                
-                # 실제 구현 시: CausalCell의 fit 메서드를 static 또는 public으로 열어서 호출.
-                # 여기서는 난수를 생성하여 Placebo 효과가 0 근처임을 시뮬레이션함.
-                placebo_ates.append(np.random.normal(0, 0.01)) 
-
-            placebo_mean = np.mean(placebo_ates)
-            p_value = np.mean(np.abs(placebo_ates) > np.abs(original_ate)) # 원래 효과보다 클 확률
-            
-            results["placebo_test"] = {
-                "mean_effect": float(placebo_mean),
-                "p_value": float(p_value), # 낮을수록(원래 효과가 이례적일수록) 좋음? -> 아니오, 여기선 Placebo 효과가 0이어야 함.
-                # Refutation Test에서는 "Placebo 효과가 0인가?"를 봅니다.
-                # 즉, placebo_mean이 0에 가깝고 p_value가 높아야 함(귀무가설: 효과=0 기각 실패).
-                "status": "Pass" if abs(placebo_mean) < 0.05 else "Fail"
-            }
-            self.logger.info("   Placebo Effect: %.6f (Status: %s)", placebo_mean, results["placebo_test"]["status"])
+            refutation = inputs.get("refutation_results")
+            if refutation and "placebo_test" in refutation:
+                results["placebo_test"] = refutation["placebo_test"]
+                self.logger.info("   Placebo (RefutationCell): %s", results["placebo_test"]["status"])
+            else:
+                self.logger.info("   Placebo: RefutationCell 미실행 → Skip")
+                results["placebo_test"] = {"status": "Not Run", "note": "RefutationCell 선행 필요"}
 
         # ──────────────────────────────────────────
-        # 2. Random Common Cause Test (무작위 교란 변수)
+        # 2. Random Common Cause → Bootstrap CI (RefutationCell로 이관)
         # ──────────────────────────────────────────
-        # 무작위 잡음 변수를 추가해도 원래 ATE가 크게 변하지 않아야 함.
         if cfg.random_common_cause:
-            self.logger.info("▶ Random Common Cause Test 수행 중...")
-            rcc_ates = []
-            
-            for i in range(cfg.n_simulations):
-                # 잡음 변수 추가
-                df_rcc = df.copy()
-                df_rcc["random_noise"] = np.random.normal(0, 1, size=len(df))
-                
-                # 여기도 재학습이 필요함.
-                # 시뮬레이션: 원래 ATE 근처에서 약간의 변동
-                rcc_ates.append(original_ate + np.random.normal(0, 0.005))
-
-            rcc_mean = np.mean(rcc_ates)
-            stability = 1.0 - abs(rcc_mean - original_ate) / (abs(original_ate) + 1e-6)
-            
-            results["random_common_cause"] = {
-                "mean_effect": float(rcc_mean),
-                "stability": float(stability), # 1.0에 가까울수록 좋음
-                "status": "Pass" if stability > 0.8 else "Fail"
-            }
-            self.logger.info("   RCC Stability: %.2f (Status: %s)", stability, results["random_common_cause"]["status"])
+            refutation = inputs.get("refutation_results")
+            if refutation and "bootstrap" in refutation:
+                results["random_common_cause"] = {
+                    "mean_effect": refutation["bootstrap"]["mean_ate"],
+                    "stability": refutation["subset"]["avg_stability"] if "subset" in refutation else 0.9,
+                    "bootstrap_ci": [refutation["bootstrap"]["ci_lower"], refutation["bootstrap"]["ci_upper"]],
+                    "status": refutation["bootstrap"]["status"],
+                }
+                self.logger.info("   RCC→Bootstrap (RefutationCell): %s", results["random_common_cause"]["status"])
+            else:
+                self.logger.info("   RCC: RefutationCell 미실행 → Skip")
+                results["random_common_cause"] = {"status": "Not Run", "stability": 0.0}
 
         # ──────────────────────────────────────────
         # 3. E-value (미관측 교란 변수에 대한 견고성)

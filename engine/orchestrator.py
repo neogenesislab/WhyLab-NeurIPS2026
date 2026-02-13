@@ -24,6 +24,9 @@ from engine.cells.viz_cell import VizCell
 from engine.cells.export_cell import ExportCell
 from engine.cells.report_cell import ReportCell
 from engine.cells.sensitivity_cell import SensitivityCell
+from engine.cells.refutation_cell import RefutationCell
+from engine.cells.meta_learner_cell import MetaLearnerCell
+from engine.cells.conformal_cell import ConformalCell
 
 class Orchestrator:
     """WhyLab 엔진 오케스트레이터."""
@@ -38,9 +41,12 @@ class Orchestrator:
         # 셀 초기화 (의존성 주입)
         self.cells = {
             "data": DataCell(self.config),
-            "causal": CausalCell(self.config), # Updated for AutoML
+            "causal": CausalCell(self.config),
+            "meta_learner": MetaLearnerCell(self.config),   # 5종 메타러너
+            "conformal": ConformalCell(self.config),         # 분포무가정 CI
             "explain": ExplainCell(self.config),
-            "sensitivity": SensitivityCell(self.config), # [NEW]
+            "refutation": RefutationCell(self.config),       # 진짜 반증
+            "sensitivity": SensitivityCell(self.config),
             "viz": VizCell(self.config),
             "export": ExportCell(self.config),
             "report": ReportCell(self.config),
@@ -60,8 +66,11 @@ class Orchestrator:
         context: Dict[str, Any] = {"scenario_name": f"Scenario {scenario}", "scenario": scenario}
 
         # 실행 순서 (DAG)
-        # Data -> Causal -> Explain -> Sensitivity -> Viz -> Export -> Report
-        pipeline_sequence = ["data", "causal", "explain", "sensitivity", "viz", "export", "report"]
+        # Data → Causal → MetaLearner → Conformal → Explain → Refutation → Sensitivity → Viz → Export → Report
+        pipeline_sequence = [
+            "data", "causal", "meta_learner", "conformal", "explain",
+            "refutation", "sensitivity", "viz", "export", "report",
+        ]
 
         try:
             for cell_name in pipeline_sequence:

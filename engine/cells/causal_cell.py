@@ -289,22 +289,11 @@ class CausalCell(BaseCell):
             ValueError: 지원하지 않는 model_type인 경우.
         """
         from lightgbm import LGBMClassifier, LGBMRegressor
+        from engine.gpu_factory import create_lgbm_regressor
 
-        # Nuisance 모델 정의 (Outcome 모델 + Treatment 모델)
-        model_y = LGBMRegressor(
-            n_estimators=cfg.lgbm_n_estimators,
-            learning_rate=cfg.lgbm_learning_rate,
-            max_depth=cfg.lgbm_max_depth,
-            num_leaves=cfg.lgbm_num_leaves,
-            verbose=cfg.lgbm_verbose,
-        )
-        model_t = LGBMRegressor(
-            n_estimators=cfg.lgbm_n_estimators,
-            learning_rate=cfg.lgbm_learning_rate,
-            max_depth=cfg.lgbm_max_depth,
-            num_leaves=cfg.lgbm_num_leaves,
-            verbose=cfg.lgbm_verbose,
-        )
+        # Nuisance 모델 정의 (GPU 가속)
+        model_y = create_lgbm_regressor(self.config)
+        model_t = create_lgbm_regressor(self.config)
 
         if cfg.model_type == "linear":
             from econml.dml import LinearDML

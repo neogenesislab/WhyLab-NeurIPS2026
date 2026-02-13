@@ -61,16 +61,35 @@ def estimation_node(state: AgentState) -> Dict[str, Any]:
     }
 
 def refutation_node(state: AgentState) -> Dict[str, Any]:
-    """Refutation Agent: 추정된 효과를 공격(반증)합니다."""
+    """Refutation Agent: 추정된 효과를 실제 반증합니다.
+
+    RefutationCell을 호출하여 진짜 Placebo Test, Bootstrap CI,
+    Leave-One-Out Confounder, Subset Validation을 수행합니다.
+    """
     print(f"   [Refutation] Testing robustness of effect: {state['causal_effect']}")
-    
-    # Mock Logic: 항상 성공 (나중에 실패 케이스 추가 가능)
-    is_robust = True
-    
+
+    from engine.config import WhyLabConfig
+    from engine.cells.data_cell import DataCell
+    from engine.cells.causal_cell import CausalCell
+    from engine.cells.refutation_cell import RefutationCell
+
+    config = WhyLabConfig()
+    data_out = DataCell(config).execute({"scenario": state["scenario"]})
+    causal_out = CausalCell(config).execute(data_out)
+    refutation_out = RefutationCell(config).execute(causal_out)
+
+    refutation_results = refutation_out.get("refutation_results", {})
+    overall = refutation_results.get("overall", {})
+    is_robust = overall.get("status", "Fail") == "Pass"
+
     return {
         "refutation_result": is_robust,
-        "history": ["Refutation Completed"]
+        "history": [
+            f"Refutation {'Passed' if is_robust else 'Failed'}: "
+            f"{overall.get('pass_count', 0)}/{overall.get('total', 0)} tests"
+        ],
     }
+
 
 # ─────────────────────────────────────────────────────────────
 # Conditional Edges (항상성 유지)

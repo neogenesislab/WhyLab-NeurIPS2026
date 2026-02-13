@@ -98,6 +98,9 @@ class DMLConfig:
     lgbm_num_leaves: int = 31
     lgbm_verbose: int = -1               # 로그 억제
 
+    # GPU 가속 설정 (NVIDIA RTX 4070 SUPER 12GB)
+    use_gpu: bool = True                 # LightGBM GPU 모드 활성화
+    gpu_device_id: int = 0               # GPU 디바이스 ID
 
 # ──────────────────────────────────────────────
 # PyTorch Nuisance 모델 설정
@@ -134,6 +137,10 @@ class SensitivityConfig:
     overlap: bool = True                 # Overlap(Positivity) 진단
     gates: bool = True                   # GATES/CLAN 이질성 심화 분석
     n_gates_groups: int = 4              # GATES 그룹 수 (사분위)
+
+    # Refutation (진짜 반증) 설정
+    n_refutation_iter: int = 20          # Placebo Test 반복 횟수
+    n_bootstrap: int = 100               # Bootstrap CI 반복 횟수
 
 
 # ──────────────────────────────────────────────
