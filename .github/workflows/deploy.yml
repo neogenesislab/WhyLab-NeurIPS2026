@@ -22,10 +22,11 @@ jobs:
       # 1. Engine Execution (Python)
       # ──────────────────────────────────────────────
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: 'pip'
+          cache-dependency-path: engine/requirements.txt
 
       - name: Install Engine Dependencies
         run: |
@@ -39,13 +40,14 @@ jobs:
 
       - name: Run Causal Analysis Pipeline
         run: |
-          # PYTHONPATH 설정하여 모듈 인식
           export PYTHONPATH=$PYTHONPATH:$(pwd)
-          # 시나리오 A 분석 실행 -> latest.json 생성
           python -m engine.pipeline --scenario A
+          python -m engine.pipeline --scenario B
 
-      - name: Check JSON Artifact
-        run: ls -l dashboard/public/data/latest.json
+      - name: Check JSON Artifacts
+        run: |
+          ls -l dashboard/public/data/latest.json
+          ls -l dashboard/public/data/scenario_b.json
 
       # ──────────────────────────────────────────────
       # 2. Dashboard Build (Next.js)
