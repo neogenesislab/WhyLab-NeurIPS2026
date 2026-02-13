@@ -6,7 +6,7 @@
 ![Status](https://img.shields.io/badge/status-v0.2_production-brightgreen)
 ![CI](https://github.com/Yesol-Pilot/WhyLab/actions/workflows/ci.yml/badge.svg)
 
-**[🔗 Live Demo](https://yesol-pilot.github.io/WhyLab/dashboard)** · [📄 White Paper](paper/reports/causal_inference_report.md) · [🔬 Living Ledger](paper/visions/living_ledger.md)
+**[🔗 Live Demo](https://yesol-pilot.github.io/WhyLab/dashboard)** · [📄 White Paper](paper/reports/white_paper.md) · [🔬 Living Ledger](paper/visions/living_ledger.md)
 
 > **"Data with Why"**  
 > AI가 상관관계와 인과관계를 분리하고, **액션 가능한 인사이트를 자동으로 생성**하는 의사결정 지원 플랫폼.
