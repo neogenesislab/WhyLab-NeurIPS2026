@@ -10,6 +10,13 @@
 import argparse
 import logging
 import sys
+import warnings
+
+# EconML/sklearn이 반복적으로 발생시키는 수치 경고 억제
+# (Co-variance underdetermined, feature name mismatch 등)
+warnings.filterwarnings("ignore", category=UserWarning, module="econml")
+warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
+
 from engine.orchestrator import Orchestrator
 
 def setup_logging():
