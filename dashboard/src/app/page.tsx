@@ -23,13 +23,13 @@ export default function Home() {
             v0.1.0 Public Preview
           </div>
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white drop-shadow-lg">
-            Beyond Correlation <br />
+            AI가 알려주는 <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-accent-cyan text-glow">
-              Discover Causality
+              진짜 원인, 진짜 의사결정
             </span>
           </h1>
           <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            WhyLab은 핀테크 데이터를 위한 <span className="text-brand-300 font-semibold">Double Machine Learning</span> 기반 인과추론 플랫폼입니다. 상관관계를 넘어, 데이터 뒤에 숨겨진 진짜 원인을 밝혀냅니다.
+            상관관계와 인과관계를 AI가 자동으로 분리합니다. <span className="text-brand-300 font-semibold">AutoML + Double Machine Learning</span>으로 데이터 뒤에 숨겨진 진짜 원인을 밝히고, 액션 가능한 인사이트를 제공합니다.
           </p>
         </motion.div>
 
@@ -48,10 +48,11 @@ export default function Home() {
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
           <Link
-            href="/methodology"
+            href="https://github.com"
+            target="_blank"
             className="px-8 py-4 rounded-xl border border-white/10 hover:bg-white/5 text-slate-300 transition-all backdrop-blur-sm"
           >
-            View Methodology
+            GitHub Repository
           </Link>
         </motion.div>
       </section>
@@ -60,20 +61,20 @@ export default function Home() {
       <section className="z-10 grid grid-cols-1 md:grid-cols-3 gap-6 mt-24 w-full max-w-6xl">
         <FeatureCard
           icon={<BrainCircuit className="w-8 h-8 text-brand-400" />}
-          title="DML Engine"
-          desc="EconML 기반의 Double Machine Learning으로 교란 변수를 제거하고 순수 처치 효과를 추정합니다."
+          title="AI AutoML 인과추론"
+          desc="LinearDML, CausalForest, DRLearner 중 AI가 최적 모델을 자동 선택합니다. 결과는 자연어로 해석됩니다."
           delay={0.6}
         />
         <FeatureCard
           icon={<GitFork className="w-8 h-8 text-accent-cyan" />}
-          title="Causal Graph"
-          desc="변수 간의 인과 관계를 DAG(Directed Acyclic Graph)로 시각화하여 구조를 파악합니다."
+          title="인과 그래프(DAG)"
+          desc="변수 간의 인과 관계를 시각화하고, 교란 변수와 처치/결과 변수를 직관적으로 파악합니다."
           delay={0.7}
         />
         <FeatureCard
           icon={<BarChart3 className="w-8 h-8 text-accent-pink" />}
-          title="What-If Simulator"
-          desc="처치 변수를 조절했을 때 결과가 어떻게 변할지 반사실적(Counterfactual) 시나리오를 시뮬레이션합니다."
+          title="What-If 의사결정"
+          desc="'신용 한도를 올리면 연체율이 줄어들까?' 같은 반사실적 시나리오를 시뮬레이션하여 데이터 기반 의사결정을 지원합니다."
           delay={0.8}
         />
       </section>
