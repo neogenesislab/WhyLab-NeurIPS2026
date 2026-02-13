@@ -11,6 +11,7 @@ import StatsCards from "@/components/StatsCards";
 import CausalCharts from "@/components/CausalCharts";
 import SensitivityReport from "@/components/SensitivityReport";
 import ModelComparison from "@/components/ModelComparison";
+import ExplainabilityPanel from "@/components/ExplainabilityPanel";
 
 function DashboardContent() {
     const searchParams = useSearchParams();
@@ -87,6 +88,9 @@ function DashboardContent() {
             <div className="h-[350px]">
                 <CausalCharts data={data} />
             </div>
+
+            {/* Explainability (SHAP) */}
+            <ExplainabilityPanel data={data} />
 
             {/* Deep Analysis */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

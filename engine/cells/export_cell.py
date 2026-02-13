@@ -132,6 +132,33 @@ class ExportCell(BaseCell):
         }
 
         # ──────────────────────────────────────────
+        # 4-1. Explainability (SHAP + Counterfactual)
+        # ──────────────────────────────────────────
+        feature_importance = inputs.get("feature_importance", {})
+        counterfactuals = inputs.get("counterfactuals", [])
+
+        if feature_importance:
+            sorted_fi = sorted(
+                feature_importance.items(), key=lambda x: -x[1]
+            )
+            json_data["explainability"] = {
+                "feature_importance": [
+                    {"feature": k, "importance": float(v)}
+                    for k, v in sorted_fi
+                ],
+                "counterfactuals": [
+                    {
+                        "user_id": cf.get("user_id", 0),
+                        "original_cate": float(cf.get("original_cate", 0)),
+                        "counterfactual_cate": float(cf.get("counterfactual_cate", 0)),
+                        "diff": float(cf.get("diff", 0)),
+                        "description": cf.get("description", ""),
+                    }
+                    for cf in counterfactuals
+                ],
+            }
+
+        # ──────────────────────────────────────────
         # 5. 산점도용 샘플 데이터 (대시보드 성능 최적화)
         # ──────────────────────────────────────────
         max_pts = self.config.viz.max_scatter_points

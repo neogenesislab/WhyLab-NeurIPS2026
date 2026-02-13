@@ -35,6 +35,16 @@ export interface CausalAnalysisResult {
         placebo_test: { status: string; p_value: number; mean_effect: number };
         random_common_cause: { status: string; stability: number; mean_effect: number };
     };
+    explainability?: {
+        feature_importance: { feature: string; importance: number }[];
+        counterfactuals: {
+            user_id: number;
+            original_cate: number;
+            counterfactual_cate: number;
+            diff: number;
+            description: string;
+        }[];
+    };
 }
 
 export interface SegmentAnalysis {

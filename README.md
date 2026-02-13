@@ -27,6 +27,10 @@
 
 > 대시보드에서 ATE/CATE 분석 결과, 인과 그래프(DAG), 민감도 검증, What-If 시뮬레이션을 한눈에 확인할 수 있습니다.
 
+![WhyLab Dashboard — SHAP Explainability & Robustness](docs/screenshots/dashboard_shap.png)
+
+> SHAP Feature Importance (income > credit_score > age 순), 반사실 시뮬레이션, Robustness Check(94.7% Stability), AutoML Competition.
+
 ## Architecture
 
 ```mermaid
