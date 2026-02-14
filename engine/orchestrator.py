@@ -30,6 +30,9 @@ from engine.cells.refutation_cell import RefutationCell
 from engine.cells.meta_learner_cell import MetaLearnerCell
 from engine.cells.conformal_cell import ConformalCell
 from engine.cells.debate_cell import DebateCell
+from engine.cells.quasi_experimental_cell import QuasiExperimentalCell
+from engine.cells.temporal_causal_cell import TemporalCausalCell
+from engine.cells.counterfactual_cell import CounterfactualCell
 
 class Orchestrator:
     """WhyLab 엔진 오케스트레이터."""
@@ -41,19 +44,22 @@ class Orchestrator:
         # 디렉토리 초기화
         self.config.paths.ensure_dirs()
 
-        # 셀 초기화 (의존성 주입) — 13셀 파이프라인
+        # 셀 초기화 (의존성 주입) — 16셀 파이프라인
         self.cells = {
             "data": DataCell(self.config),
-            "discovery": DiscoveryCell(self.config),          # 인과 구조 자동 발견
-            "auto_causal": AutoCausalCell(self.config),       # 방법론 자동 추천
+            "discovery": DiscoveryCell(self.config),            # 인과 구조 자동 발견
+            "auto_causal": AutoCausalCell(self.config),         # 방법론 자동 추천
             "causal": CausalCell(self.config),
-            "meta_learner": MetaLearnerCell(self.config),     # 5종 메타러너
-            "conformal": ConformalCell(self.config),           # 분포무가정 CI
+            "meta_learner": MetaLearnerCell(self.config),       # 5종 메타러너
+            "conformal": ConformalCell(self.config),             # 분포무가정 CI
             "explain": ExplainCell(self.config),
-            "refutation": RefutationCell(self.config),         # 진짜 반증
+            "refutation": RefutationCell(self.config),           # 진짜 반증
             "sensitivity": SensitivityCell(self.config),
+            "quasi_experimental": QuasiExperimentalCell(self.config),  # IV/DiD/RDD
+            "temporal_causal": TemporalCausalCell(self.config),       # 시계열 인과
+            "counterfactual": CounterfactualCell(self.config),        # 구조적 반사실
             "viz": VizCell(self.config),
-            "debate": DebateCell(self.config),                 # 3-에이전트 LLM 판결
+            "debate": DebateCell(self.config),                   # 3-에이전트 LLM 판결
             "export": ExportCell(self.config),
             "report": ReportCell(self.config),
         }
@@ -71,14 +77,16 @@ class Orchestrator:
         
         context: Dict[str, Any] = {"scenario_name": f"Scenario {scenario}", "scenario": scenario}
 
-        # 실행 순서 (DAG) — 13셀 파이프라인
+        # 실행 순서 (DAG) — 16셀 파이프라인
         # Data → Discovery → AutoCausal → Causal → MetaLearner → Conformal →
-        # Explain → Refutation → Sensitivity → Viz → Debate → Export → Report
+        # Explain → Refutation → Sensitivity → QE → Temporal → Counterfactual →
+        # Viz → Debate → Export → Report
         pipeline_sequence = [
             "data", "discovery", "auto_causal",
             "causal", "meta_learner", "conformal", "explain",
-            "refutation", "sensitivity", "viz",
-            "debate", "export", "report",
+            "refutation", "sensitivity",
+            "quasi_experimental", "temporal_causal", "counterfactual",
+            "viz", "debate", "export", "report",
         ]
 
         try:
