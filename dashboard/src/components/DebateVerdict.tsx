@@ -11,6 +11,14 @@ interface Evidence {
     source: string;
 }
 
+interface LLMDebateData {
+    llm_active: boolean;
+    model: string;
+    advocate_argument: string;
+    critic_argument: string;
+    judge_verdict: string;
+}
+
 interface DebateData {
     verdict: "CAUSAL" | "NOT_CAUSAL" | "UNCERTAIN" | "UNKNOWN";
     confidence: number;
@@ -20,6 +28,7 @@ interface DebateData {
     recommendation: string;
     pro_evidence: Evidence[];
     con_evidence: Evidence[];
+    llm_debate?: LLMDebateData;
 }
 
 interface DebateVerdictProps {
@@ -76,8 +85,15 @@ export default function DebateVerdict({ data }: DebateVerdictProps) {
                         </p>
                     </div>
                 </div>
-                <div className={`px-3 py-1 rounded-full text-xs font-medium ${style.bg} ${style.color}`}>
-                    AI Multi-Agent Debate
+                <div className="flex items-center gap-2">
+                    {debate.llm_debate?.llm_active && (
+                        <div className="px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
+                            🤖 {debate.llm_debate.model}
+                        </div>
+                    )}
+                    <div className={`px-3 py-1 rounded-full text-xs font-medium ${style.bg} ${style.color}`}>
+                        AI Multi-Agent Debate
+                    </div>
                 </div>
             </div>
 
@@ -129,6 +145,50 @@ export default function DebateVerdict({ data }: DebateVerdictProps) {
                 </div>
             </div>
 
+            {/* LLM 자연어 토론 (Phase 9) */}
+            {debate.llm_debate && (debate.llm_debate.advocate_argument || debate.llm_debate.critic_argument) && (
+                <div className="mt-6 space-y-3">
+                    <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                        <span className="text-base">🎙️</span>
+                        LLM 에이전트 토론
+                        {!debate.llm_debate.llm_active && (
+                            <span className="text-xs text-gray-400">(규칙 기반 Fallback)</span>
+                        )}
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {debate.llm_debate.advocate_argument && (
+                            <LLMArgumentCard
+                                title="Growth Hacker (옹호)"
+                                content={debate.llm_debate.advocate_argument}
+                                variant="pro"
+                            />
+                        )}
+                        {debate.llm_debate.critic_argument && (
+                            <LLMArgumentCard
+                                title="Risk Manager (비판)"
+                                content={debate.llm_debate.critic_argument}
+                                variant="con"
+                            />
+                        )}
+                    </div>
+                    {debate.llm_debate.judge_verdict && (
+                        <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <div className="flex items-start gap-3">
+                                <span className="text-xl">⚖️</span>
+                                <div>
+                                    <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-1">
+                                        Product Owner 최종 판결
+                                    </h4>
+                                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-line">
+                                        {debate.llm_debate.judge_verdict}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
             {/* 추천 사항 */}
             <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
                 <div className="flex items-start gap-3">
@@ -172,6 +232,25 @@ function EmptyCard() {
     return (
         <div className="p-4 rounded-lg border border-dashed border-gray-300 text-center text-gray-400 text-sm">
             해당 없음
+        </div>
+    );
+}
+
+function LLMArgumentCard({ title, content, variant }: { title: string; content: string; variant: 'pro' | 'con' }) {
+    const isPro = variant === 'pro';
+    const bgColor = isPro ? 'bg-green-50/70 dark:bg-green-900/10' : 'bg-red-50/70 dark:bg-red-900/10';
+    const borderColor = isPro ? 'border-green-200 dark:border-green-800' : 'border-red-200 dark:border-red-800';
+    const titleColor = isPro ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300';
+    const icon = isPro ? '📗' : '📕';
+
+    return (
+        <div className={`p-4 rounded-xl border ${bgColor} ${borderColor}`}>
+            <h4 className={`text-sm font-bold ${titleColor} mb-2 flex items-center gap-1.5`}>
+                <span>{icon}</span> {title}
+            </h4>
+            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
+                {content}
+            </p>
         </div>
     );
 }

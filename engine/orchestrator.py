@@ -18,6 +18,8 @@ from typing import Any, Dict
 
 from engine.config import WhyLabConfig
 from engine.cells.data_cell import DataCell
+from engine.cells.discovery_cell import DiscoveryCell
+from engine.cells.auto_causal_cell import AutoCausalCell
 from engine.cells.causal_cell import CausalCell
 from engine.cells.explain_cell import ExplainCell
 from engine.cells.viz_cell import VizCell
@@ -39,19 +41,21 @@ class Orchestrator:
         # 디렉토리 초기화
         self.config.paths.ensure_dirs()
 
-        # 셀 초기화 (의존성 주입)
+        # 셀 초기화 (의존성 주입) — 13셀 파이프라인
         self.cells = {
             "data": DataCell(self.config),
+            "discovery": DiscoveryCell(self.config),          # 인과 구조 자동 발견
+            "auto_causal": AutoCausalCell(self.config),       # 방법론 자동 추천
             "causal": CausalCell(self.config),
-            "meta_learner": MetaLearnerCell(self.config),   # 5종 메타러너
-            "conformal": ConformalCell(self.config),         # 분포무가정 CI
+            "meta_learner": MetaLearnerCell(self.config),     # 5종 메타러너
+            "conformal": ConformalCell(self.config),           # 분포무가정 CI
             "explain": ExplainCell(self.config),
-            "refutation": RefutationCell(self.config),       # 진짜 반증
+            "refutation": RefutationCell(self.config),         # 진짜 반증
             "sensitivity": SensitivityCell(self.config),
             "viz": VizCell(self.config),
+            "debate": DebateCell(self.config),                 # 3-에이전트 LLM 판결
             "export": ExportCell(self.config),
             "report": ReportCell(self.config),
-            "debate": DebateCell(self.config),               # 3-에이전트 판결
         }
 
     def run_pipeline(self, scenario: str = "A") -> Dict[str, Any]:
@@ -67,12 +71,14 @@ class Orchestrator:
         
         context: Dict[str, Any] = {"scenario_name": f"Scenario {scenario}", "scenario": scenario}
 
-        # 실행 순서 (DAG) — 11셀 파이프라인
-        # Data → Causal → MetaLearner → Conformal → Explain → Refutation →
-        # Sensitivity → Viz → Export → Report → Debate
+        # 실행 순서 (DAG) — 13셀 파이프라인
+        # Data → Discovery → AutoCausal → Causal → MetaLearner → Conformal →
+        # Explain → Refutation → Sensitivity → Viz → Debate → Export → Report
         pipeline_sequence = [
-            "data", "causal", "meta_learner", "conformal", "explain",
-            "refutation", "sensitivity", "viz", "export", "debate", "report",
+            "data", "discovery", "auto_causal",
+            "causal", "meta_learner", "conformal", "explain",
+            "refutation", "sensitivity", "viz",
+            "debate", "export", "report",
         ]
 
         try:
