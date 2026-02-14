@@ -154,22 +154,42 @@ python -m engine.main --scenario A   # Credit limit -> Default
 python -m engine.main --scenario B   # Marketing coupon -> Signup
 ```
 
-#### 2. Run with Your Own CSV
+#### 2. Connect Your Data (CSV / SQL / BigQuery)
 ```bash
-python -m engine.main \
-  --data "your_data.csv" \
-  --treatment "treatment_col" \
-  --outcome "outcome_col" \
-  --features "age,income,score"
+# CSV
+python -m engine.cli --data "sales.csv" --treatment coupon --outcome purchase
+
+# PostgreSQL
+python -m engine.cli --data "postgresql://user:pass@host/db" \
+  --db-query "SELECT * FROM users" --treatment coupon --outcome purchase
+
+# BigQuery
+python -m engine.cli --data "my-gcp-project" --source-type bigquery \
+  --db-query "SELECT * FROM dataset.table" --treatment treatment --outcome outcome
 ```
 
-#### 3. Run Benchmarks
+#### 3. Ask Questions (RAG Agent)
+```bash
+python -m engine.cli --query "쿠폰 효과가 있어?" --persona growth_hacker
+python -m engine.cli --query "리스크는 없어?" --persona risk_manager
+```
+
+#### 4. Monitor Causal Drift
+```bash
+# 1회 드리프트 체크
+python -m engine.cli --monitor
+
+# 30분 간격 연속 모니터링 + Slack 알림
+python -m engine.cli --monitor --interval 30 --slack-webhook $SLACK_URL
+```
+
+#### 5. Run Benchmarks
 ```bash
 python -m engine.pipeline --benchmark ihdp acic jobs \
   --replications 10 --output results/ --latex
 ```
 
-#### 4. Launch Dashboard
+#### 6. Launch Dashboard
 ```bash
 cd dashboard && npm run dev
 # Open http://localhost:4000
@@ -184,15 +204,17 @@ whylab/
   engine/
     cells/          # 11 modular analysis cells
     agents/         # AI debate & discovery agents
+    connectors/     # Multi-source data (CSV/SQL/BigQuery)
+    monitoring/     # Causal drift detection & alerting
     data/           # Benchmark data loaders (IHDP/ACIC/Jobs)
-    rag/            # RAG-based Q&A agent
-    server/         # FastAPI backend
+    rag/            # RAG-based Q&A agent (multi-turn, persona)
+    server/         # MCP Protocol server (7 tools, 3 resources)
     config.py       # Central configuration (no magic numbers)
     orchestrator.py # Cell pipeline orchestrator
-    pipeline.py     # CLI entry point
+    cli.py          # CLI entry point (v3)
   dashboard/        # Next.js interactive dashboard
   paper/            # Research vision & figures
-  tests/            # Unit & integration tests
+  tests/            # Unit & integration tests (55+)
   results/          # Benchmark output (JSON + LaTeX)
 ```
 

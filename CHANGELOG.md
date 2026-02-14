@@ -2,6 +2,24 @@
 
 All notable changes to WhyLab are documented in this file.
 
+## [0.2.0] - 2026-02-14
+
+### Added
+- **Multi-Source Data Connectors**: CSV, Parquet, TSV, Excel, SQL (MySQL/PostgreSQL/SQLite), BigQuery
+- **Real-time Causal Monitoring**: DriftDetector (ATE/KL-Div/Sign-flip), Alerter (Console + Slack), Scheduler
+- **RAG Agent v2**: Multi-turn conversations, persona support (Growth Hacker / Risk Manager / Product Owner), auto-analysis trigger
+- **MCP Server v2**: 7 tools + 3 resources for external agent integration
+- **CATE Explorer**: Interactive segment-level treatment effect visualization (Dashboard)
+- **CLI v3**: `--monitor`, `--source-type`, `--db-query`, `--persona` flags
+
+### Changed
+- `DataCell` now auto-detects data source type from URI patterns (SQL/BigQuery/Parquet/etc.)
+- README updated with DB connector, RAG, and monitoring usage examples
+- Project structure expanded: `engine/connectors/`, `engine/monitoring/`
+
+### Tests
+- Added 33 new tests for connectors and monitoring packages (55+ total)
+
 ## [0.1.0] - 2026-02-14
 
 ### Added
