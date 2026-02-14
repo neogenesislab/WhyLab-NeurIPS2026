@@ -2,7 +2,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![Decision Intelligence](https://img.shields.io/badge/Decision-Intelligence-purple)](https://en.wikipedia.org/wiki/Decision_intelligence)
+[![v0.2.0](https://img.shields.io/badge/version-0.2.0-green.svg)](https://pypi.org/project/whylab/)
+[![Pipeline Cells](https://img.shields.io/badge/Pipeline-16_Cells-blueviolet)](#architecture-16-cell-pipeline)
 [![Live Demo](https://img.shields.io/badge/Live_Demo-whylab.vercel.app-00d4aa)](https://whylab.vercel.app/dashboard)
 
 > **"Don't just predict the future. Cause it."**
@@ -21,24 +22,15 @@ It bridges the gap between **Causal Inference** (Science) and **Business Decisio
 ### 🎯 Why WhyLab?
 
 - **For POs**: "Rollout or Not?" — Get actionable verdicts (e.g., "ROI +12%, Risk Low → **Rollout**").
-- **For Data Scientists**: SOTA accuracy (R-Learner error -25% vs benchmark).
+- **For Data Scientists**: SOTA accuracy (T-Learner PEHE 1.164 on IHDP) + IV/DiD/RDD/Granger out-of-the-box.
 - **For Devs**: 3 lines of code to integrate causal AI into your pipeline.
 
 ```python
-import whylab as wl
+import whylab
 
-# 1. Analyze (Science)
-result = wl.analyze(data, treatment='coupon', outcome='purchase')
-
-# 2. Debate (Business Logic)
-verdict = result.debate(
-    growth_hacker="Maximize Revenue",
-    risk_manager="Minimize Churn"
-)
-
-# 3. Decision
-print(verdict.action_item)
-# "🚀 [Approved] Rollout 100%. Expected Profit: +$1.2M"
+result = whylab.analyze(data, treatment='coupon', outcome='purchase')
+print(result.verdict)   # "CAUSAL"
+result.summary()        # ATE, CI, Meta-learners, Sensitivity, Debate verdict
 ```
 
 ## What Makes WhyLab Different?
@@ -49,12 +41,55 @@ print(verdict.action_item)
 | Meta-Learners (S/T/X/DR/R) | - | O | O | **O** |
 | Double Machine Learning | - | O | - | **O** |
 | Refutation Tests | O | - | - | **O** |
+| **IV / DiD / RDD** | - | △ | - | **O** |
+| **Granger / CausalImpact** | - | - | - | **O** |
+| **Structural Counterfactual** | - | - | - | **O** |
 | **AI Agent Auto-Debate** | - | - | - | **O** |
 | **Auto Verdict (CAUSAL/NOT)** | - | - | - | **O** |
+| **Auto Discovery (PC + LLM)** | - | - | - | **O** |
 | **Interactive Dashboard** | - | - | - | **O** |
+| **REST API Server** | - | - | - | **O** |
 
-**WhyLab's killer feature**: While existing tools help you *write code* for causal analysis,
-WhyLab deploys AI agents that *independently discover, debate, and validate* causal relationships.
+---
+
+## Architecture: 16-Cell Pipeline
+
+```
+Data → Discovery → AutoCausal → Causal → MetaLearner → Conformal →
+  Explain → Refutation → Sensitivity →
+    QuasiExperimental → TemporalCausal → Counterfactual →
+      Viz → Debate → Export → Report
+```
+
+| # | Cell | Role |
+|:---:|---|---|
+| 1 | `DataCell` | SCM-based synthetic data + external CSV/SQL/BigQuery |
+| 2 | `DiscoveryCell` | Auto causal graph discovery (PC + LLM hybrid) |
+| 3 | `AutoCausalCell` | Data profiling → methodology auto-recommendation |
+| 4 | `CausalCell` | DML estimation (Linear/Forest/Sparse) |
+| 5 | `MetaLearnerCell` | 5 meta-learners (S/T/X/DR/R) + Oracle ensemble |
+| 6 | `ConformalCell` | Distribution-free confidence intervals |
+| 7 | `ExplainCell` | SHAP-based feature importance & explanations |
+| 8 | `RefutationCell` | Placebo, Bootstrap, Random Cause tests |
+| 9 | `SensitivityCell` | E-value, Overlap, GATES analysis |
+| 10 | `QuasiExperimentalCell` | **IV (2SLS)**, **DiD** (parallel trend), **Sharp RDD** |
+| 11 | `TemporalCausalCell` | **Granger causality**, **CausalImpact**, lag correlation |
+| 12 | `CounterfactualCell` | Structural counterfactuals, Manski bounds, ITE ranking |
+| 13 | `VizCell` | Publication-ready figures |
+| 14 | `DebateCell` | 3-agent LLM debate (Growth Hacker / Risk Manager / PO) |
+| 15 | `ExportCell` | JSON serialization + LLM debate results |
+| 16 | `ReportCell` | Automated analysis reports |
+
+### Multi-Agent Debate System
+
+Three AI agents simulate real organizational decision-making:
+
+1. **Growth Hacker** (10 evidence types): Finds revenue opportunities from causal signals
+2. **Risk Manager** (8 attack vectors): Warns about potential losses and model vulnerabilities
+3. **Product Owner (Judge)**: Synthesizes Growth vs Risk → delivers actionable verdict
+   - `🚀 Rollout 100%` | `⚖️ A/B Test 5%` | `🛑 Reject`
+
+Supports **LLM-enhanced debate** (Gemini API) with automatic rule-based fallback.
 
 ---
 
@@ -72,7 +107,6 @@ Evaluated on 3 standard causal inference benchmarks (10 replications each):
 | X-Learner | 1.324 +/- 0.029 | 0.035 +/- 0.024 |
 | S-Learner | 1.383 +/- 0.033 | 0.064 +/- 0.040 |
 | LinearDML | 1.465 +/- 0.024 | 0.066 +/- 0.061 |
-| R-Learner | 1.635 +/- 0.046 | 0.135 +/- 0.107 |
 
 > **Ref**: BART ~1.0 (Hill 2011), GANITE ~1.9 (Yoon 2018), CEVAE ~2.7 (Louizos 2017)
 
@@ -86,7 +120,6 @@ Evaluated on 3 standard causal inference benchmarks (10 replications each):
 | LinearDML | 0.614 +/- 0.010 | 0.071 +/- 0.025 |
 | DR-Learner | 0.799 +/- 0.017 | 0.040 +/- 0.018 |
 | T-Learner | 0.835 +/- 0.013 | 0.041 +/- 0.018 |
-| R-Learner | 1.206 +/- 0.035 | 0.111 +/- 0.060 |
 
 ### Jobs (LaLonde 1986, n=722, p=8)
 
@@ -98,39 +131,6 @@ Evaluated on 3 standard causal inference benchmarks (10 replications each):
 | Ensemble | 381.8 +/- 18.4 | 39.8 +/- 33.8 |
 | T-Learner | 482.7 +/- 23.2 | **35.2 +/- 21.7** |
 | DR-Learner | 535.0 +/- 29.3 | 34.9 +/- 25.2 |
-| R-Learner | 703.4 +/- 36.6 | 81.7 +/- 73.8 |
-
----
-
-## Architecture: Cellular Agents
-
-Inspired by biological cells, WhyLab's engine consists of modular, autonomous "cells":
-
-```
-Data -> Causal -> MetaLearner -> Conformal -> Explain -> Refutation
-  |                                                         |
-  v                                                         v
-  Sensitivity -> Viz -> Export -> Report -> Debate -> VERDICT
-```
-
-| Cell | Role | Lines |
-|---|---|:---:|
-| `DataCell` | SCM-based synthetic data + external CSV loading | 343 |
-| `CausalCell` | DML estimation (Linear/Forest/Auto) | 420 |
-| `MetaLearnerCell` | 5 meta-learners + Oracle ensemble | 420 |
-| `ConformalCell` | Distribution-free confidence intervals | 330 |
-| `RefutationCell` | Placebo, Bootstrap, Random Cause tests | 400 |
-| `SensitivityCell` | E-value, Overlap, GATES analysis | 400 |
-| `DebateCell` | Multi-agent causal verdict | 562 |
-
-### Multi-Agent Debate System (Decision Intelligence)
-
-Three AI agents simulate real organizational decision-making:
-
-1. **Growth Hacker** (10 evidence types): Finds revenue opportunities from causal signals
-2. **Risk Manager** (8 attack vectors): Warns about potential losses and model vulnerabilities
-3. **Product Owner (Judge)**: Synthesizes Growth vs Risk → delivers actionable verdict
-   - `🚀 Rollout 100%` | `⚖️ A/B Test 5%` | `🛑 Reject`
 
 ---
 
@@ -141,15 +141,14 @@ Three AI agents simulate real organizational decision-making:
 - Node.js 18+ (Dashboard)
 
 ### Installation
+
 ```bash
 # Clone
 git clone https://github.com/Yesol-Pilot/WhyLab.git
-cd whylab
+cd WhyLab
 
-# Python environment
-conda create -n whylab python=3.10
-conda activate whylab
-pip install -r engine/requirements.txt
+# Python
+pip install -e ".[all]"
 
 # Dashboard
 cd dashboard && npm install
@@ -157,13 +156,35 @@ cd dashboard && npm install
 
 ### Usage
 
-#### 1. Run Causal Pipeline (Synthetic Data)
-```bash
-python -m engine.main --scenario A   # Credit limit -> Default
-python -m engine.main --scenario B   # Marketing coupon -> Signup
+#### 1. Python SDK (3 Lines)
+```python
+import whylab
+
+result = whylab.analyze("data.csv", treatment="T", outcome="Y")
+result.summary()
 ```
 
-#### 2. Connect Your Data (CSV / SQL / BigQuery)
+#### 2. CLI — Causal Pipeline
+```bash
+python -m engine.pipeline --scenario A   # Credit limit -> Default
+python -m engine.pipeline --scenario B   # Marketing coupon -> Signup
+```
+
+#### 3. REST API Server
+```bash
+# Start
+uvicorn whylab.server:app --reload --port 8000
+
+# Analyze
+curl -X POST http://localhost:8000/api/v1/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"treatment": "T", "outcome": "Y", "data_path": "data.csv"}'
+
+# Available methods
+curl http://localhost:8000/api/v1/methods
+```
+
+#### 4. Connect Your Data (CSV / SQL / BigQuery)
 ```bash
 # CSV
 python -m engine.cli --data "sales.csv" --treatment coupon --outcome purchase
@@ -177,31 +198,29 @@ python -m engine.cli --data "my-gcp-project" --source-type bigquery \
   --db-query "SELECT * FROM dataset.table" --treatment treatment --outcome outcome
 ```
 
-#### 3. Ask Questions (RAG Agent)
+#### 5. Ask Questions (RAG Agent)
 ```bash
 python -m engine.cli --query "쿠폰 효과가 있어?" --persona growth_hacker
 python -m engine.cli --query "리스크는 없어?" --persona risk_manager
 ```
 
-#### 4. Monitor Causal Drift
-```bash
-# 1회 드리프트 체크
-python -m engine.cli --monitor
-
-# 30분 간격 연속 모니터링 + Slack 알림
-python -m engine.cli --monitor --interval 30 --slack-webhook $SLACK_URL
-```
-
-#### 5. Run Benchmarks
+#### 6. Run Benchmarks
 ```bash
 python -m engine.pipeline --benchmark ihdp acic jobs \
   --replications 10 --output results/ --latex
 ```
 
-#### 6. Launch Dashboard
+#### 7. Launch Dashboard
 ```bash
 cd dashboard && npm run dev
 # Open http://localhost:4000
+```
+
+#### 8. Docker (GPU)
+```bash
+docker compose up whylab       # Default pipeline
+docker compose up benchmark    # Benchmark mode
+docker compose up pipeline     # Full pipeline + Debate
 ```
 
 ---
@@ -209,23 +228,42 @@ cd dashboard && npm run dev
 ## Project Structure
 
 ```
-whylab/
+WhyLab/
   engine/
-    cells/          # 11 modular analysis cells
-    agents/         # AI debate & discovery agents
-    connectors/     # Multi-source data (CSV/SQL/BigQuery)
-    monitoring/     # Causal drift detection & alerting
-    data/           # Benchmark data loaders (IHDP/ACIC/Jobs)
-    rag/            # RAG-based Q&A agent (multi-turn, persona)
-    server/         # MCP Protocol server (7 tools, 3 resources)
-    config.py       # Central configuration (no magic numbers)
-    orchestrator.py # Cell pipeline orchestrator
-    cli.py          # CLI entry point (v3)
-  dashboard/        # Next.js interactive dashboard
-  paper/            # Research vision & figures
-  tests/            # Unit & integration tests (55+)
-  results/          # Benchmark output (JSON + LaTeX)
+    cells/            # 16 modular analysis cells
+    agents/           # AI debate & discovery agents (LLM hybrid)
+    connectors/       # Multi-source data (CSV/SQL/BigQuery)
+    monitoring/       # Causal drift detection & alerting
+    data/             # Benchmark data loaders (IHDP/ACIC/Jobs)
+    rag/              # RAG-based Q&A agent (multi-turn, persona)
+    server/           # MCP Protocol server (7 tools, 3 resources)
+    audit.py          # Governance: analysis audit trail (JSONL)
+    config.py         # Central configuration (no magic numbers)
+    orchestrator.py   # 16-cell pipeline orchestrator
+    cli.py            # CLI entry point
+  whylab/
+    api.py            # 3-line SDK (analyze → CausalResult)
+    server.py         # FastAPI REST API server
+  dashboard/          # Next.js interactive dashboard
+  tests/              # Unit & integration tests (58+)
+  results/            # Benchmark output (JSON + LaTeX)
+  .github/workflows/  # CI + Deploy + PyPI Release (OIDC)
 ```
+
+## Tests
+
+```bash
+# All tests
+python -m pytest tests/ -v
+
+# Phase-specific
+python -m pytest tests/test_phase10.py -v   # IV/DiD/RDD + Temporal + Counterfactual
+python -m pytest tests/test_phase11.py -v   # Server + Audit + Version
+```
+
+> **58+ tests** | Phase 10: 14 passed | Phase 11: 4 passed, 3 skipped (FastAPI optional)
+
+---
 
 ## Citation
 
