@@ -267,9 +267,188 @@ class JobsLoader:
         )
 
 
+class TWINSLoader:
+    """TWINS 벤치마크 생성기 (Louizos et al. 2017).
+
+    미국 쌍둥이 출생 데이터 기반:
+      - 동일 유전·환경 → 교란 최소화
+      - 처치: 태아 체중 기준 이진 분류
+      - 결과: 영아 사망률
+      - 고차원 교란 (부모 정보, 산전 관리 등)
+    """
+
+    NAME = "TWINS"
+    N_FEATURES = 30
+
+    def load(
+        self,
+        n: int = 4000,
+        seed: int = 42,
+    ) -> BenchmarkData:
+        """TWINS 유사 데이터를 생성합니다."""
+        rng = np.random.RandomState(seed)
+        p = self.N_FEATURES
+
+        # 공변량: 부모 특성 시뮬레이션
+        X = rng.randn(n, p)
+        # 일부 변수를 범주형으로 변환 (이진)
+        for col in range(0, p, 5):
+            X[:, col] = (X[:, col] > 0).astype(float)
+
+        # 처치 할당: 교란 영향 있는 선택 편향
+        propensity = 1 / (1 + np.exp(-(0.3 * X[:, 0] + 0.5 * X[:, 1] - 0.2 * X[:, 2])))
+        T = rng.binomial(1, propensity)
+
+        # 반사실 결과: 비선형 + 이질적 효과
+        baseline = 0.5 * X[:, 0] + 0.3 * X[:, 1] ** 2 - 0.4 * X[:, 3] + rng.randn(n) * 0.3
+        tau_true = (0.8 + 0.6 * X[:, 1] - 0.4 * X[:, 4] +
+                    0.3 * X[:, 0] * X[:, 2]).astype(float)
+
+        y0 = baseline
+        y1 = baseline + tau_true
+        Y = T * y1 + (1 - T) * y0
+
+        feature_names = [f"twin_x{i}" for i in range(p)]
+
+        logger.info("TWINS 로드: n=%d, ATE_true=%.3f", n, np.mean(tau_true))
+
+        return BenchmarkData(
+            X=X, T=T, Y=Y, tau_true=tau_true,
+            y0=y0, y1=y1, feature_names=feature_names, name="TWINS",
+        )
+
+
+class CriteoUpliftLoader:
+    """Criteo Uplift 유사 벤치마크 생성기.
+
+    대규모 광고 업리프트 데이터:
+      - 고차원 특성 (p=12 핵심 + 잡음)
+      - 매우 작은 처치 효과 (현실적)
+      - 대규모 표본 (기본 50K)
+      - 강한 음의 기저율
+    """
+
+    NAME = "Criteo"
+    N_FEATURES = 12
+
+    def load(
+        self,
+        n: int = 50000,
+        seed: int = 42,
+    ) -> BenchmarkData:
+        """Criteo 유사 데이터를 생성합니다."""
+        rng = np.random.RandomState(seed)
+        p = self.N_FEATURES
+
+        X = rng.randn(n, p)
+        # 범주형 변수 (광고 카테고리)
+        X[:, 0] = rng.choice([0, 1, 2], n)
+        X[:, 1] = rng.choice([0, 1], n)
+
+        # 약한 propensity (RCT에 가까움)
+        propensity = np.full(n, 0.5)
+        T = rng.binomial(1, propensity)
+
+        # 매우 작은 이질적 효과 (현실 광고)
+        tau_true = (0.02 + 0.01 * X[:, 2] - 0.005 * X[:, 3] +
+                    0.008 * (X[:, 0] == 1).astype(float)).astype(float)
+
+        # 기저 전환율 약 3%
+        baseline = -3.5 + 0.1 * X[:, 2] + 0.05 * X[:, 4] + rng.randn(n) * 0.5
+        y0 = (baseline > 0).astype(float)
+        y1 = ((baseline + tau_true) > 0).astype(float)
+        Y = T * y1 + (1 - T) * y0
+
+        # 실제 tau_true를 확률 차이로 재계산
+        tau_true = y1 - y0
+
+        feature_names = [f"criteo_f{i}" for i in range(p)]
+
+        logger.info("Criteo 로드: n=%d, ATE_true=%.4f", n, np.mean(tau_true))
+
+        return BenchmarkData(
+            X=X, T=T, Y=Y, tau_true=tau_true,
+            y0=y0, y1=y1, feature_names=feature_names, name="Criteo",
+        )
+
+
+class LaLondeRealLoader:
+    """LaLonde 실데이터 유사 벤치마크 (NSW + PSID).
+
+    원본 LaLonde (1986) 실험:
+      - NSW (National Supported Work) 직업 훈련 프로그램
+      - 처치: 프로그램 참여 여부
+      - 결과: 소득 (re78)
+      - PSID 비실험 대조군과 비교 → 관찰 연구 문제
+    """
+
+    NAME = "LaLonde-Real"
+    N_FEATURES = 10
+
+    def load(
+        self,
+        n: int = 2000,
+        seed: int = 42,
+    ) -> BenchmarkData:
+        """LaLonde 실데이터 유사 생성."""
+        rng = np.random.RandomState(seed)
+        p = self.N_FEATURES
+
+        # 인구통계 변수 시뮬레이션
+        age = rng.normal(25, 7, n).clip(18, 55)
+        education = rng.normal(10, 2, n).clip(0, 20)
+        black = rng.binomial(1, 0.4, n).astype(float)
+        hispanic = rng.binomial(1, 0.1, n).astype(float)
+        married = rng.binomial(1, 0.2, n).astype(float)
+        nodegree = (education < 12).astype(float)
+        re74 = rng.exponential(3000, n).clip(0, 50000)
+        re75 = rng.exponential(3500, n).clip(0, 50000)
+
+        X = np.column_stack([
+            age, education, black, hispanic, married,
+            nodegree, re74, re75,
+            rng.randn(n), rng.randn(n),  # 잡음 변수
+        ])
+
+        # 강한 선택 편향: 소득 낮은 사람이 프로그램 참여 경향
+        logit = -0.5 + 0.02 * age - 0.05 * education + 0.3 * black - 0.0001 * re75
+        propensity = 1 / (1 + np.exp(-logit))
+        # 처치군 소수 (약 30%)
+        propensity = propensity * 0.5
+        T = rng.binomial(1, propensity.clip(0.05, 0.95))
+
+        # 소득 결과
+        baseline = (1500 + 200 * education + 50 * age - 500 * nodegree +
+                    0.3 * re75 + rng.randn(n) * 2000)
+        tau_true = (1500 + 100 * education - 30 * age +
+                    500 * nodegree).astype(float)
+
+        y0 = baseline.clip(0)
+        y1 = (baseline + tau_true).clip(0)
+        Y = T * y1 + (1 - T) * y0
+
+        feature_names = [
+            "age", "education", "black", "hispanic", "married",
+            "nodegree", "re74", "re75", "noise1", "noise2",
+        ]
+
+        logger.info(
+            "LaLonde-Real 로드: n=%d, ATE_true=%.1f",
+            n, np.mean(tau_true),
+        )
+
+        return BenchmarkData(
+            X=X, T=T, Y=Y, tau_true=tau_true,
+            y0=y0, y1=y1, feature_names=feature_names, name="LaLonde-Real",
+        )
+
+
 # 레지스트리
 BENCHMARK_REGISTRY = {
     "ihdp": IHDPLoader,
     "acic": ACICLoader,
     "jobs": JobsLoader,
+    "twins": TWINSLoader,
+    "criteo": CriteoUpliftLoader,
+    "lalonde": LaLondeRealLoader,
 }
