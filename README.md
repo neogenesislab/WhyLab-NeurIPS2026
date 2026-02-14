@@ -3,8 +3,17 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Decision Intelligence](https://img.shields.io/badge/Decision-Intelligence-purple)](https://en.wikipedia.org/wiki/Decision_intelligence)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-whylab.vercel.app-00d4aa)](https://whylab.vercel.app/dashboard)
 
 > **"Don't just predict the future. Cause it."**
+
+<p align="center">
+  <a href="https://whylab.vercel.app/dashboard">
+    <img src="docs/dashboard_hero.png" alt="WhyLab Dashboard" width="800" />
+  </a>
+  <br />
+  <em>▲ 인터랙티브 대시보드 — ROI 시뮬레이터, AI 토론, CATE 탐색기, 인과 그래프</em>
+</p>
 
 WhyLab is the world's first **Decision Intelligence Engine** powered by **Multi-Agent Debate**.
 It bridges the gap between **Causal Inference** (Science) and **Business Decision** (Art).
