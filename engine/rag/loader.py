@@ -132,3 +132,70 @@ class KnowledgeLoader:
         except Exception as e:
             self.logger.error(f"JSON 로드 실패: {e}")
             return [], []
+
+    def load_tabular_data(self, file_path: str) -> Tuple[List[str], List[Dict]]:
+        """CSV 또는 Parquet 파일을 통계 요약으로 변환합니다.
+
+        데이터의 첫 5행 프리뷰와 각 컬럼의 기본 통계를 
+        자연어 청크로 변환하여 RAG 검색이 가능하게 합니다.
+
+        Returns:
+            (documents, metadatas) 튜플.
+        """
+        import pandas as pd
+
+        path = Path(file_path)
+        if not path.exists():
+            self.logger.warning(f"파일을 찾을 수 없음: {file_path}")
+            return [], []
+
+        try:
+            if path.suffix == ".parquet":
+                df = pd.read_parquet(path)
+            else:
+                df = pd.read_csv(path)
+
+            docs = []
+            metas = []
+
+            # 1. 데이터 개요
+            overview = (
+                f"데이터셋 '{path.name}'은 "
+                f"{len(df)}행 x {len(df.columns)}열 구조입니다. "
+                f"컬럼: {', '.join(df.columns[:20])}."
+            )
+            docs.append(overview)
+            metas.append({"source": path.name, "key": "overview", "type": "data"})
+
+            # 2. 수치형 컬럼 통계
+            numeric_cols = df.select_dtypes(include="number").columns
+            for col in numeric_cols[:10]:  # 최대 10개
+                stats = df[col].describe()
+                doc = (
+                    f"컬럼 '{col}': "
+                    f"평균={stats['mean']:.4f}, 중앙값={stats['50%']:.4f}, "
+                    f"표준편차={stats['std']:.4f}, "
+                    f"최소={stats['min']:.4f}, 최대={stats['max']:.4f}."
+                )
+                docs.append(doc)
+                metas.append({"source": path.name, "key": f"stats_{col}", "type": "data"})
+
+            # 3. 범주형 컬럼 요약
+            cat_cols = df.select_dtypes(include=["object", "category"]).columns
+            for col in cat_cols[:5]:
+                counts = df[col].value_counts().head(5)
+                doc = (
+                    f"컬럼 '{col}' (범주형): "
+                    f"고유값 {df[col].nunique()}개. "
+                    f"상위 5개: {dict(counts)}."
+                )
+                docs.append(doc)
+                metas.append({"source": path.name, "key": f"cat_{col}", "type": "data"})
+
+            self.logger.info(f"Tabular 로드 완료: {len(docs)} 청크")
+            return docs, metas
+
+        except Exception as e:
+            self.logger.error(f"Tabular 로드 실패: {e}")
+            return [], []
+
