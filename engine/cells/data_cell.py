@@ -114,7 +114,66 @@ class DataCell(BaseCell):
         return meta
 
     def _load_external_data(self) -> Tuple[pd.DataFrame, Dict]:
-        """설정된 경로에서 외부 CSV 데이터를 로드합니다."""
+        """설정된 경로/URI에서 외부 데이터를 로드합니다.
+        
+        커넥터 팩토리를 통해 CSV/Parquet/SQL/BigQuery 등 다양한 소스를 지원합니다.
+        """
+        cfg = self.config.data
+        input_path = cfg.input_path
+        
+        # URI 패턴으로 소스 타입 자동 감지
+        source_type = self._detect_source_type(input_path)
+        
+        try:
+            from engine.connectors import create_connector, ConnectorConfig
+            
+            connector_config = ConnectorConfig(
+                source_type=source_type,
+                uri=input_path,
+                query=getattr(cfg, 'query', None),
+                table=getattr(cfg, 'table', None),
+                treatment_col=cfg.treatment_col,
+                outcome_col=cfg.outcome_col,
+                feature_cols=cfg.feature_cols or [],
+            )
+            
+            connector = create_connector(connector_config)
+            with connector:
+                result = connector.fetch_with_meta()
+            
+            df = result.pop("dataframe")
+            self.logger.info(
+                "%s 커넥터 로드 성공: %d rows", source_type.upper(), len(df)
+            )
+            return df, result
+            
+        except ImportError:
+            # 커넥터 모듈 없으면 기존 로직 폴백
+            self.logger.warning("커넥터 모듈 로드 실패. 기본 CSV 로더로 폴백.")
+            return self._load_csv_fallback()
+    
+    @staticmethod
+    def _detect_source_type(path: str) -> str:
+        """경로/URI로부터 데이터 소스 타입을 자동 감지합니다."""
+        path_lower = path.lower()
+        if path_lower.startswith(("postgresql://", "postgres://")):
+            return "postgresql"
+        elif path_lower.startswith("mysql"):
+            return "mysql"
+        elif path_lower.startswith("sqlite"):
+            return "sqlite"
+        elif path_lower.endswith(".parquet"):
+            return "parquet"
+        elif path_lower.endswith((".xlsx", ".xls")):
+            return "excel"
+        elif path_lower.endswith(".tsv"):
+            return "tsv"
+        elif "bigquery" in path_lower or path_lower.startswith("bq://"):
+            return "bigquery"
+        return "csv"
+    
+    def _load_csv_fallback(self) -> Tuple[pd.DataFrame, Dict]:
+        """커넥터 없이 기존 CSV 로드 로직 (폴백)."""
         cfg = self.config.data
         try:
             df = pd.read_csv(cfg.input_path)
@@ -123,30 +182,27 @@ class DataCell(BaseCell):
         
         self.logger.info("CSV 로드 성공: %d rows", len(df))
         
-        # 필수 컬럼 확인
         if cfg.treatment_col not in df.columns:
             raise ValueError(f"처치 변수 '{cfg.treatment_col}'이(가) 데이터에 없습니다.")
         if cfg.outcome_col not in df.columns:
             raise ValueError(f"결과 변수 '{cfg.outcome_col}'이(가) 데이터에 없습니다.")
-            
-        # 피처 컬럼 추론
+        
         features = cfg.feature_cols
         if not features:
             exclude = {cfg.treatment_col, cfg.outcome_col, "user_id", "id", "index", "Unnamed: 0"}
             features = [
-                c for c in df.columns 
+                c for c in df.columns
                 if c not in exclude and pd.api.types.is_numeric_dtype(df[c])
             ]
             self.logger.info("피처 자동 추론: %s", features)
-            
+        
         return df, {
             "treatment_col": cfg.treatment_col,
             "outcome_col": cfg.outcome_col,
             "feature_names": features,
-            "dag_edges": [], # 외부 데이터는 DAG 정보 없음
-            "true_cate_col": None # 외부 데이터는 Ground Truth CATE 없음 (일반적으로)
+            "dag_edges": [],
+            "true_cate_col": None,
         }
-
     def _generate_base_features(self) -> pd.DataFrame:
         cfg = self.config.data
         rng = np.random.default_rng(cfg.random_seed)

@@ -38,11 +38,13 @@ gpu = ["lightgbm[gpu]"]
 dashboard = ["fastapi", "uvicorn", "websockets"]
 rag = ["chromadb>=0.4", "sentence-transformers>=2.2", "google-generativeai>=0.3"]
 mcp = ["mcp>=1.0"]
+sql = ["sqlalchemy>=2.0", "pymysql>=1.1", "psycopg2-binary>=2.9"]
+bigquery = ["google-cloud-bigquery>=3.0", "pandas-gbq>=0.19"]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
 ]
-all = ["whylab[gpu,dashboard,rag,mcp,dev]"]
+all = ["whylab[gpu,dashboard,rag,mcp,sql,bigquery,dev]"]
 
 [project.scripts]
 whylab = "engine.pipeline:main"
