@@ -61,32 +61,34 @@ RefutationCell → SensitivityCell → VizCell → ExportCell → DebateCell
 |---|---|
 | `DebateCell` | 3-Agent Debate → 자동 인과 판결 |
 
-## Multi-Agent Debate 시스템
+## Multi-Agent Debate 시스템 (Decision Intelligence)
 
 ### 에이전트 구성
 
 ```
-Advocate (옹호)          Critic (비판)
-  10가지 증거 수집          8가지 공격 벡터
-  - 메타러너 합의율          - E-value 취약
-  - Bootstrap 유의성         - Overlap 위반
-  - ATE CI 비포함 0          - CI 과대
-  - E-value 강도             - Placebo 실패
-  - Conformal CI             - LOO 부호 반전
-  - LOO 안정성               - 메타러너 불일치
-  - Subset 안정성            - Subset 불안정
-  - Overlap 양호             - 소표본 경고
+Growth Hacker (성장)        Risk Manager (위험)
+  10가지 증거 수집              8가지 공격 벡터
+  - 메타러너 합의율             - E-value 취약
+  - Bootstrap 유의성            - Overlap 위반
+  - ATE CI 비포함 0             - CI 과대
+  - E-value 강도                - Placebo 실패
+  - Conformal CI                - LOO 부호 반전
+  - LOO 안정성                  - 메타러너 불일치
+  - Subset 안정성               - Subset 불안정
+  - Overlap 양호                - 소표본 경고
   - GATES 이질성
   - SHAP-CATE 정합성
-         ↓                      ↓
-         └────── Judge ──────────┘
-                  ↓
-            가중 스코어링
-         (statistical: 1.0,
-          robustness: 1.2,
-          domain: 0.8)
-                  ↓
-        CAUSAL | NOT_CAUSAL | UNCERTAIN
+         ↓                         ↓
+    비즈니스 기회 해석          비즈니스 리스크 해석
+    "매출 +5% 기회"             "예산 낭비 위험"
+         ↓                         ↓
+         └──── Product Owner ──────┘
+                      ↓
+             비즈니스 액션 아이템 도출
+         🚀 Rollout 100% (확신도 > 90%)
+         📈 단계적 배포 (확신도 70~90%)
+         ⚖️ A/B Test 5% (UNCERTAIN)
+         🛑 기각 (NOT_CAUSAL)
 ```
 
 ### 판결 기준
@@ -94,11 +96,18 @@ Advocate (옹호)          Critic (비판)
 - **NOT_CAUSAL**: 확신도 <= 0.3
 - **UNCERTAIN**: 그 사이 → 추가 라운드 (최대 3회)
 
+### 비즈니스 영향 번역
+| 에이전트 | 역할 | 출력 예시 |
+|---|---|---|
+| Growth Hacker | 인과 신호 → 매출 기회 | "타겟팅 효율화 기회 발견" |
+| Risk Manager | 모델 취약점 → 비용 리스크 | "일반화 시 성과 하락 우려" |
+| Product Owner | 종합 판단 → 실행 가능 액션 | "🚀 전면 배포. 예상 수익 +$1.2M" |
+
 ## Living Ledger 비전과의 매핑
 
 | Living Ledger 개념 | 코드 구현체 | 설명 |
 |---|---|---|
-| 세포막 (Membrane) | `BaseCell` | 표준화된 입출력 인터페이스 |
+| 세포막 (Membrane) | `BaseCell` + MCP Server | 표준화된 입출력 + 외부 에이전트 연동 |
 | 세포핵 (Nucleus) | `DebateCell` + `discovery.py` | LLM + 규칙 기반 하이브리드 두뇌 |
 | 미토콘드리아 | DuckDB in `DataCell` | 제로카피 고속 데이터 처리 |
 | 면역계 | `RefutationCell` + `SensitivityCell` | 자동 반증 + 견고성 검증 |
