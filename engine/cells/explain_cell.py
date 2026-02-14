@@ -108,25 +108,41 @@ class ExplainCell(BaseCell):
         if "batch_simulation" in inputs: # 미래 확장성
             pass
         else:
-            # 데모용: 상위 5명 유저에 대해 소득 -50% 시나리오
-            target_users = df.nlargest(5, "income").copy()
-            original_cate = model.effect(target_users[feature_names])
-            
-            # 반사실 조작: 소득 절반 감소
-            target_users_cf = target_users.copy()
-            target_users_cf["income"] = target_users_cf["income"] * 0.5
-            cf_cate = model.effect(target_users_cf[feature_names])
-            
-            for i in range(len(target_users)):
-                uid = target_users.iloc[i].get("user_id", i)
-                diff = cf_cate[i] - original_cate[i]
-                counterfactuals.append({
-                    "user_id": int(uid),
-                    "original_cate": float(original_cate[i]),
-                    "counterfactual_cate": float(cf_cate[i]),
-                    "diff": float(diff),
-                    "description": "소득 50% 감소 시 CATE 변화"
-                })
+            # 반사실 시뮬레이션 대상 컬럼 선정 (income 우선, 없으면 첫 번째 피처)
+            target_col = "income"
+            if target_col not in df.columns and feature_names:
+                target_col = feature_names[0]
+
+            if target_col in df.columns:
+                # 상위 5명 유저에 대해 값 -50% 시나리오
+                try:
+                    target_users = df.nlargest(5, target_col).copy()
+                    original_cate = model.effect(target_users[feature_names])
+                    
+                    # 반사실 조작: 값 절반 감소
+                    target_users_cf = target_users.copy()
+                    target_users_cf[target_col] = target_users_cf[target_col] * 0.5
+                    cf_cate = model.effect(target_users_cf[feature_names])
+                    
+                    for i in range(len(target_users)):
+                        # user_id 처리 (없으면 인덱스 사용)
+                        uid = target_users.iloc[i].get("user_id", i)
+                        
+                        original_val = float(original_cate[i]) if hasattr(original_cate[i], '__float__') else float(original_cate[i][0])
+                        cf_val = float(cf_cate[i]) if hasattr(cf_cate[i], '__float__') else float(cf_cate[i][0])
+                        
+                        diff = cf_val - original_val
+                        counterfactuals.append({
+                            "user_id": int(uid) if isinstance(uid, (int, np.integer)) else str(uid),
+                            "original_cate": original_val,
+                            "counterfactual_cate": cf_val,
+                            "diff": diff,
+                            "description": f"{target_col} 50% 감소 시 CATE 변화"
+                        })
+                except Exception as e:
+                    self.logger.warning("반사실 시뮬레이션 중 오류 발생 (무시됨): %s", e)
+            else:
+                 self.logger.warning("반사실 시뮬레이션을 위한 적절한 숫자형 컬럼을 찾지 못했습니다.")
         
         self.logger.info("반사실 시뮬레이션 완료 (%d건)", len(counterfactuals))
 

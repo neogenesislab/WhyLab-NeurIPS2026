@@ -32,7 +32,7 @@ export interface CausalAnalysisResult {
     };
     sensitivity: {
         status: string;
-        placebo_test: { status: string; p_value: number; mean_effect: number };
+        placebo_test: { status: string; p_value: number; mean_effect?: number; null_mean?: number };
         random_common_cause: { status: string; stability: number; mean_effect: number };
         e_value?: { status: string; point: number; ci_bound: number; interpretation: string };
         overlap?: {
@@ -100,6 +100,11 @@ export interface CausalAnalysisResult {
         recommendation: string;
         generated_by: string;
     };
+    // Phase 3 Extensions
+    debate?: DebateResult;
+    conformal_results?: ConformalResults;
+    benchmark_results?: BenchmarkResults;
+    scatter_data?: Record<string, number[]>;
 }
 
 export interface SegmentAnalysis {
@@ -120,4 +125,42 @@ export interface DAGNode {
 export interface DAGEdge {
     source: string;
     target: string;
+}
+
+// --- Phase 3 Interfaces ---
+
+export interface DebateResult {
+    verdict: "CAUSAL" | "NOT_CAUSAL" | "UNCERTAIN" | "UNKNOWN";
+    confidence: number;
+    pro_score: number;
+    con_score: number;
+    rounds: number;
+    recommendation: string;
+    pro_evidence: Evidence[];
+    con_evidence: Evidence[];
+}
+
+export interface Evidence {
+    claim: string;
+    type: string;
+    strength: number;
+    source: string;
+}
+
+export interface ConformalResults {
+    ci_lower_mean: number;
+    ci_upper_mean: number;
+    coverage: number;
+    mode?: string;
+}
+
+export interface BenchmarkResults {
+    [dataset: string]: {
+        [method: string]: {
+            pehe_mean: number;
+            pehe_std: number;
+            ate_bias_mean: number;
+            ate_bias_std: number;
+        };
+    };
 }

@@ -20,6 +20,7 @@ export default function Sidebar() {
     const [mobileOpen, setMobileOpen] = useState(false);
 
     // 모바일에서 경로 변경 시 자동 닫기
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => { setMobileOpen(false); }, [pathname]);
 
     return (

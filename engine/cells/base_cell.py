@@ -72,5 +72,6 @@ class BaseCell(ABC):
             return results
         except Exception as e:
             self.state = "ERROR"
-            self.logger.error(f"[ERROR] Execution failed: {str(e)}")
+            import traceback
+            self.logger.error(f"[ERROR] Execution failed: {str(e)}\n{traceback.format_exc()}")
             raise e

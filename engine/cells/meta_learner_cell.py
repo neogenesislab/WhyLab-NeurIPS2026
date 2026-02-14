@@ -43,9 +43,29 @@ class _BaseMetaLearner:
             return create_lgbm_regressor(self._config)
         from lightgbm import LGBMRegressor
         return LGBMRegressor(
-            n_estimators=200, max_depth=5, num_leaves=31,
-            learning_rate=0.05, verbose=-1,
+            n_estimators=300, max_depth=5, num_leaves=31,
+            learning_rate=0.03, verbose=-1,
+            min_child_samples=10, reg_alpha=0.1, reg_lambda=1.0,
+            subsample=0.8, colsample_bytree=0.8,
         )
+
+    def _split_treatment(self, T: np.ndarray):
+        """이진/연속 처치를 자동 감지하여 안전하게 분할합니다.
+
+        Returns:
+            (mask_treated, mask_control, T_binary)
+        """
+        unique_vals = np.unique(T)
+        if len(unique_vals) <= 2:
+            # 이진 처치: 정확한 0/1 분리 (median 버그 방지)
+            threshold = unique_vals.min() + 0.5 * (unique_vals.max() - unique_vals.min())
+        else:
+            # 연속 처치: 중앙값 기준
+            threshold = np.median(T)
+        mask1 = T > threshold
+        mask0 = ~mask1
+        T_binary = mask1.astype(int)
+        return mask1, mask0, T_binary
 
     def fit(self, X: np.ndarray, T: np.ndarray, Y: np.ndarray) -> "_BaseMetaLearner":
         raise NotImplementedError
@@ -87,10 +107,7 @@ class TLearner(_BaseMetaLearner):
     name = "T-Learner"
 
     def fit(self, X, T, Y):
-        # 이진화: 중앙값 기준 분리
-        self.threshold_ = np.median(T)
-        mask1 = T >= self.threshold_
-        mask0 = ~mask1
+        mask1, mask0, _ = self._split_treatment(T)
 
         self.model_1_ = self._factory()
         self.model_0_ = self._factory()
@@ -114,9 +131,7 @@ class XLearner(_BaseMetaLearner):
     name = "X-Learner"
 
     def fit(self, X, T, Y):
-        self.threshold_ = np.median(T)
-        mask1 = T >= self.threshold_
-        mask0 = ~mask1
+        mask1, mask0, T_binary = self._split_treatment(T)
 
         # Step 1: T-Learner
         mu1 = self._factory()
@@ -137,7 +152,6 @@ class XLearner(_BaseMetaLearner):
         # Step 4: Propensity (처치 확률) — 가중치
         from sklearn.linear_model import LogisticRegression
         ps_model = LogisticRegression(max_iter=1000, random_state=42)
-        T_binary = (T >= self.threshold_).astype(int)
         ps_model.fit(X, T_binary)
         self.ps_model_ = ps_model
 
@@ -163,10 +177,7 @@ class DRLearner(_BaseMetaLearner):
     name = "DR-Learner"
 
     def fit(self, X, T, Y):
-        self.threshold_ = np.median(T)
-        T_binary = (T >= self.threshold_).astype(int)
-        mask1 = T_binary == 1
-        mask0 = T_binary == 0
+        mask1, mask0, T_binary = self._split_treatment(T)
 
         # Outcome 모델 (처치별)
         mu1 = self._factory()
@@ -187,7 +198,7 @@ class DRLearner(_BaseMetaLearner):
                  + T_binary * (Y - mu1_pred) / e_hat
                  - (1 - T_binary) * (Y - mu0_pred) / (1 - e_hat))
 
-        # 2단계: Γ̂를 X에 회귀
+        # 2단계: Gamma를 X에 회귀
         self.final_model_ = self._factory()
         self.final_model_.fit(X, gamma)
         return self

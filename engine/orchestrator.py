@@ -32,8 +32,8 @@ from engine.cells.debate_cell import DebateCell
 class Orchestrator:
     """WhyLab 엔진 오케스트레이터."""
 
-    def __init__(self) -> None:
-        self.config = WhyLabConfig()
+    def __init__(self, config: WhyLabConfig = None) -> None:
+        self.config = config if config else WhyLabConfig()
         self.logger = logging.getLogger("whylab.orchestrator")
         
         # 디렉토리 초기화
@@ -72,7 +72,7 @@ class Orchestrator:
         # Sensitivity → Viz → Export → Report → Debate
         pipeline_sequence = [
             "data", "causal", "meta_learner", "conformal", "explain",
-            "refutation", "sensitivity", "viz", "export", "report", "debate",
+            "refutation", "sensitivity", "viz", "export", "debate", "report",
         ]
 
         try:

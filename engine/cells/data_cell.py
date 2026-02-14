@@ -66,27 +66,44 @@ class DataCell(BaseCell):
             생성된 데이터셋 및 메타데이터.
         """
         scenario = inputs.get("scenario", "A")
-        self.logger.info("시나리오 %s 데이터 생성 시작", scenario)
-
-        # 1. 기본 외생 변수 생성
-        df_base = self._generate_base_features()
-
-        # 2. 시나리오별 처리
-        if scenario == "A":
-            df_final, meta = self._generate_scenario_A(df_base)
-        elif scenario == "B":
-            df_final, meta = self._generate_scenario_B(df_base)
+        
+        # 0. 외부 데이터 로드 (CLI 인자 우선)
+        if self.config.data.input_path:
+            self.logger.info("📂 외부 데이터 로드: %s", self.config.data.input_path)
+            df_final, meta = self._load_external_data()
+            # 외부 데이터는 시나리오 이름 오버라이드
+            scenario = "External Data"
         else:
-            raise ValueError(f"지원하지 않는 시나리오: {scenario}")
+            self.logger.info("시나리오 %s 데이터 생성 시작", scenario)
+
+            # 1. 기본 외생 변수 생성
+            df_base = self._generate_base_features()
+    
+            # 2. 시나리오별 처리
+            if scenario == "A":
+                df_final, meta = self._generate_scenario_A(df_base)
+            elif scenario == "B":
+                df_final, meta = self._generate_scenario_B(df_base)
+            else:
+                raise ValueError(f"지원하지 않는 시나리오: {scenario}")
 
         # 3. DuckDB 전처리 (Window Function 등)
-        df_processed = self._apply_duckdb_preprocessing(df_final)
+        # 외부 데이터라도 DuckDB 전처리를 통과시켜 일관성 유지 (선택적)
+        try:
+            df_processed = self._apply_duckdb_preprocessing(df_final)
+        except Exception as e:
+            self.logger.warning("DuckDB 전처리 실패 (외부 데이터 구조 불일치?): %s", e)
+            df_processed = df_final
 
         # 메타데이터 업데이트
         meta["dataframe"] = df_processed
-        meta["feature_names"] = list(
-            set(meta["feature_names"]) | {"avg_spend_3m", "max_credit_score_6m"}
-        )
+        
+        # DuckDB로 추가된 컬럼이 있다면 feature_names에 추가
+        if "feature_names" in meta:
+            new_cols = set(df_processed.columns) - set(df_final.columns)
+            if new_cols:
+                meta["feature_names"] = list(set(meta["feature_names"]) | new_cols)
+        
         meta["scenario"] = scenario
 
         self.logger.info(
@@ -95,6 +112,40 @@ class DataCell(BaseCell):
         )
 
         return meta
+
+    def _load_external_data(self) -> Tuple[pd.DataFrame, Dict]:
+        """설정된 경로에서 외부 CSV 데이터를 로드합니다."""
+        cfg = self.config.data
+        try:
+            df = pd.read_csv(cfg.input_path)
+        except Exception as e:
+            raise RuntimeError(f"데이터 로드 실패: {cfg.input_path}") from e
+        
+        self.logger.info("CSV 로드 성공: %d rows", len(df))
+        
+        # 필수 컬럼 확인
+        if cfg.treatment_col not in df.columns:
+            raise ValueError(f"처치 변수 '{cfg.treatment_col}'이(가) 데이터에 없습니다.")
+        if cfg.outcome_col not in df.columns:
+            raise ValueError(f"결과 변수 '{cfg.outcome_col}'이(가) 데이터에 없습니다.")
+            
+        # 피처 컬럼 추론
+        features = cfg.feature_cols
+        if not features:
+            exclude = {cfg.treatment_col, cfg.outcome_col, "user_id", "id", "index", "Unnamed: 0"}
+            features = [
+                c for c in df.columns 
+                if c not in exclude and pd.api.types.is_numeric_dtype(df[c])
+            ]
+            self.logger.info("피처 자동 추론: %s", features)
+            
+        return df, {
+            "treatment_col": cfg.treatment_col,
+            "outcome_col": cfg.outcome_col,
+            "feature_names": features,
+            "dag_edges": [], # 외부 데이터는 DAG 정보 없음
+            "true_cate_col": None # 외부 데이터는 Ground Truth CATE 없음 (일반적으로)
+        }
 
     def _generate_base_features(self) -> pd.DataFrame:
         cfg = self.config.data

@@ -16,6 +16,11 @@ import EstimationAccuracy from "@/components/EstimationAccuracy";
 import AIInsightPanel from "@/components/AIInsightPanel";
 import DiagnosticsPanel from "@/components/DiagnosticsPanel";
 import ChatPanel from "@/components/ChatPanel";
+import DebateVerdict from "@/components/DebateVerdict";
+import BenchmarkTable from "@/components/BenchmarkTable";
+import ConformalBand from "@/components/ConformalBand";
+import OnboardingGuide from "@/components/OnboardingGuide";
+import AnalysisSection from "@/components/AnalysisSection";
 
 function DashboardContent() {
     const searchParams = useSearchParams();
@@ -43,39 +48,71 @@ function DashboardContent() {
     }
 
     return (
-        <div className="space-y-6">
-            {/* Title & Scenario Selector */}
-            <div className="flex justify-between items-end">
+        <div className="space-y-8 pb-20 relative">
+            <OnboardingGuide />
+
+            {/* Header Area */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-white/5 pb-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Analysis Overview</h1>
-                    <p className="text-slate-400">
-                        {data.ate.description ?? `ATE = ${data.ate.value.toFixed(4)} [${data.ate.ci_lower.toFixed(4)}, ${data.ate.ci_upper.toFixed(4)}]`}
+                    <div className="flex items-center gap-3 mb-2">
+                        <h1 className="text-3xl font-bold text-white tracking-tight">Causal Analysis Report</h1>
+                        {scenario === 'A' ? (
+                            <span className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-xs font-bold border border-green-500/30">
+                                REAL DATA
+                            </span>
+                        ) : (
+                            <span className="px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 text-xs font-bold border border-yellow-500/30">
+                                DEMO MOCKUP
+                            </span>
+                        )}
+                    </div>
+                    <p className="text-slate-400 max-w-2xl text-sm leading-relaxed">
+                        {data.ate.description ?? `ATE = ${data.ate.value.toFixed(4)} (Confidence Interval: [${data.ate.ci_lower.toFixed(4)}, ${data.ate.ci_upper.toFixed(4)}])`}
                     </p>
                 </div>
 
-                <div className="flex bg-slate-800/50 p-1 rounded-lg border border-white/5">
+                <div className="flex bg-slate-800/80 p-1.5 rounded-xl border border-white/10 shadow-lg">
                     <Link
                         href="/dashboard?scenario=A"
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${scenario === 'A' ? 'bg-brand-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+                        className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${scenario === 'A' ? 'bg-brand-500 text-white shadow-md' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                     >
-                        Scenario A (Credit Limit)
+                        <span className="w-2 h-2 rounded-full bg-green-400" />
+                        <div>
+                            <div className="leading-none">Scenario A</div>
+                            <div className="text-[10px] font-normal opacity-80 mt-0.5">Credit Limit (Real)</div>
+                        </div>
                     </Link>
                     <Link
                         href="/dashboard?scenario=B"
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${scenario === 'B' ? 'bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/30 shadow-lg' : 'text-slate-400 hover:text-white'}`}
+                        className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${scenario === 'B' ? 'bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/30 shadow-md' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                     >
-                        Scenario B (Coupon)
+                        <span className="w-2 h-2 rounded-full bg-yellow-400" />
+                        <div>
+                            <div className="leading-none">Scenario B</div>
+                            <div className="text-[10px] font-normal opacity-80 mt-0.5">Coupon (Demo)</div>
+                        </div>
                     </Link>
                 </div>
             </div>
 
-            {/* KPI Cards */}
-            <StatsCards data={data} />
+            {/* 1. Executive Summary (KPIs & Verdict) */}
+            <div className="space-y-6">
+                <StatsCards data={data} />
+                <DebateVerdict data={data} />
+            </div>
 
-            {/* Main Grid */}
+            {/* 2. Visual Insight (Graph & Simulator) */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[500px]">
-                <div className="lg:col-span-2 h-full">
-                    <CausalGraph nodes={data.dag.nodes} edges={data.dag.edges} />
+                <div className="lg:col-span-2 h-full flex flex-col glass-card border-white/5 overflow-hidden">
+                    <div className="p-4 border-b border-white/5 bg-slate-900/30 flex justify-between items-center">
+                        <h3 className="font-semibold text-white">Causal Structure (DAG)</h3>
+                        <Link href={`/dashboard/causal-graph?scenario=${scenario}`} className="text-xs text-brand-400 hover:text-brand-300 flex items-center gap-1">
+                            Full Screen ↗
+                        </Link>
+                    </div>
+                    <div className="flex-1 relative">
+                        <CausalGraph nodes={data.dag.nodes} edges={data.dag.edges} />
+                    </div>
                 </div>
                 <div className="lg:col-span-1 h-full">
                     <WhatIfSimulator
@@ -88,31 +125,44 @@ function DashboardContent() {
                 </div>
             </div>
 
-            {/* Bottom: Detailed Charts */}
-            <div className="h-[350px]">
-                <CausalCharts data={data} />
+            {/* 3. Detailed Analysis (Collapsible Sections) */}
+            <div className="space-y-4">
+                <AnalysisSection title="Deep Causal Metrics" description="Distribution, Conformal Prediction, and Sensitivity">
+                    <div className="space-y-8">
+                        <div className="h-[350px]">
+                            <CausalCharts data={data} />
+                        </div>
+                        <div className="h-[400px]">
+                            <ConformalBand data={data} />
+                        </div>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <SensitivityReport data={data} />
+                            <EstimationAccuracy data={data} />
+                        </div>
+                    </div>
+                </AnalysisSection>
+
+                <AnalysisSection title="AI Interpretation & Explainability" description="Natural Language Insights and SHAP Values">
+                    <div className="space-y-6">
+                        <AIInsightPanel data={data} />
+                        <ExplainabilityPanel data={data} />
+                    </div>
+                </AnalysisSection>
+
+                <AnalysisSection title="Model Diagnostics & Benchmarks" description="Technical Robustness Checks">
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <ModelComparison data={data} />
+                            <BenchmarkTable data={data} />
+                        </div>
+                        <DiagnosticsPanel data={data} />
+                    </div>
+                </AnalysisSection>
+
+                <AnalysisSection title="Ask WhyLab Agent" description="Interactive Q&A Session" defaultOpen={true}>
+                    <ChatPanel data={data} />
+                </AnalysisSection>
             </div>
-
-            {/* Estimation Accuracy (Ground Truth 검증) */}
-            <EstimationAccuracy data={data} />
-
-            {/* AI Interpretation */}
-            <AIInsightPanel data={data} />
-
-            {/* Explainability (SHAP) */}
-            <ExplainabilityPanel data={data} />
-
-            {/* Deep Analysis */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <SensitivityReport data={data} />
-                <ModelComparison data={data} />
-            </div>
-
-            {/* Statistical Diagnostics (Phase 4) */}
-            <DiagnosticsPanel data={data} />
-
-            {/* Interactive Chat (Phase 6) */}
-            <ChatPanel data={data} />
         </div>
     );
 }

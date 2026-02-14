@@ -239,6 +239,83 @@ class ExportCell(BaseCell):
         }
 
         # ──────────────────────────────────────────
+        # 4-4. Debate 판결 (Phase 2)
+        # ──────────────────────────────────────────
+        debate_summary = inputs.get("debate_summary")
+        if debate_summary:
+            json_data["debate"] = {
+                "verdict": debate_summary.get("verdict", "UNKNOWN"),
+                "confidence": debate_summary.get("confidence", 0),
+                "pro_score": debate_summary.get("pro_score", 0),
+                "con_score": debate_summary.get("con_score", 0),
+                "rounds": debate_summary.get("rounds", 0),
+                "recommendation": debate_summary.get("recommendation", ""),
+                "pro_evidence": debate_summary.get("pro_evidence", []),
+                "con_evidence": debate_summary.get("con_evidence", []),
+            }
+
+        # ──────────────────────────────────────────
+        # 4-5. Conformal CI (Phase 2)
+        # ──────────────────────────────────────────
+        conformal = inputs.get("conformal_results")
+        if conformal:
+            json_data["conformal"] = {
+                "mode": conformal.get("mode", "split"),
+                "coverage": conformal.get("coverage", 0),
+                "target_coverage": conformal.get("target_coverage", 0.95),
+                "mean_width": conformal.get("mean_width", 0),
+                "width_std": conformal.get("width_std", 0),
+                "alpha": conformal.get("alpha", 0.05),
+                "ci_lower_mean": conformal.get("ci_lower_mean", 0),
+                "ci_upper_mean": conformal.get("ci_upper_mean", 0),
+                "adaptive": conformal.get("adaptive", False),
+                "interpretation": conformal.get("interpretation", ""),
+            }
+
+        # ──────────────────────────────────────────
+        # 4-6. MetaLearner 개별 결과 (Phase 2)
+        # ──────────────────────────────────────────
+        meta_results = inputs.get("meta_learner_results")
+        if meta_results:
+            individual = {}
+            for name in ["S-Learner", "T-Learner", "X-Learner",
+                         "DR-Learner", "R-Learner"]:
+                lr = meta_results.get(name, {})
+                if lr:
+                    individual[name] = {
+                        "ate": lr.get("ate", 0),
+                        "direction": lr.get("direction", "unknown"),
+                    }
+            ensemble = meta_results.get("ensemble", {})
+            json_data["meta_learner"] = {
+                "individual": individual,
+                "ensemble": {
+                    "consensus": ensemble.get("consensus", 0),
+                    "oracle_ate": ensemble.get("oracle_ate", 0),
+                    "method": ensemble.get("method", "mse_weighted"),
+                },
+            }
+
+        # ──────────────────────────────────────────
+        # 4-7. Refutation 4반증 요약 (Phase 2)
+        # ──────────────────────────────────────────
+        refutation = inputs.get("refutation_results")
+        if refutation:
+            json_data["refutation"] = {
+                "placebo_test": {
+                    "p_value": refutation.get("placebo_test", {}).get("p_value", 0),
+                    "passed": refutation.get("placebo_test", {}).get("p_value", 0) > 0.05,
+                },
+                "bootstrap_ci": refutation.get("bootstrap_ci", {}),
+                "leave_one_out": {
+                    "any_sign_flip": refutation.get("leave_one_out", {}).get("any_sign_flip", False),
+                },
+                "subset_validation": {
+                    "avg_stability": refutation.get("subset_validation", {}).get("avg_stability", 0),
+                },
+            }
+
+        # ──────────────────────────────────────────
         # 5. 산점도용 샘플 데이터 (대시보드 성능 최적화)
         # ──────────────────────────────────────────
         max_pts = self.config.viz.max_scatter_points

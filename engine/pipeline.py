@@ -161,15 +161,16 @@ def main():
         cell = BenchmarkCell(config)
         result = cell.execute({})
 
-        print("\n" + "=" * 60)
-        print("📊 WhyLab 벤치마크 결과")
-        print("=" * 60)
-        print(result["benchmark_table"])
-
+        # 결과 저장 (print 전에 수행하여 인코딩 오류 시에도 파일 보존)
         if args.output:
             _save_results(result["benchmark_results"], args.output, "benchmark")
             if args.latex:
                 _generate_latex_table(result["benchmark_results"], args.output)
+
+        print("\n" + "=" * 60)
+        print("[BENCHMARK] WhyLab Benchmark Results")
+        print("=" * 60)
+        print(result["benchmark_table"])
     else:
         # 파이프라인 모드
         orchestrator = Orchestrator()

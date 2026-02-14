@@ -171,8 +171,12 @@ class AdvocateAgent:
     def _e_value_strength(self, r: Dict) -> Optional[Evidence]:
         """E-value 크기."""
         sensitivity = r.get("sensitivity_results", {})
-        e_value = sensitivity.get("e_value")
-        if e_value is None:
+        e_val_raw = sensitivity.get("e_value")
+        if e_val_raw is None:
+            return None
+        # e_value는 dict (point, ci_bound) 또는 float
+        e_value = e_val_raw.get("point", 0) if isinstance(e_val_raw, dict) else float(e_val_raw)
+        if e_value == 0:
             return None
         strength = min(e_value / 3.0, 1.0)
         return Evidence(
@@ -232,9 +236,11 @@ class AdvocateAgent:
     def _overlap_quality(self, r: Dict) -> Optional[Evidence]:
         """Overlap 양호."""
         sensitivity = r.get("sensitivity_results", {})
-        overlap = sensitivity.get("overlap")
-        if overlap is None:
+        overlap_raw = sensitivity.get("overlap")
+        if overlap_raw is None:
             return None
+        # overlap은 dict (overlap_score, status) 또는 float
+        overlap = overlap_raw.get("overlap_score", 0) if isinstance(overlap_raw, dict) else float(overlap_raw)
         strength = min(overlap / 0.9, 1.0) if overlap > 0.5 else 0.0
         return Evidence(
             claim=f"Overlap={overlap:.2f} ({'양호' if overlap > 0.7 else '주의'})",
@@ -247,8 +253,15 @@ class AdvocateAgent:
     def _gates_heterogeneity(self, r: Dict) -> Optional[Evidence]:
         """GATES F-statistic 유의."""
         sensitivity = r.get("sensitivity_results", {})
-        gates = sensitivity.get("gates_results", {})
-        f_sig = gates.get("f_stat_significant")
+        # gates는 키가 'gates' 또는 'gates_results'일 수 있음
+        gates = sensitivity.get("gates_results") or sensitivity.get("gates", {})
+        if isinstance(gates, dict):
+            f_sig = gates.get("f_stat_significant")
+            # f_statistic이 있으면 유의성 판단
+            if f_sig is None and "f_statistic" in gates:
+                f_sig = gates["f_statistic"] > 3.84  # F(1,n-2) 5% 임계값
+        else:
+            f_sig = None
         if f_sig is None:
             return None
         return Evidence(
@@ -307,8 +320,11 @@ class CriticAgent:
 
     def _e_value_weak(self, r: Dict) -> Optional[Evidence]:
         """E-value 취약."""
-        e_value = r.get("sensitivity_results", {}).get("e_value")
-        if e_value is None or e_value >= 2.0:
+        e_val_raw = r.get("sensitivity_results", {}).get("e_value")
+        if e_val_raw is None:
+            return None
+        e_value = e_val_raw.get("point", 0) if isinstance(e_val_raw, dict) else float(e_val_raw)
+        if e_value >= 2.0:
             return None
         strength = (2.0 - e_value) / 2.0
         return Evidence(
@@ -321,8 +337,11 @@ class CriticAgent:
 
     def _overlap_violation(self, r: Dict) -> Optional[Evidence]:
         """Overlap 위반."""
-        overlap = r.get("sensitivity_results", {}).get("overlap")
-        if overlap is None or overlap >= 0.7:
+        overlap_raw = r.get("sensitivity_results", {}).get("overlap")
+        if overlap_raw is None:
+            return None
+        overlap = overlap_raw.get("overlap_score", 0) if isinstance(overlap_raw, dict) else float(overlap_raw)
+        if overlap >= 0.7:
             return None
         strength = (0.7 - overlap) / 0.7
         return Evidence(
@@ -339,7 +358,14 @@ class CriticAgent:
         bootstrap = refutation.get("bootstrap_ci", {})
         ci_lower = bootstrap.get("ci_lower")
         ci_upper = bootstrap.get("ci_upper")
-        ate = r.get("ate")
+        # ate는 float 또는 dict일 수 있음 (ExportCell 전/후)
+        ate_raw = r.get("ate")
+        if isinstance(ate_raw, dict):
+            ate = ate_raw.get("value", 0)
+        elif isinstance(ate_raw, (int, float)):
+            ate = float(ate_raw)
+        else:
+            ate = None
         if ci_lower is None or ci_upper is None or ate is None or ate == 0:
             return None
         width = abs(ci_upper - ci_lower)

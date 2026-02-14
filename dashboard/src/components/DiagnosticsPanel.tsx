@@ -1,8 +1,18 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Shield, ShieldCheck, ShieldAlert, BarChart3, Layers, AlertTriangle, Info } from "lucide-react";
+import { Shield, ShieldCheck, ShieldAlert, BarChart3, Layers, AlertTriangle, Info, CheckCircle2, XCircle } from "lucide-react";
 import { CausalAnalysisResult } from "@/types";
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    Legend
+} from "recharts";
 
 interface Props {
     data: CausalAnalysisResult;
@@ -29,190 +39,205 @@ export default function DiagnosticsPanel({ data }: Props) {
         ? <ShieldCheck className="w-5 h-5 text-green-400" />
         : <ShieldAlert className="w-5 h-5 text-yellow-400" />;
 
+    // Overlap Histogram Data Preparation
+    const overlapData = s.overlap?.ps_histogram ? s.overlap.ps_histogram.bin_edges.slice(0, -1).map((edge, i) => ({
+        range: `${edge.toFixed(1)}-${s.overlap!.ps_histogram!.bin_edges[i + 1].toFixed(1)}`,
+        Treated: s.overlap!.ps_histogram!.treated_counts[i],
+        Control: s.overlap!.ps_histogram!.control_counts[i],
+    })) : [];
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="glass-card space-y-5"
+            className="glass-card space-y-6"
         >
-            {/* 헤더 */}
-            <div className="flex items-center justify-between">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-white/5 pb-4">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/20">
-                        <Shield className="w-5 h-5 text-purple-400" />
+                    <div className="p-2 rounded-lg bg-teal-500/10 border border-teal-500/20">
+                        <Shield className="w-5 h-5 text-teal-400" />
                     </div>
                     <div>
                         <h2 className="text-lg font-bold text-white">Statistical Diagnostics</h2>
-                        <p className="text-xs text-slate-500">견고성(Robustness) 심화 검증</p>
+                        <p className="text-xs text-slate-500">Rigorous Assumption Checks (Positivity, Unconfoundedness)</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
                     {overallIcon}
-                    <StatusBadge status={s.status} />
+                    <div className="text-right">
+                        <div className="text-sm font-semibold text-white">Overall Status</div>
+                        <StatusBadge status={s.status} />
+                    </div>
                 </div>
             </div>
 
-            {/* 4칸 그리드 — 기본 테스트 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {/* Placebo */}
+            {/* 2x2 Grid for Core Diagnostics */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+                {/* 1. Placebo Test */}
                 <DiagCard
-                    title="Placebo Treatment"
-                    desc="처치 변수를 무작위로 섞어 가짜 효과가 0인지 확인"
+                    title="Placebo Treatment Test"
+                    desc="Randomly shuffled treatment should yield zero effect."
                     status={s.placebo_test.status}
-                    metrics={[
-                        { label: "Mean Effect", value: s.placebo_test.mean_effect.toFixed(4) },
-                        { label: "P-value", value: s.placebo_test.p_value.toFixed(3) },
-                    ]}
-                />
-                {/* Random Common Cause */}
+                    icon={<CheckCircle2 className="w-4 h-4 text-blue-400" />}
+                >
+                    <div className="grid grid-cols-2 gap-4 mt-2">
+                        <MetricBox label="Mean Effect (Target ≈ 0)" value={(s.placebo_test.mean_effect || s.placebo_test.null_mean || 0).toFixed(4)} />
+                        <MetricBox label="P-value (> 0.05)" value={s.placebo_test.p_value.toFixed(3)} />
+                    </div>
+                </DiagCard>
+
+                {/* 2. Random Common Cause */}
                 <DiagCard
                     title="Random Common Cause"
-                    desc="무작위 교란 변수를 추가해도 ATE가 안정적인지 확인"
+                    desc="Adding random confounder should not change ATE significantly."
                     status={s.random_common_cause.status}
-                    metrics={[
-                        { label: "Stability", value: (s.random_common_cause.stability * 100).toFixed(1) + "%" },
-                        { label: "Mean Effect", value: s.random_common_cause.mean_effect.toFixed(4) },
-                    ]}
-                />
-            </div>
+                    icon={<Layers className="w-4 h-4 text-purple-400" />}
+                >
+                    <div className="grid grid-cols-2 gap-4 mt-2">
+                        <MetricBox label="Stability" value={`${(s.random_common_cause.stability * 100).toFixed(1)}%`} />
+                        <MetricBox label="New Mean Effect" value={s.random_common_cause.mean_effect.toFixed(4)} />
+                    </div>
+                </DiagCard>
 
-            {/* 고급 진단 — E-value + Overlap */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {/* E-value */}
-                {s.e_value && s.e_value.status !== "Not Run" && (
+                {/* 3. E-value */}
+                {s.e_value && (
                     <DiagCard
-                        title="E-value (교란 견고성)"
+                        title="E-value (Robustness)"
                         desc={s.e_value.interpretation}
                         status={s.e_value.status}
-                        metrics={[
-                            { label: "E-value (Point)", value: s.e_value.point.toFixed(2) },
-                            { label: "E-value (CI)", value: s.e_value.ci_bound.toFixed(2) },
-                        ]}
-                        icon={<AlertTriangle className="w-4 h-4" />}
-                    />
+                        icon={<AlertTriangle className="w-4 h-4 text-yellow-400" />}
+                    >
+                        <div className="grid grid-cols-2 gap-4 mt-2 mb-2">
+                            <MetricBox label="Point Estimate" value={s.e_value.point.toFixed(2)} />
+                            <MetricBox label="CI Lower Bound" value={s.e_value.ci_bound.toFixed(2)} />
+                        </div>
+                        {/* Gauge for E-value */}
+                        <div className="w-full bg-slate-700 h-2 rounded-full mt-2 overflow-hidden">
+                            <div
+                                className="bg-yellow-400 h-full rounded-full"
+                                style={{ width: `${Math.min((s.e_value.point / 3) * 100, 100)}%` }}
+                            />
+                        </div>
+                        <div className="flex justify-between text-[10px] text-slate-500 mt-1">
+                            <span>1.0 (Weak)</span>
+                            <span>2.0 (Moderate)</span>
+                            <span>3.0+ (Strong)</span>
+                        </div>
+                    </DiagCard>
                 )}
 
-                {/* Overlap */}
-                {s.overlap && s.overlap.status !== "Not Run" && (
-                    <DiagCard
-                        title="Overlap (Positivity)"
-                        desc={s.overlap.interpretation}
-                        status={s.overlap.status}
-                        metrics={[
-                            { label: "Overlap Score", value: String(s.overlap.overlap_score) },
-                            ...(s.overlap.ps_stats ? [
-                                { label: "PS Treated μ", value: String(s.overlap.ps_stats.treated_mean) },
-                                { label: "PS Control μ", value: String(s.overlap.ps_stats.control_mean) },
-                            ] : []),
-                            ...(s.overlap.pct_extreme_weights !== undefined
-                                ? [{ label: "Extreme Wt%", value: s.overlap.pct_extreme_weights + "%" }]
-                                : []),
-                        ]}
-                        icon={<Layers className="w-4 h-4" />}
-                    />
+                {/* 4. Overlap (Positivity) with Histogram */}
+                {s.overlap && (
+                    <div className="col-span-1 lg:col-span-1 p-4 rounded-xl bg-white/5 border border-white/5 space-y-3">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <BarChart3 className="w-4 h-4 text-indigo-400" />
+                                <span className="text-sm font-semibold text-white">Overlap (Positivity)</span>
+                            </div>
+                            <StatusBadge status={s.overlap.status} />
+                        </div>
+                        <p className="text-xs text-slate-400">{s.overlap.interpretation}</p>
+
+                        {/* Overlap Metircs */}
+                        <div className="grid grid-cols-3 gap-2 mb-2">
+                            <MetricBox label="Overlap Score" value={s.overlap.overlap_score.toFixed(2)} />
+                            {s.overlap.pct_extreme_weights !== undefined && (
+                                <MetricBox label="Extreme Wt%" value={`${s.overlap.pct_extreme_weights}%`} />
+                            )}
+                        </div>
+
+                        {/* Propensity Score Histogram */}
+                        {overlapData.length > 0 && (
+                            <div className="h-32 w-full mt-2">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={overlapData}>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" opacity={0.2} />
+                                        <XAxis dataKey="range" tick={{ fontSize: 8 }} interval={1} stroke="#9CA3AF" />
+                                        <YAxis hide />
+                                        <Tooltip
+                                            contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', fontSize: '12px' }}
+                                            itemStyle={{ color: '#F3F4F6' }}
+                                        />
+                                        <Legend iconSize={8} wrapperStyle={{ fontSize: '10px' }} />
+                                        <Bar dataKey="Treated" fill="#818CF8" radius={[4, 4, 0, 0]} opacity={0.6} />
+                                        <Bar dataKey="Control" fill="#9CA3AF" radius={[4, 4, 0, 0]} opacity={0.6} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        )}
+                    </div>
                 )}
+
             </div>
 
-            {/* GATES/CLAN */}
-            {s.gates && s.gates.status !== "Not Run" && s.gates.groups.length > 0 && (
-                <div className="space-y-3">
+            {/* GATES Heterogeneity (Wide) */}
+            {s.gates && s.gates.groups.length > 0 && (
+                <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <BarChart3 className="w-4 h-4 text-blue-400" />
-                            <span className="text-sm font-semibold text-white">GATES / CLAN Analysis</span>
+                            <BarChart3 className="w-4 h-4 text-pink-400" />
+                            <span className="text-sm font-semibold text-white">GATES Heterogeneity Analysis</span>
+                        </div>
+                        <div className="flex gap-2">
+                            <span className="text-xs text-slate-400 self-center">F-stat: {s.gates.f_statistic.toFixed(2)}</span>
                             <StatusBadge status={s.gates.status} />
                         </div>
-                        <div className="flex items-center gap-2 text-xs">
-                            <span className="text-slate-500">F-stat</span>
-                            <span className="text-white font-mono">{s.gates.f_statistic}</span>
-                        </div>
                     </div>
-
                     <p className="text-xs text-slate-400">{s.gates.heterogeneity}</p>
 
-                    {/* GATES 바 차트 */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                        {s.gates.groups.map((g) => {
-                            const maxAbs = Math.max(
-                                ...s.gates!.groups.map((x) => Math.abs(x.mean_cate)),
-                                0.001
-                            );
-                            const barWidth = Math.min(100, (Math.abs(g.mean_cate) / maxAbs) * 100);
-                            const isNeg = g.mean_cate < 0;
-
+                    {/* GATES Chart - Reusing previous logic or new visualization */}
+                    <div className="grid grid-cols-4 gap-2 h-24 items-end">
+                        {s.gates.groups.map(g => {
+                            const maxVal = Math.max(...s.gates!.groups.map(x => Math.abs(x.mean_cate)));
+                            const height = (Math.abs(g.mean_cate) / maxVal) * 100;
                             return (
-                                <div
-                                    key={g.group_id}
-                                    className="p-3 rounded-lg bg-white/5 border border-white/5 space-y-2"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xs font-bold text-white">{g.label}</span>
-                                        <span className="text-xs text-slate-500">n={g.n}</span>
+                                <div key={g.group_id} className="flex flex-col items-center gap-1 group">
+                                    <div className="text-[10px] font-mono text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                                        {g.mean_cate.toFixed(3)}
                                     </div>
-                                    {/* 바 */}
-                                    <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                                    <div className="w-full bg-slate-800 rounded-t-md relative h-16 flex items-end justify-center overflow-hidden">
                                         <div
-                                            className={`h-full rounded-full transition-all duration-500 ${isNeg ? "bg-green-500" : "bg-red-500"}`}
-                                            style={{ width: `${barWidth}%` }}
+                                            className={`w-full transition-all duration-500 ${g.mean_cate > 0 ? 'bg-pink-500/60' : 'bg-slate-500/60'}`}
+                                            style={{ height: `${height}%` }}
                                         />
                                     </div>
-                                    <div className="text-center">
-                                        <span className={`text-sm font-mono font-bold ${isNeg ? "text-green-400" : "text-red-400"}`}>
-                                            {g.mean_cate > 0 ? "+" : ""}{g.mean_cate.toFixed(4)}
-                                        </span>
-                                        <p className="text-[10px] text-slate-500">
-                                            [{g.ci_lower.toFixed(4)}, {g.ci_upper.toFixed(4)}]
-                                        </p>
-                                    </div>
-                                    {/* CLAN Features */}
-                                    {Object.keys(g.clan_features).length > 0 && (
-                                        <div className="text-[10px] text-slate-500 space-y-0.5 pt-1 border-t border-white/5">
-                                            {Object.entries(g.clan_features).slice(0, 3).map(([f, v]) => (
-                                                <div key={f} className="flex justify-between">
-                                                    <span>{f}</span>
-                                                    <span className="text-slate-400">{v}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
+                                    <span className="text-[10px] text-slate-400">{g.label}</span>
                                 </div>
                             );
                         })}
                     </div>
                 </div>
             )}
+
         </motion.div>
     );
 }
 
-function DiagCard({
-    title, desc, status, metrics, icon,
-}: {
-    title: string;
-    desc: string;
-    status: string;
-    metrics: { label: string; value: string }[];
-    icon?: React.ReactNode;
-}) {
+// Sub-components
+function DiagCard({ title, desc, status, icon, children }: any) {
     return (
-        <div className="p-4 rounded-lg bg-white/5 border border-white/5 space-y-3">
+        <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-2">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    {icon || <Info className="w-4 h-4 text-slate-400" />}
+                    {icon}
                     <span className="text-sm font-semibold text-white">{title}</span>
                 </div>
                 <StatusBadge status={status} />
             </div>
-            <p className="text-xs text-slate-400 leading-relaxed">{desc}</p>
-            <div className="flex flex-wrap gap-3">
-                {metrics.map((m) => (
-                    <div key={m.label}>
-                        <p className="text-[10px] text-slate-500">{m.label}</p>
-                        <p className="text-sm font-mono text-white">{m.value}</p>
-                    </div>
-                ))}
-            </div>
+            <p className="text-xs text-slate-400 leading-tight">{desc}</p>
+            {children}
+        </div>
+    );
+}
+
+function MetricBox({ label, value }: { label: string, value: string }) {
+    return (
+        <div className="bg-white/5 rounded p-2 text-center">
+            <div className="text-[10px] text-slate-500 uppercase">{label}</div>
+            <div className="text-sm font-bold text-white font-mono">{value}</div>
         </div>
     );
 }

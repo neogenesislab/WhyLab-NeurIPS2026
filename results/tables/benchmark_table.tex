@@ -1,0 +1,20 @@
+\begin{table}[htbp]
+\centering
+\caption{WhyLab Meta-Learner Benchmark Results}
+\label{tab:benchmark}
+\begin{tabular}{lcccccc}
+\toprule
+Method & \multicolumn{2}{c}{IHDP} & \multicolumn{2}{c}{ACIC} & \multicolumn{2}{c}{JOBS} \\
+\cmidrule(lr){2-7}
+ & $\sqrt{\text{PEHE}}$ & ATE Bias & $\sqrt{\text{PEHE}}$ & ATE Bias & $\sqrt{\text{PEHE}}$ & ATE Bias \\
+\midrule
+S-Learner & $1.418 \pm 0.032$ & $0.056 \pm 0.042$ & $0.477 \pm 0.014$ & $0.017 \pm 0.015$ & $254.599 \pm 18.902$ & $37.142 \pm 28.311$ \\
+T-Learner & $1.164 \pm 0.002$ & $0.039 \pm 0.019$ & $0.812 \pm 0.008$ & $0.034 \pm 0.017$ & $449.769 \pm 14.447$ & $39.005 \pm 1.243$ \\
+X-Learner & $1.361 \pm 0.011$ & $0.102 \pm 0.044$ & $0.561 \pm 0.008$ & $0.021 \pm 0.012$ & $362.805 \pm 25.181$ & $31.192 \pm 18.286$ \\
+DR-Learner & $1.334 \pm 0.153$ & $0.070 \pm 0.018$ & $0.807 \pm 0.016$ & $0.033 \pm 0.017$ & $503.703 \pm 27.337$ & $44.086 \pm 0.766$ \\
+R-Learner & $2.177 \pm 0.132$ & $0.127 \pm 0.136$ & $1.322 \pm 0.018$ & $0.134 \pm 0.064$ & $739.667 \pm 46.694$ & $66.160 \pm 40.229$ \\
+LinearDML & $1.467 \pm 0.030$ & $0.070 \pm 0.075$ & $0.619 \pm 0.013$ & $0.081 \pm 0.017$ & $180.393 \pm 33.391$ & $61.695 \pm 50.369$ \\
+Ensemble & $1.377 \pm 0.092$ & $0.061 \pm 0.038$ & $0.603 \pm 0.010$ & $0.013 \pm 0.011$ & $332.641 \pm 24.639$ & $40.859 \pm 29.913$ \\
+\bottomrule
+\end{tabular}
+\end{table}

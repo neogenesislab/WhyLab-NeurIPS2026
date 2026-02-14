@@ -85,6 +85,11 @@ def create_lgbm_regressor(
         "num_leaves": nl,
         "learning_rate": lr,
         "verbose": cfg.lgbm_verbose,
+        "min_child_samples": 10,
+        "reg_alpha": 0.1,
+        "reg_lambda": 1.0,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
     }
 
     # GPU 가속 적용

@@ -1,187 +1,188 @@
-# WhyLab: Causal Inference Engine for Fintech
+# WhyLab: AI-Driven Causal Inference Engine
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Python](https://img.shields.io/badge/python-3.11-blue)
-![Next.js](https://img.shields.io/badge/next.js-16-black)
-![Status](https://img.shields.io/badge/status-v0.2_production-brightgreen)
-![CI](https://github.com/Yesol-Pilot/WhyLab/actions/workflows/ci.yml/badge.svg)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**[🔗 Live Demo](https://yesol-pilot.github.io/WhyLab/dashboard)** · [📄 White Paper](paper/reports/white_paper.md) · [🔬 Living Ledger](paper/visions/living_ledger.md)
+> **Causal inference meets AI agents.**
+> WhyLab combines state-of-the-art causal inference algorithms with a multi-agent debate system
+> that automatically validates causal claims — no other tool does this.
 
-> **"Data with Why"**  
-> AI가 상관관계와 인과관계를 분리하고, **액션 가능한 인사이트를 자동으로 생성**하는 의사결정 지원 플랫폼.
-> DML 기반 인과추론 엔진 + 인터랙티브 대시보드 + 자율 에이전트 아키텍처.
+## What Makes WhyLab Different?
 
----
+| | DoWhy | EconML | CausalML | **WhyLab** |
+|---|:---:|:---:|:---:|:---:|
+| Causal Graph Modeling | O | - | - | **O** |
+| Meta-Learners (S/T/X/DR/R) | - | O | O | **O** |
+| Double Machine Learning | - | O | - | **O** |
+| Refutation Tests | O | - | - | **O** |
+| **AI Agent Auto-Debate** | - | - | - | **O** |
+| **Auto Verdict (CAUSAL/NOT)** | - | - | - | **O** |
+| **Interactive Dashboard** | - | - | - | **O** |
 
-## 🔍 Project Overview
-
-데이터 분석가로서 우리는 종종 **"이 정책이 정말 효과가 있었나?"**라는 질문을 받습니다. 단순히 "A를 한 유저가 B를 많이 했다"는 상관관계 분석은 위험합니다. 역인과 관계나 교란 변수(Confounder)가 숨어있기 때문입니다.
-
-**WhyLab**은 이러한 문제를 해결하기 위해 구축되었습니다.
--   **Problem**: 관찰 데이터만으로 순수 처치 효과(ATE/CATE)를 어떻게 추정할 것인가?
--   **Solution**: **Double Machine Learning (DML)** 기법을 적용하여 교란 변수의 영향을 직교화(Orthogonalization)로 제거합니다.
--   **Output**: 신뢰할 수 있는 인과 효과 추정치와, 이를 시각적으로 탐색할 수 있는 인터랙티브 대시보드.
-
-## 📸 Dashboard Preview
-
-![WhyLab Dashboard — Causal Inference Analysis Overview](docs/screenshots/dashboard_overview.png)
-
-> 대시보드에서 ATE/CATE 분석 결과, 인과 그래프(DAG), 민감도 검증, What-If 시뮬레이션을 한눈에 확인할 수 있습니다.
-
-![WhyLab Dashboard — SHAP Explainability & Robustness](docs/screenshots/dashboard_shap.png)
-
-> SHAP Feature Importance (income > credit_score > age 순), 반사실 시뮬레이션, Robustness Check(94.7% Stability), AutoML Competition.
-
-## Architecture
-
-```mermaid
-graph LR
-    subgraph Engine ["Python Engine (Cellular Agents)"]
-        DC[DataCell<br/>SCM + DuckDB] --> CC[CausalCell<br/>DML + EconML]
-        CC --> SC[SensitivityCell<br/>E-value Overlap GATES]
-        SC --> EC[ExportCell<br/>JSON + AI Insights]
-        CC --> XC[ExplainCell<br/>SHAP]
-        CC --> VC[VizCell<br/>Charts]
-        CC --> RC[ReportCell<br/>LLM + Rule-based]
-    end
-
-    subgraph Agents ["Autonomous Agents"]
-        DA[Discovery Agent<br/>LLM + PC Algo] --> WF[LangGraph Workflow<br/>Cyclic Reasoning]
-        WF --> MCP[MCP Server<br/>stdio Interface]
-    end
-
-    subgraph Dashboard ["Next.js Dashboard"]
-        SG[StatsCards] --> CG[CausalGraph<br/>React Flow]
-        CG --> WI[WhatIfSimulator]
-        WI --> AI[AIInsightPanel<br/>LLM/Rule-based]
-        AI --> DP[DiagnosticsPanel<br/>E-value Overlap GATES]
-        DP --> SR[SensitivityReport]
-        SR --> MC[ModelComparison]
-    end
-
-    EC -->|latest.json| Dashboard
-    MCP -.->|MCP Protocol| Dashboard
-```
-
-## Key Features
-
-1.  **Causal Inference Engine (Python)**
-    -   **EconML & LightGBM**: DML Modeling (LinearDML)
-    -   **DuckDB**: Large-scale data preprocessing
-    -   **SHAP**: Feature Importance + Counterfactual 시뮬레이션
-    -   **AI Report**: Gemini LLM 해석 + 규칙 기반 폴백
-
-2.  **Statistical Diagnostics (Phase 4) ✨NEW**
-    -   **E-value**: 미관측 교란에 대한 견고성 정량화
-    -   **Overlap (Positivity)**: Propensity Score 분포 비교 + IPTW 진단
-    -   **GATES/CLAN**: CATE 사분위 그룹 분석 + F-test 이질성 검정
-
-3.  **Interactive Dashboard (Next.js)**
-    -   **Causal Graph (DAG)**: React Flow 기반 인과 구조 시각화
-    -   **What-If Simulator**: 실시간 개입 시뮬레이션
-    -   **AI Insight Panel**: 자연어 인사이트 자동 생성 (LLM/Rule-based)
-    -   **Diagnostics Panel**: E-value + Overlap + GATES 바 차트
-    -   **Model Comparison**: AutoML 후보 모델 RMSE 비교
-
-4.  **Autonomous Agent Architecture**
-    -   **Discovery Agent**: `auto_discover()` — CSV만 넣으면 자동 인과추론
-    -   **LangGraph Workflow**: Discovery → Estimation → Refutation 순환 루프
-    -   **MCP Server**: 외부 에이전트 연동을 위한 표준 인터페이스
-
-## 🚀 Scenarios
-
-### Scenario A: Credit Limit Optimization
--   **Q**: "신용 한도를 상향하면 연체율이 낮아질까?"
--   **Finding**: **ATE = -3.5%** (신용한도 1σ 증가 시 연체 확률 3.5% 감소, p < 0.01). 고신용자에게는 연체율 감소 효과가 뚜렷하지만, 저신용자에게는 효과가 없거나 부정적입니다. (비선형적 이질성 발견)
-
-### Scenario B: Marketing Budget Allocation
--   **Q**: "누구에게 투자 쿠폰을 보내야 가입률이 가장 많이 오를까?"
--   **Finding**: 20대 사회초년생(Persuadables)의 반응률이 가장 높으며, 50대 자산가는 쿠폰 없이도 가입하거나 쿠폰에도 반응하지 않습니다.
-
-## 🛠️ Tech Stack
-
-| Category | Technologies |
-|----------|--------------|
-| **Core Engine** | Python 3.11, EconML, LightGBM, NumPy, Pandas |
-| **Causal Discovery** | causal-learn (PC Algorithm), NetworkX |
-| **Data Eng** | DuckDB, Scikit-learn, Apache Arrow |
-| **Frontend** | Next.js 16 (App Router), TypeScript, Tailwind CSS |
-| **Visualization** | Recharts, React Flow, Framer Motion |
-| **Agent Framework** | LangGraph, MCP (Model Context Protocol) |
-| **DevOps** | GitHub Actions |
-
-## 📊 Estimation Accuracy (Ground Truth Validation)
-
-합성 데이터의 `true_cate`와 DML 추정치를 비교하여, 모델의 실제 성능을 검증합니다:
-
-| Metric | Scenario A (Credit Limit) | Scenario B (Coupon) |
-|--------|---------------------------|---------------------|
-| **ATE** | -0.0342 (3.4%↓) | -0.0040 (0.4%↓) |
-| **Correlation** | **0.977** | **0.996** |
-| RMSE | 0.609 | 0.028 |
-| Robustness | Placebo ✅ · RCC ✅ | Placebo ✅ · RCC ✅ |
-| E-value | 1.07 (보통) | 1.01 |
-| Overlap | 0.85 (양호) | 0.92 (우수) |
-| GATES F-stat | 12.5 (강한 이질성) | 2.1 |
-
-> **Correlation 0.97~0.99** = DML 추정치가 Ground Truth와 거의 완벽하게 일치합니다.
-
-## 📦 How to Run
-
-### 1. Engine (Analysis)
-```bash
-# 환경 설정
-cd engine
-pip install -r requirements.txt
-
-# 파이프라인 실행
-python -m engine.pipeline --scenario A   # → latest.json (신용한도)
-python -m engine.pipeline --scenario B   # → scenario_b.json (쿠폰)
-```
-
-### 2. Dashboard (Visualization)
-```bash
-# 대시보드 실행
-cd dashboard
-npm install
-npm run dev
-# http://localhost:3000
-```
-
-### 3. Agent Workflow (LangGraph)
-```bash
-# Discovery-Estimation-Refutation loop
-python -m experiments.tissue_simulation
-```
-
-### 4. MCP Server
-```bash
-# Start MCP Server (stdio mode)
-python -m engine.server.mcp_server
-```
-
-## 📝 Documentation
--   [**White Paper**](paper/reports/white_paper.md): 상세 방법론 및 실험 결과 보고서.
--   [**Implementation Plan**](implementation_plan.md): 프로젝트 개발/구축 계획서.
+**WhyLab's killer feature**: While existing tools help you *write code* for causal analysis,
+WhyLab deploys AI agents that *independently discover, debate, and validate* causal relationships.
 
 ---
 
-## 🔮 Roadmap
+## Benchmark Results
 
-| Phase | 목표 | 상태 |
-|-------|------|------|
-| Phase 1 | 라이브 배포 (GitHub Pages + CI/CD) | ✅ 완료 |
-| Phase 2 | 대시보드 UX 고도화 (반응형 + 시나리오 토글) | ✅ 완료 |
-| Phase 3 | AI 에이전트 연동 (Gemini LLM + Rule-based) | ✅ 완료 |
-| Phase 4 | 통계 진단 심화 (E-value + Overlap + GATES/CLAN) | ✅ 완료 |
-| Phase 5 | Discovery Agent LLM 연동 + `auto_discover()` | ✅ 완료 |
-| Next | Interactive Chat (대시보드에 "데이터에 물어보기" 챗봇) | 🚧 계획 |
-| Next | Multi-Agent Tissue (데이터 드리프트 자동 대응) | 📝 연구 |
+Evaluated on 3 standard causal inference benchmarks (10 replications each):
 
--   [📘 White Paper](paper/reports/white_paper.md): 상세 방법론 및 실험 결과 (v0.2)
--   [🔬 Living Ledger Vision](paper/visions/living_ledger.md): 자율 인과추론 아키텍처 연구
+### IHDP (Hill 2011, n=747, p=25)
+
+| Method | sqrt(PEHE) | ATE Bias |
+|---|:---:|:---:|
+| **T-Learner** | **1.164 +/- 0.024** | **0.039 +/- 0.031** |
+| DR-Learner | 1.194 +/- 0.034 | 0.038 +/- 0.029 |
+| Ensemble | 1.214 +/- 0.025 | 0.046 +/- 0.034 |
+| X-Learner | 1.324 +/- 0.029 | 0.035 +/- 0.024 |
+| S-Learner | 1.383 +/- 0.033 | 0.064 +/- 0.040 |
+| LinearDML | 1.465 +/- 0.024 | 0.066 +/- 0.061 |
+| R-Learner | 1.635 +/- 0.046 | 0.135 +/- 0.107 |
+
+> **Ref**: BART ~1.0 (Hill 2011), GANITE ~1.9 (Yoon 2018), CEVAE ~2.7 (Louizos 2017)
+
+### ACIC (Dorie 2019, n=4802, p=58)
+
+| Method | sqrt(PEHE) | ATE Bias |
+|---|:---:|:---:|
+| **S-Learner** | **0.491 +/- 0.017** | **0.018 +/- 0.013** |
+| X-Learner | 0.569 +/- 0.009 | 0.020 +/- 0.011 |
+| Ensemble | 0.612 +/- 0.013 | 0.013 +/- 0.007 |
+| LinearDML | 0.614 +/- 0.010 | 0.071 +/- 0.025 |
+| DR-Learner | 0.799 +/- 0.017 | 0.040 +/- 0.018 |
+| T-Learner | 0.835 +/- 0.013 | 0.041 +/- 0.018 |
+| R-Learner | 1.206 +/- 0.035 | 0.111 +/- 0.060 |
+
+### Jobs (LaLonde 1986, n=722, p=8)
+
+| Method | sqrt(PEHE) | ATE Bias |
+|---|:---:|:---:|
+| **LinearDML** | **170.5 +/- 32.3** | 39.2 +/- 36.6 |
+| S-Learner | 288.4 +/- 11.3 | 79.2 +/- 36.8 |
+| X-Learner | 377.2 +/- 22.4 | 38.6 +/- 16.3 |
+| Ensemble | 381.8 +/- 18.4 | 39.8 +/- 33.8 |
+| T-Learner | 482.7 +/- 23.2 | **35.2 +/- 21.7** |
+| DR-Learner | 535.0 +/- 29.3 | 34.9 +/- 25.2 |
+| R-Learner | 703.4 +/- 36.6 | 81.7 +/- 73.8 |
 
 ---
 
-*Built with ❤️ by Yesol*
+## Architecture: Cellular Agents
+
+Inspired by biological cells, WhyLab's engine consists of modular, autonomous "cells":
+
+```
+Data -> Causal -> MetaLearner -> Conformal -> Explain -> Refutation
+  |                                                         |
+  v                                                         v
+  Sensitivity -> Viz -> Export -> Report -> Debate -> VERDICT
+```
+
+| Cell | Role | Lines |
+|---|---|:---:|
+| `DataCell` | SCM-based synthetic data + external CSV loading | 343 |
+| `CausalCell` | DML estimation (Linear/Forest/Auto) | 420 |
+| `MetaLearnerCell` | 5 meta-learners + Oracle ensemble | 420 |
+| `ConformalCell` | Distribution-free confidence intervals | 330 |
+| `RefutationCell` | Placebo, Bootstrap, Random Cause tests | 400 |
+| `SensitivityCell` | E-value, Overlap, GATES analysis | 400 |
+| `DebateCell` | Multi-agent causal verdict | 562 |
+
+### Multi-Agent Debate System
+
+Three AI agents evaluate causal claims:
+
+1. **Advocate** (10 evidence types): Defends the causal relationship
+2. **Critic** (8 attack vectors): Challenges the causal claim
+3. **Judge**: Weighs evidence and delivers verdict (`CAUSAL` / `NOT_CAUSAL` / `UNCERTAIN`)
+
+---
+
+## Quick Start
+
+### Prerequisites
+- Python 3.9+
+- Node.js 18+ (Dashboard)
+
+### Installation
+```bash
+# Clone
+git clone https://github.com/your-org/whylab.git
+cd whylab
+
+# Python environment
+conda create -n whylab python=3.10
+conda activate whylab
+pip install -r engine/requirements.txt
+
+# Dashboard
+cd dashboard && npm install
+```
+
+### Usage
+
+#### 1. Run Causal Pipeline (Synthetic Data)
+```bash
+python -m engine.main --scenario A   # Credit limit -> Default
+python -m engine.main --scenario B   # Marketing coupon -> Signup
+```
+
+#### 2. Run with Your Own CSV
+```bash
+python -m engine.main \
+  --data "your_data.csv" \
+  --treatment "treatment_col" \
+  --outcome "outcome_col" \
+  --features "age,income,score"
+```
+
+#### 3. Run Benchmarks
+```bash
+python -m engine.pipeline --benchmark ihdp acic jobs \
+  --replications 10 --output results/ --latex
+```
+
+#### 4. Launch Dashboard
+```bash
+cd dashboard && npm run dev
+# Open http://localhost:3004
+```
+
+---
+
+## Project Structure
+
+```
+whylab/
+  engine/
+    cells/          # 11 modular analysis cells
+    agents/         # AI debate & discovery agents
+    data/           # Benchmark data loaders (IHDP/ACIC/Jobs)
+    rag/            # RAG-based Q&A agent
+    server/         # FastAPI backend
+    config.py       # Central configuration (no magic numbers)
+    orchestrator.py # Cell pipeline orchestrator
+    pipeline.py     # CLI entry point
+  dashboard/        # Next.js interactive dashboard
+  paper/            # Research vision & figures
+  tests/            # Unit & integration tests
+  results/          # Benchmark output (JSON + LaTeX)
+```
+
+## Citation
+
+If you use WhyLab in your research, please cite:
+
+```bibtex
+@software{whylab2026,
+  title={WhyLab: AI-Driven Causal Inference Engine with Multi-Agent Debate},
+  author={WhyLab Contributors},
+  year={2026},
+  url={https://github.com/your-org/whylab}
+}
+```
+
+## License
+
+MIT License

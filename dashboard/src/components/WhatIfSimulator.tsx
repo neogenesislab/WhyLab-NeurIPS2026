@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
-import { motion } from 'framer-motion';
-// import { Slider } from "@/components/ui/slider"; // Removed non-existent component
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface WhatIfSimulatorProps {
     baseValue: number;    // 현재 평균 Treatment 값
@@ -50,7 +48,7 @@ export default function WhatIfSimulator({
                     What-If Simulator
                 </h3>
                 <p className="text-slate-400 text-sm mt-1">
-                    "{treatmentName}"를 변경하면 "{outcomeName}"이 어떻게 변할까요?
+                    &quot;{treatmentName}&quot;를 변경하면 &quot;{outcomeName}&quot;이 어떻게 변할까요?
                 </p>
             </div>
 

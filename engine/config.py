@@ -71,7 +71,11 @@ class DataConfig:
     credit_score_max: float = 900.0
     app_usage_min: float = 1.0
     app_usage_max: float = 200.0
-
+    # 실데이터 로드 설정 (CLI)
+    input_path: str = None               # 외부 CSV 파일 경로 (None이면 합성 데이터 생성)
+    treatment_col: str = "treatment"     # 처치 변수 컬럼명
+    outcome_col: str = "outcome"         # 결과 변수 컬럼명
+    feature_cols: list = None            # 피처 컬럼 리스트 (None이면 자동 추론)
 
 # ──────────────────────────────────────────────
 # DML 모델링 설정

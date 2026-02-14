@@ -134,6 +134,40 @@ function answerFromData(question: string, data: CausalAnalysisResult): string {
             `- 피처: ${m.feature_names.join(", ")}`;
     }
 
+    // [NEW] Debate (Phase 3)
+    if (q.includes("debate") || q.includes("토론") || q.includes("판결") || q.includes("verdict")) {
+        const d = data.debate;
+        if (d) {
+            return `⚖️ **AI 토론 판결: ${d.verdict}** (신뢰도: ${(d.confidence * 100).toFixed(0)}%)\n\n` +
+                `총 ${d.rounds}라운드 토론 결과, 찬성 ${d.pro_score.toFixed(1)}점 / 반대 ${d.con_score.toFixed(1)}점으로 판결되었습니다.\n\n` +
+                `💡 **권고:** ${d.recommendation}`;
+        }
+        return "토론(Debate) 결과가 없습니다.";
+    }
+
+    // [NEW] Conformal (Phase 3)
+    if (q.includes("conformal") || q.includes("분포") || q.includes("coverage")) {
+        const c = data.conformal_results;
+        if (c) {
+            const width = c.ci_upper_mean - c.ci_lower_mean;
+            return `📏 **Conformal Prediction 결과:**\n\n` +
+                `- **Target Coverage:** ${(c.coverage * 100).toFixed(0)}%\n` +
+                `- **Avg CI Width:** ${width.toFixed(4)}\n\n` +
+                `분포 가정을 하지 않는(Model-free) 신뢰구간입니다.`;
+        }
+        return "Conformal Prediction 결과가 없습니다.";
+    }
+
+    // [NEW] Benchmark (Phase 3)
+    if (q.includes("benchmark") || q.includes("벤치마크") || q.includes("성능")) {
+        // 간단히 IHDP 데이터셋 결과만 예시로
+        if (data.benchmark_results && data.benchmark_results["ihdp"]) {
+            return `🏆 **Benchmarking (IHDP):**\n\n` +
+                `BenmarkTable 컴포넌트에서 모델별 PEHE 및 Bias 성능을 자세히 비교할 수 있습니다.`;
+        }
+        return "벤치마크 수행 결과가 없습니다.";
+    }
+
     // 기본 응답
     return `제가 답할 수 있는 질문 유형:\n\n` +
         `- "ATE가 뭐야?" / "인과 효과 알려줘"\n` +
@@ -251,8 +285,8 @@ export default function ChatPanel({ data }: Props) {
                                     )}
                                     <div
                                         className={`max-w-[85%] px-3 py-2 rounded-xl text-xs leading-relaxed whitespace-pre-wrap ${msg.role === "user"
-                                                ? "bg-brand-500/20 text-white rounded-br-sm"
-                                                : "bg-white/5 text-slate-300 rounded-bl-sm"
+                                            ? "bg-brand-500/20 text-white rounded-br-sm"
+                                            : "bg-white/5 text-slate-300 rounded-bl-sm"
                                             }`}
                                     >
                                         {msg.content}
