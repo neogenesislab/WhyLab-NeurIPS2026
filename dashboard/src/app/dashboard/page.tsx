@@ -21,6 +21,7 @@ import BenchmarkTable from "@/components/BenchmarkTable";
 import ConformalBand from "@/components/ConformalBand";
 import OnboardingGuide from "@/components/OnboardingGuide";
 import AnalysisSection from "@/components/AnalysisSection";
+import CATEExplorer from "@/components/CATEExplorer";
 
 function DashboardContent() {
     const searchParams = useSearchParams();
@@ -102,6 +103,12 @@ function DashboardContent() {
                     baseDefaultRate={scenario === 'A' ? 0.02 : 0.4}
                 />
             </div>
+
+            {/* 1.5 CATE Explorer (누구에게 효과가 큰가?) */}
+            <CATEExplorer
+                distribution={data.cate_distribution}
+                segments={data.segments}
+            />
 
             {/* 2. Executive Summary (Supporting Metrics) */}
             <div className="space-y-6">
