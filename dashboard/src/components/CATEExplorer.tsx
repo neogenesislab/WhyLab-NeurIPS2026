@@ -82,25 +82,25 @@ export default function CATEExplorer({
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
                 <SummaryCard
                     icon={<TrendingUp className="w-4 h-4" />}
-                    label="평균 CATE"
+                    label="Avg. CATE"
                     value={distribution?.mean?.toFixed(4) ?? 'N/A'}
                     color="text-emerald-400"
                 />
                 <SummaryCard
                     icon={<AlertTriangle className="w-4 h-4" />}
-                    label="표준편차"
+                    label="Std. Dev."
                     value={distribution?.std?.toFixed(4) ?? 'N/A'}
                     color="text-amber-400"
                 />
                 <SummaryCard
                     icon={<Users className="w-4 h-4" />}
-                    label="효과 있는 유저"
+                    label="Effective Users"
                     value={`${targetingRatio}%`}
                     color="text-blue-400"
                 />
                 <SummaryCard
                     icon={<Target className="w-4 h-4" />}
-                    label="최적 세그먼트"
+                    label="Best Segment"
                     value={bestSegment?.name ?? 'N/A'}
                     color="text-purple-400"
                 />
@@ -110,7 +110,7 @@ export default function CATEExplorer({
             {sortedSegments.length > 0 && (
                 <div className="mb-6">
                     <h4 className="text-sm font-semibold text-gray-300 mb-3">
-                        세그먼트별 처치 효과 (CATE)
+                        Treatment Effect by Segment (CATE)
                     </h4>
                     <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
@@ -158,16 +158,16 @@ export default function CATEExplorer({
                         <div className="flex items-center gap-2 mb-2">
                             <TrendingUp className="w-4 h-4 text-emerald-400" />
                             <span className="text-sm font-semibold text-emerald-400">
-                                집중 타겟 추천
+                                Focus Target Recommendation
                             </span>
                         </div>
                         <p className="text-white font-bold">{bestSegment.name}</p>
                         <p className="text-sm text-gray-400">
                             CATE: {bestSegment.cate_mean.toFixed(4)} |{' '}
-                            {bestSegment.n.toLocaleString()}명
+                            {bestSegment.n.toLocaleString()} users
                         </p>
                         <p className="text-xs text-emerald-300 mt-1">
-                            이 그룹에 집중하면 ROI 극대화 가능
+                            Focusing on this group can maximize ROI
                         </p>
                     </div>
 
@@ -175,16 +175,16 @@ export default function CATEExplorer({
                         <div className="flex items-center gap-2 mb-2">
                             <AlertTriangle className="w-4 h-4 text-red-400" />
                             <span className="text-sm font-semibold text-red-400">
-                                주의 대상
+                                Caution
                             </span>
                         </div>
                         <p className="text-white font-bold">{worstSegment.name}</p>
                         <p className="text-sm text-gray-400">
                             CATE: {worstSegment.cate_mean.toFixed(4)} |{' '}
-                            {worstSegment.n.toLocaleString()}명
+                            {worstSegment.n.toLocaleString()} users
                         </p>
                         <p className="text-xs text-red-300 mt-1">
-                            이 그룹은 효과 미미 또는 역효과 — 예산 절감 대상
+                            Minimal or negative effect — consider budget reduction
                         </p>
                     </div>
                 </div>
@@ -194,8 +194,8 @@ export default function CATEExplorer({
             {sortedSegments.length === 0 && (
                 <div className="text-center py-8 text-gray-500">
                     <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                    <p>세그먼트 데이터가 없습니다.</p>
-                    <p className="text-xs">파이프라인을 먼저 실행해주세요.</p>
+                    <p>No segment data available.</p>
+                    <p className="text-xs">Please run the pipeline first.</p>
                 </div>
             )}
         </div>
