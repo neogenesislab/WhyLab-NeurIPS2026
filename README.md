@@ -151,7 +151,7 @@ cd WhyLab
 pip install -e ".[all]"
 
 # Dashboard
-cd dashboard && npm install
+cd dashboard; npm install
 ```
 
 ### Usage
@@ -212,7 +212,7 @@ python -m engine.pipeline --benchmark ihdp acic jobs \
 
 #### 7. Launch Dashboard
 ```bash
-cd dashboard && npm run dev
+cd dashboard; npm run dev
 # Open http://localhost:4000
 ```
 
@@ -272,7 +272,7 @@ If you use WhyLab in your research, please cite:
 ```bibtex
 @software{whylab2026,
   title={WhyLab: Causal Decision Intelligence Engine with Multi-Agent Debate},
-  author={WhyLab Contributors},
+  author={Yesol Heo},
   year={2026},
   url={https://github.com/Yesol-Pilot/WhyLab}
 }
