@@ -2,6 +2,30 @@
 
 All notable changes to WhyLab are documented in this file.
 
+## [1.0.0] - 2026-02-24
+
+### Added
+- **MCP Server v2**: 7 tools + 3 resources for external agent integration (Claude Desktop, etc.)
+- **Policy Simulator**: `simulate_intervention()` — treatment intensity & target ratio based ROI prediction
+- **Agent Evolution System**: Sprint 15 generational agent evolution with strategy memory
+- **Research Cycle Dashboard**: Sprint 16 autonomous research history aggregation
+- **Auto Research Report**: Sprint 17 automated report generation
+- **Autopilot Mode**: Server auto-starts autonomous research cycle on boot
+- **Dose Response Cell**: Continuous treatment effect estimation
+- **Deep CATE Cell**: Deep learning-based CATE estimation
+- **Fairness Audit Cell**: Algorithmic fairness assessment across protected groups
+- **Log Rotation**: Automatic log management and rotation
+
+### Changed
+- Pipeline expanded from 16 to **22 cells**
+- Agent system expanded to **11 modules** (debate, discovery, architect, director, etc.)
+- Dashboard Backend (`api/main.py`) upgraded with agent management, evolution, and knowledge graph endpoints
+- Docker Compose now includes Next.js dashboard service for full-stack local development
+
+### Infrastructure
+- CI enforces **80% minimum coverage gate** (`--cov-fail-under=80`)
+- Version badge aligned across README and `pyproject.toml`
+
 ## [0.2.0] - 2026-02-14
 
 ### Added

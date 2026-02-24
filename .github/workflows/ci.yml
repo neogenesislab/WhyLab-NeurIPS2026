@@ -43,6 +43,7 @@ jobs:
           python -m pytest tests/ -v --tb=short \
             --cov=engine --cov=whylab \
             --cov-report=term --cov-report=xml:coverage.xml \
+            --cov-fail-under=80 \
             -k "not test_pipeline_e2e"
 
       - name: Run E2E Pipeline Tests

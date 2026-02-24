@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
-"""WhyLab REST API 서버 — FastAPI 기반 인과추론 서비스.
+"""WhyLab SDK REST API 서버 — 외부 사용자용 인과추론 서비스.
+
+역할: SDK 사용자 및 외부 시스템이 인과추론 파이프라인을 호출하는 공개 API.
+      경량 엔드포인트 (analyze, jobs, methods, health) 제공.
+
+참고: Dashboard 백엔드(에이전트 관리, 진화, 자율 연구 등)는 별도로
+      api/main.py (포트 4001)에서 담당합니다.
 
 사용법:
     # 개발 서버 실행
@@ -9,8 +15,6 @@
     curl -X POST http://localhost:8000/api/v1/analyze \
       -H "Content-Type: application/json" \
       -d '{"treatment": "T", "outcome": "Y", "data_path": "data.csv"}'
-
-Phase 11-2: API 서버.
 """
 
 from __future__ import annotations
@@ -33,7 +37,7 @@ logger = logging.getLogger("whylab.server")
 app = FastAPI(
     title="WhyLab API",
     description="인과추론 Decision Intelligence 엔진",
-    version="0.2.0",
+    version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
 )
@@ -84,8 +88,8 @@ class AnalyzeResponse(BaseModel):
 class HealthResponse(BaseModel):
     """헬스체크 응답."""
     status: str = "healthy"
-    version: str = "0.2.0"
-    cells: int = 16
+    version: str = "1.0.0"
+    cells: int = 22
     uptime_seconds: float = 0.0
 
 
@@ -195,5 +199,5 @@ def list_methods():
         "robustness": ["E-value", "Placebo", "Random Cause", "Bootstrap", "GATES"],
         "discovery": ["PC Algorithm", "LLM Hybrid"],
         "debate": ["Advocate/Critic/Judge + LLM"],
-        "pipeline_cells": 16,
+        "pipeline_cells": 22,
     }

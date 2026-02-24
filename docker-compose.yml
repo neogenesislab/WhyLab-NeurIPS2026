@@ -49,3 +49,16 @@ services:
     environment:
       - PYTHONPATH=/whylab
     command: [ "--scenario", "A", "--debate", "--output", "results/" ]
+
+  # Next.js 대시보드
+  dashboard:
+    image: node:22-slim
+    working_dir: /app
+    volumes:
+      - ./dashboard:/app
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=development
+      - PORT=4000
+    command: [ "sh", "-c", "npm ci && npm run dev" ]

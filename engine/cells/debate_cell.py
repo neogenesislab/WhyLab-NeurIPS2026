@@ -18,6 +18,7 @@ from engine.cells.base_cell import BaseCell
 from engine.agents.debate import AdvocateAgent, CriticAgent, JudgeAgent, Verdict
 from engine.agents.llm_adapter import LLMDebateAdapter
 from engine.config import WhyLabConfig
+from engine.tracing import trace_cell
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,7 @@ class DebateCell(BaseCell):
     def __init__(self, config: WhyLabConfig) -> None:
         super().__init__(name="debate_cell", config=config)
 
+    @trace_cell
     def execute(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
         """Debate 실행.
 

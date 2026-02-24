@@ -34,6 +34,9 @@ DEFAULT_MODEL = os.environ.get("WHYLAB_LLM_MODEL", "gemini-2.0-flash")
 # 최대 토론 라운드
 MAX_DEBATE_ROUNDS = int(os.environ.get("WHYLAB_DEBATE_ROUNDS", "2"))
 
+# Tracing
+from engine.tracing import trace_llm
+
 
 @dataclass
 class LLMResponse:
@@ -77,6 +80,7 @@ class GeminiClient:
             logger.warning("[LLM] Gemini 초기화 실패: %s → Fallback 모드", e)
             return False
 
+    @trace_llm
     def generate(self, prompt: str, max_tokens: int = 2048) -> Optional[str]:
         """프롬프트를 Gemini에 전송하고 텍스트 응답을 반환합니다.
 

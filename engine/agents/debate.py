@@ -573,24 +573,102 @@ class JudgeAgent:
         con: List[Evidence],
         confidence: float,
     ) -> str:
-        """비즈니스 액션 아이템 도출 (Product Owner Persona)."""
+        """구조화된 1-Pager 정책 결정서 생성 (Product Owner Persona).
+
+        ROI, 리스크 비용, 증거 요약을 포함한 마크다운 형식의
+        경영진 보고서를 렌더링합니다.
+        """
+        # ── 증거에서 비즈니스 지표 추출 ──
+        pro_impacts = [e.business_impact for e in pro if e.business_impact]
+        con_impacts = [e.business_impact for e in con if e.business_impact]
+        pro_sources = [f"`{e.source}` ({e.strength:.0%})" for e in pro[:5]]
+        con_sources = [f"`{e.source}` ({e.strength:.0%})" for e in con[:5]]
+
+        # ── 판결별 보고서 구성 ──
         if verdict == "CAUSAL":
-            # Growth 신호 강함
-            impacts = [e.business_impact for e in pro if e.business_impact]
-            main_impact = impacts[0] if impacts else "성과 개선 기대"
-            
-            if confidence > 0.9:
-                return f"🚀 [승인] 전면 배포 (Rollout 100%). {main_impact}."
-            return f"📈 [조건부 승인] 단계적 배포 (Rollout 20% → 50%). {main_impact}."
-
+            icon = "🚀"
+            action = "전면 배포 승인 (Rollout 100%)" if confidence > 0.9 \
+                else "단계적 배포 (Rollout 20% → 50%)"
+            risk_level = "LOW" if confidence > 0.9 else "MEDIUM"
         elif verdict == "NOT_CAUSAL":
-            # Risk 신호 강함
-            risks = [e.business_impact for e in con if e.business_impact]
-            main_risk = risks[0] if risks else "효과 미미"
-            
-            return f"🛑 [기각] 배포 중단. 리소스 회수 권장. 사유: {main_risk}"
+            icon = "🛑"
+            action = "배포 중단 — 리소스 회수 권장"
+            risk_level = "HIGH"
+        else:
+            icon = "⚖️"
+            action = "5% 트래픽 A/B 테스트 실시"
+            risk_level = "MEDIUM-HIGH"
 
-        else:  # UNCERTAIN
-            # Trade-off 상황
-            risks = [e.business_impact for e in con if e.business_impact]
-            return f"⚖️ [보류] 5% 트래픽 A/B 테스트 제안. 주요 리스크 검증 필요: {risks[0] if risks else '불확실성 해소 필요'}"
+        # ── 1-Pager 마크다운 렌더링 ──
+        report_lines = [
+            f"## {icon} Policy Decision Report",
+            "",
+            f"**Verdict:** `{verdict}` | **Confidence:** {confidence:.1%} | **Risk Level:** {risk_level}",
+            "",
+            f"### Decision",
+            f"**{action}**",
+            "",
+            "### Key Metrics",
+            "",
+            "| Metric | Value |",
+            "|---|---|",
+            f"| Pro Evidence Count | {len(pro)} |",
+            f"| Con Evidence Count | {len(con)} |",
+            f"| Pro Score (weighted) | {sum(e.strength * self.weights.get(e.evidence_type, 1.0) for e in pro):.2f} |",
+            f"| Con Score (weighted) | {sum(e.strength * self.weights.get(e.evidence_type, 1.0) for e in con):.2f} |",
+            f"| Confidence | {confidence:.1%} |",
+            "",
+        ]
+
+        # ── Growth Opportunity (Advocate 증거) ──
+        if pro_impacts:
+            report_lines += [
+                "### 📈 Growth Opportunity",
+                "",
+            ]
+            for impact in pro_impacts[:3]:
+                report_lines.append(f"- {impact}")
+            report_lines += [
+                "",
+                "**Supporting Evidence:** " + ", ".join(pro_sources),
+                "",
+            ]
+
+        # ── Risk Factors (Critic 증거) ──
+        if con_impacts:
+            report_lines += [
+                "### ⚠️ Risk Factors",
+                "",
+            ]
+            for impact in con_impacts[:3]:
+                report_lines.append(f"- {impact}")
+            report_lines += [
+                "",
+                "**Risk Evidence:** " + ", ".join(con_sources),
+                "",
+            ]
+
+        # ── 통제 조건 ──
+        report_lines += [
+            "### 🔍 Control Conditions",
+            "",
+        ]
+
+        if verdict == "CAUSAL":
+            report_lines.append(
+                "- 배포 후 2주 시점에서 `TemporalCausalCell`(CausalImpact)을 통한 2차 검증 실시"
+            )
+            if confidence < 0.9:
+                report_lines.append(
+                    "- 예산 20% 소진 시점에서 중간 리뷰 필수"
+                )
+        elif verdict == "NOT_CAUSAL":
+            report_lines.append("- 교란 변수(Confounder) 추가 탐색 후 재분석")
+            report_lines.append("- 현 시점에서 정책 변경 원상복구")
+        else:
+            report_lines.append("- 5% 테스트 2주 운영 → 결과 기반 Go/No-Go 판단")
+            report_lines.append("- 테스트 기간 중 주 1회 CausalDrift 모니터링")
+
+        report_lines.append("")
+
+        return "\n".join(report_lines)

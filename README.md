@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![v0.2.0](https://img.shields.io/badge/version-0.2.0-green.svg)](https://pypi.org/project/whylab/)
+[![v1.0.0](https://img.shields.io/badge/version-1.0.0-green.svg)](https://pypi.org/project/whylab/)
 [![Pipeline Cells](https://img.shields.io/badge/Pipeline-16_Cells-blueviolet)](#architecture-16-cell-pipeline)
 [![Live Demo](https://img.shields.io/badge/Live_Demo-whylab.vercel.app-00d4aa)](https://whylab.vercel.app/dashboard)
 
@@ -47,19 +47,46 @@ result.summary()        # ATE, CI, Meta-learners, Sensitivity, Debate verdict
 | **AI Agent Auto-Debate** | - | - | - | **O** |
 | **Auto Verdict (CAUSAL/NOT)** | - | - | - | **O** |
 | **Auto Discovery (PC + LLM)** | - | - | - | **O** |
+| **Native MCP v2 Server** | - | - | - | **O** |
+| **Policy Simulator (What-If)** | - | - | - | **O** |
 | **Interactive Dashboard** | - | - | - | **O** |
 | **REST API Server** | - | - | - | **O** |
 
 ---
 
-## Architecture: 16-Cell Pipeline
+## Architecture: 22-Cell Pipeline + MCP Integration
 
 ```
-Data → Discovery → AutoCausal → Causal → MetaLearner → Conformal →
-  Explain → Refutation → Sensitivity →
-    QuasiExperimental → TemporalCausal → Counterfactual →
-      Viz → Debate → Export → Report
+                        ┌──────────────────────────────────┐
+                        │     External AI Agents           │
+                        │  (Claude Desktop, GPT, etc.)     │
+                        └──────────┬───────────────────────┘
+                                   │ MCP Protocol
+                        ┌──────────▼───────────────────────┐
+                        │   WhyLab MCP Server (v2)         │
+                        │   7 Tools + 3 Resources          │
+                        └──────────┬───────────────────────┘
+                                   │
+  ┌────────────────────────────────▼──────────────────────────────┐
+  │                    22-Cell Causal Engine                      │
+  │                                                              │
+  │  Data → Discovery → AutoCausal → Causal → MetaLearner →     │
+  │    Conformal → Explain → Refutation → Sensitivity →          │
+  │      QuasiExp → Temporal → Counterfactual → DoseResponse →   │
+  │        DeepCATE → Fairness → Benchmark →                     │
+  │          Viz → Debate → Export → Report                      │
+  └──────────────────────────┬───────────────────────────────────┘
+                             │
+              ┌──────────────▼──────────────┐
+              │   Next.js Dashboard         │
+              │   Policy Simulator (What-If)│
+              │   CATE Explorer             │
+              │   AI Debate Verdict         │
+              └────────────────────────────┘
 ```
+
+<details>
+<summary><strong>📋 Full 22-Cell Reference</strong></summary>
 
 | # | Cell | Role |
 |:---:|---|---|
@@ -75,10 +102,16 @@ Data → Discovery → AutoCausal → Causal → MetaLearner → Conformal →
 | 10 | `QuasiExperimentalCell` | **IV (2SLS)**, **DiD** (parallel trend), **Sharp RDD** |
 | 11 | `TemporalCausalCell` | **Granger causality**, **CausalImpact**, lag correlation |
 | 12 | `CounterfactualCell` | Structural counterfactuals, Manski bounds, ITE ranking |
-| 13 | `VizCell` | Publication-ready figures |
-| 14 | `DebateCell` | 3-agent LLM debate (Growth Hacker / Risk Manager / PO) |
-| 15 | `ExportCell` | JSON serialization + LLM debate results |
-| 16 | `ReportCell` | Automated analysis reports |
+| 13 | `DoseResponseCell` | Continuous treatment dose-response estimation |
+| 14 | `DeepCateCell` | Deep learning-based CATE estimation |
+| 15 | `FairnessAuditCell` | Algorithmic fairness across protected groups |
+| 16 | `BenchmarkCell` | Automated IHDP/ACIC/Jobs evaluation |
+| 17 | `VizCell` | Publication-ready figures |
+| 18 | `DebateCell` | 3-agent LLM debate (Growth Hacker / Risk Manager / PO) |
+| 19 | `ExportCell` | JSON serialization + LLM debate results |
+| 20 | `ReportCell` | Automated analysis reports |
+
+</details>
 
 ### Multi-Agent Debate System
 
@@ -90,6 +123,40 @@ Three AI agents simulate real organizational decision-making:
    - `🚀 Rollout 100%` | `⚖️ A/B Test 5%` | `🛑 Reject`
 
 Supports **LLM-enhanced debate** (Gemini API) with automatic rule-based fallback.
+
+### Native MCP v2 Server — Agent Interop Standard
+
+WhyLab ships with a built-in **Model Context Protocol (MCP)** server, enabling seamless integration with any MCP-compatible AI agent (Claude Desktop, Cursor, etc.).
+
+**7 Tools:**
+| Tool | Description |
+|---|---|
+| `run_analysis` | Execute full causal pipeline (Scenario A or B) |
+| `get_debate_verdict` | Get AI debate result (CAUSAL / NOT_CAUSAL / UNCERTAIN) |
+| `simulate_intervention` | What-If policy simulation (intensity × target ratio → ROI) |
+| `ask_rag` | Natural language Q&A with persona (Growth / Risk / PO) |
+| `compare_scenarios` | Side-by-side scenario comparison |
+| `run_drift_check` | Causal drift detection (ATE/CATE shift monitoring) |
+| `get_monitoring_status` | Current monitoring system health |
+
+**3 Resources:** `whylab://data/latest` · `whylab://report/latest` · `whylab://benchmark/summary`
+
+```bash
+# Quick start: connect Claude Desktop to WhyLab
+python -m engine.server.mcp_server
+```
+
+```json
+// claude_desktop_config.json
+{
+  "mcpServers": {
+    "whylab": {
+      "command": "python",
+      "args": ["-m", "engine.server.mcp_server"]
+    }
+  }
+}
+```
 
 ---
 
@@ -230,8 +297,8 @@ docker compose up pipeline     # Full pipeline + Debate
 ```
 WhyLab/
   engine/
-    cells/            # 16 modular analysis cells
-    agents/           # AI debate & discovery agents (LLM hybrid)
+    cells/            # 22 modular analysis cells
+    agents/           # 11 AI agents (debate, discovery, architect, etc.)
     connectors/       # Multi-source data (CSV/SQL/BigQuery)
     monitoring/       # Causal drift detection & alerting
     data/             # Benchmark data loaders (IHDP/ACIC/Jobs)
@@ -239,15 +306,18 @@ WhyLab/
     server/           # MCP Protocol server (7 tools, 3 resources)
     audit.py          # Governance: analysis audit trail (JSONL)
     config.py         # Central configuration (no magic numbers)
-    orchestrator.py   # 16-cell pipeline orchestrator
+    orchestrator.py   # 22-cell pipeline orchestrator
     cli.py            # CLI entry point
   whylab/
     api.py            # 3-line SDK (analyze → CausalResult)
-    server.py         # FastAPI REST API server
+    server.py         # SDK REST API server (port 8000)
+  api/
+    main.py           # Dashboard Backend API (port 4001)
   dashboard/          # Next.js interactive dashboard
-  tests/              # Unit & integration tests (58+)
+    components/       #   PolicySimulator, WhatIfSimulator, DebateVerdict, ...
+  tests/              # 26 test files (58+ cases)
   results/            # Benchmark output (JSON + LaTeX)
-  .github/workflows/  # CI + Deploy + PyPI Release (OIDC)
+  .github/workflows/  # CI (80% gate) + Deploy + PyPI Release (OIDC)
 ```
 
 ## Tests
