@@ -22,9 +22,12 @@ from typing import Any, Callable, Dict, List, Optional
 
 logger = logging.getLogger("whylab.deploy.shadow")
 
-# Supabase 환경변수 (커넥션 풀러 경유 필수: 포트 6543)
-_SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
-_SUPABASE_KEY = os.environ.get("SUPABASE_ANON_KEY", "")
+# DB 어댑터 (네이티브 PG + 비동기 DLQ)
+try:
+    from engine.deploy.db_adapter import AsyncDLQWriter, IntegrityHashWriter
+    _HAS_DB_ADAPTER = True
+except ImportError:
+    _HAS_DB_ADAPTER = False
 
 
 class DeploymentMode(str, Enum):
@@ -123,7 +126,15 @@ class ShadowDeployController:
         self.cost_budget = cost_budget or CostBudget()
         self._observations: List[ShadowObservation] = []
         self._dlq_memory: List[Dict[str, Any]] = []  # DB 미연결 시 폴백
+        self._dlq_writer: Optional[Any] = None
         self._fallback_count = 0
+
+        # 비동기 DLQ Writer 초기화
+        if _HAS_DB_ADAPTER:
+            try:
+                self._dlq_writer = AsyncDLQWriter()
+            except Exception as e:
+                logger.warning("⚠️ AsyncDLQWriter init failed: %s", e)
 
     def should_run_deep_audit(self) -> bool:
         """ARES 딥 감사를 실행할지 판단.
@@ -147,44 +158,27 @@ class ShadowDeployController:
     ) -> None:
         """DLQ(Dead Letter Queue) 적재.
 
-        우선: Supabase audit_dlq 테이블에 영속화.
-        폴백: DB 미연결 시 인메모리 리스트 (복구 불가).
+        우선: AsyncDLQWriter (백그라운드 스레드, 네이티브 PG)
+        폴백: 인메모리 리스트 (VOLATILE)
+
+        메인 스레드 블로킹: 0 (큐 put 만 수행)
         """
+        # 비동기 DLQ Writer (즉시 반환)
+        if self._dlq_writer:
+            self._dlq_writer.enqueue(decision_id, payload, reason)
+            return
+
+        # 폴백: 인메모리
         entry = {
             "decision_id": decision_id,
             "reason": reason,
+            "timestamp": time.time(),
             "payload": payload,
         }
-
-        # DB 영속화 시도
-        if _SUPABASE_URL and _SUPABASE_KEY:
-            try:
-                import urllib.request
-                url = f"{_SUPABASE_URL}/rest/v1/audit_dlq"
-                headers = {
-                    "apikey": _SUPABASE_KEY,
-                    "Authorization": f"Bearer {_SUPABASE_KEY}",
-                    "Content-Type": "application/json",
-                    "Prefer": "return=minimal",
-                }
-                body = json.dumps(entry).encode()
-                req = urllib.request.Request(url, data=body, headers=headers, method="POST")
-                with urllib.request.urlopen(req, timeout=5) as resp:
-                    if resp.status in (200, 201):
-                        logger.info(
-                            "📥 DLQ persisted to DB: %s (reason=%s)",
-                            decision_id, reason,
-                        )
-                        return
-            except Exception as e:
-                logger.warning("⚠️ DLQ DB write failed: %s — falling back to memory", e)
-
-        # 폴백: 인메모리 (파드 재시작 시 유실)
-        entry["timestamp"] = time.time()
         self._dlq_memory.append(entry)
         logger.warning(
-            "📥 DLQ in-memory fallback: %s (reason=%s, queue_size=%d) — VOLATILE",
-            decision_id, reason, len(self._dlq_memory),
+            "📥 DLQ in-memory fallback: %s (queue=%d) — VOLATILE",
+            decision_id, len(self._dlq_memory),
         )
 
     @property
@@ -322,8 +316,11 @@ class DailyIntegrityWorker:
     """동기 롤업→해시 파이프라인.
 
     경쟁 상태(Race Condition) 방어:
-    pg_cron이 아닌 파이썬 워커가 롤업 프로시저를 직접 동기적으로 호출.
+    파이썬 워커가 롤업 데이터를 직접 동기적으로 조회.
     트랜잭션 커밋 후에만 해시 계산 → 불완전 데이터 해싱 불가.
+
+    DB 프로토콜: 네이티브 psycopg2 (포트 6543 Supavisor).
+    REST API urllib 사용 금지.
 
     사용법:
         worker = DailyIntegrityWorker()
@@ -332,38 +329,34 @@ class DailyIntegrityWorker:
 
     def __init__(
         self,
-        supabase_url: str = "",
-        supabase_key: str = "",
         hash_log_path: str = "data/integrity_hashes.jsonl",
     ) -> None:
-        self.supabase_url = supabase_url or _SUPABASE_URL
-        self.supabase_key = supabase_key or _SUPABASE_KEY
         self.hash_log_path = hash_log_path
 
     def run(self, date_str: str) -> Dict[str, Any]:
         """동기 롤업→해시 파이프라인 실행.
 
-        1. rollup_daily_stats() 호출 (DB 트랜잭션)
-        2. 커밋 완료 후 롤업 데이터 조회
-        3. SHA-256 해시 계산
-        4. integrity_hashes 테이블 + JSONL 로그에 저장
+        1. 네이티브 PG로 롤업 데이터 조회 (트랜잭션 완료 보장)
+        2. SHA-256 해시 계산
+        3. integrity_hashes DB + JSONL 이중 저장
         """
-        result = {"date": date_str, "status": "unknown"}
+        result: Dict[str, Any] = {"date": date_str, "status": "unknown"}
 
         try:
-            # Step 1: 롤업 실행 (DB에 롤업 저장 프로시저 호출)
-            rollup_data = self._execute_rollup(date_str)
+            # Step 1: 네이티브 PG로 롤업 조회
+            rollup_data = self._query_rollup_pg(date_str)
             if not rollup_data:
                 result["status"] = "no_data"
                 return result
 
-            # Step 2: SHA-256 해시 (롤업 커밋 직후 — 경쟁 상태 불가)
+            # Step 2: SHA-256 (커밋된 데이터만 — 경쟁 상태 불가)
             hash_entry = compute_daily_hash(rollup_data, date_str)
 
-            # Step 3: DB에 해시 저장
-            self._store_hash_to_db(hash_entry)
+            # Step 3: DB에 해시 UPSERT (네이티브 PG)
+            if _HAS_DB_ADAPTER:
+                IntegrityHashWriter.store(hash_entry, date_str)
 
-            # Step 4: 로컬 파일에도 저장 (GitHub 자동 커밋용)
+            # Step 4: JSONL 파일 (GitHub 자동 커밋용)
             append_hash_log(hash_entry, self.hash_log_path)
 
             result["status"] = "success"
@@ -381,51 +374,30 @@ class DailyIntegrityWorker:
 
         return result
 
-    def _execute_rollup(self, date_str: str) -> Optional[Dict]:
-        """롤업 데이터 조회 (동기)."""
-        if not (self.supabase_url and self.supabase_key):
-            logger.warning("⚠️ No Supabase credentials — skipping rollup")
+    def _query_rollup_pg(self, date_str: str) -> Optional[Dict]:
+        """네이티브 psycopg2로 롤업 조회 (Supavisor 경유)."""
+        if not _HAS_DB_ADAPTER:
+            logger.warning("⚠️ db_adapter not available — skipping rollup")
+            return None
+
+        from engine.deploy.db_adapter import _get_pg_connection
+        conn = _get_pg_connection()
+        if not conn:
             return None
 
         try:
-            import urllib.request
-            url = (
-                f"{self.supabase_url}/rest/v1/daily_agent_rollup"
-                f"?rollup_date=eq.{date_str}&select=*"
-            )
-            headers = {
-                "apikey": self.supabase_key,
-                "Authorization": f"Bearer {self.supabase_key}",
-            }
-            req = urllib.request.Request(url, headers=headers)
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                rows = json.loads(resp.read())
-                return {"records": rows, "date": date_str}
+            with conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "SELECT * FROM daily_agent_rollup WHERE rollup_date = %s",
+                        (date_str,),
+                    )
+                    columns = [desc[0] for desc in cur.description] if cur.description else []
+                    rows = [dict(zip(columns, row)) for row in cur.fetchall()]
+                    return {"records": rows, "date": date_str}
         except Exception as e:
-            logger.error("❌ Rollup query failed: %s", e)
+            logger.error("❌ PG rollup query failed: %s", e)
             return None
+        finally:
+            conn.close()
 
-    def _store_hash_to_db(self, hash_entry: Dict) -> None:
-        """해시를 integrity_hashes 테이블에 저장."""
-        if not (self.supabase_url and self.supabase_key):
-            return
-
-        try:
-            import urllib.request
-            url = f"{self.supabase_url}/rest/v1/integrity_hashes"
-            headers = {
-                "apikey": self.supabase_key,
-                "Authorization": f"Bearer {self.supabase_key}",
-                "Content-Type": "application/json",
-                "Prefer": "return=minimal,resolution=merge-duplicates",
-            }
-            body = json.dumps({
-                "rollup_date": hash_entry["date"],
-                "sha256_hash": hash_entry["sha256"],
-                "record_count": hash_entry["record_count"],
-                "data_bytes": hash_entry["bytes"],
-            }).encode()
-            req = urllib.request.Request(url, data=body, headers=headers, method="POST")
-            urllib.request.urlopen(req, timeout=5)
-        except Exception as e:
-            logger.warning("⚠️ Hash DB write failed: %s", e)
