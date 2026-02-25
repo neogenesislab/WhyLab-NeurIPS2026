@@ -280,6 +280,12 @@ We explicitly acknowledge the following limitations:
   the Dead Letter Queue are processed offline. This introduces a
   survivorship bias: the real-time audit stream during high-cost
   periods reflects only fallback (mock) evaluations.
+\item \textbf{DAG discovery degradation}: In cases of extreme
+  multicollinearity (e.g., deterministic agent exploration with
+  zero variance in treatment), the PC algorithm degrades to a
+  correlation-based heuristic with fixed threshold. Consequently,
+  downstream Shapley attribution in these sub-routines reflects
+  associative rather than strictly causal contributions.
 \end{itemize}
 
 
