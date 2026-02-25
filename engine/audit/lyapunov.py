@@ -58,6 +58,11 @@ class LyapunovFilter:
             drift_index=0.4,
             ares_penalty=0.3,
         )
+
+    Heavy-tail 방어 (Pareto/Log-normal 노이즈):
+        E[||ĝ||²]가 무한대로 발산 시 ζ_max → 0 방지.
+        ε_floor = min_zeta (기본 0.01)로 학습 정지(Deadlock) 차단.
+        ζ ∈ [ε_floor, C] where C = max_zeta (기본 0.8).
     """
 
     def __init__(
@@ -205,6 +210,8 @@ class LyapunovFilter:
                 "θ_{t+1} = θ_t - ζ_t ĝ_t, "
                 "V(θ) = ½||θ - θ*||², "
                 "ζ_max = 2⟨θ-θ*, g⟩ / E[||ĝ||²], "
-                "∵ E[ΔV] ≤ 0 iff ζ ≤ ζ_max"
+                "∵ E[ΔV] ≤ 0 iff ζ ≤ ζ_max. "
+                "Heavy-tail guard: ζ ∈ [ε_floor, C] "
+                f"where ε_floor={self.min_zeta}, C={self.max_zeta}"
             ),
         }

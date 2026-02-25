@@ -9,6 +9,8 @@ from engine.deploy.shadow import (
     DeploymentMode,
     ShadowDeployController,
     ShadowObservation,
+    compute_daily_hash,
+    append_hash_log,
 )
 
 
@@ -89,3 +91,53 @@ class TestShadowController:
         assert stats["total_observations"] == 2
         assert 0 <= stats["clip_rate"] <= 1.0
         assert "cost_budget" in stats
+
+    def test_dlq_enqueue(self):
+        """서킷 브레이커 차단 시 DLQ에 적재."""
+        ctrl = ShadowDeployController()
+        ctrl.enqueue_to_dlq("d1", {"ate": 0.15}, reason="breaker_tripped")
+        ctrl.enqueue_to_dlq("d2", {"ate": 0.22}, reason="timeout")
+        assert ctrl.dlq_size == 2
+        assert ctrl.dlq_entries[0]["decision_id"] == "d1"
+        assert ctrl.dlq_entries[1]["reason"] == "timeout"
+
+
+class TestDataIntegrity:
+    """암호학적 데이터 무결성 서명."""
+
+    def test_sha256_deterministic(self):
+        """동일 데이터 → 동일 해시."""
+        data = {"records": [{"a": 1}, {"b": 2}]}
+        h1 = compute_daily_hash(data, "2026-03-15")
+        h2 = compute_daily_hash(data, "2026-03-15")
+        assert h1["sha256"] == h2["sha256"]
+        assert len(h1["sha256"]) == 64  # SHA-256 hex
+
+    def test_sha256_different_data(self):
+        """다른 데이터 → 다른 해시."""
+        h1 = compute_daily_hash({"records": [{"a": 1}]}, "2026-03-15")
+        h2 = compute_daily_hash({"records": [{"a": 2}]}, "2026-03-15")
+        assert h1["sha256"] != h2["sha256"]
+
+    def test_append_hash_log(self, tmp_path):
+        """Append-only 해시 로그 파일 생성."""
+        log_file = str(tmp_path / "test_hashes.jsonl")
+        entry = compute_daily_hash({"records": []}, "2026-03-15")
+        append_hash_log(entry, log_file)
+        append_hash_log(entry, log_file)
+        with open(log_file) as f:
+            lines = f.readlines()
+        assert len(lines) == 2
+
+
+class TestHeavyTailGuard:
+    """Heavy-tail Lyapunov 보정 검증."""
+
+    def test_min_zeta_prevents_deadlock(self):
+        """극단적 노이즈에서도 ζ ≥ ε_floor."""
+        from engine.audit.lyapunov import LyapunovFilter
+        lyap = LyapunovFilter(min_zeta=0.01)
+        # 매우 높은 noise → ζ_max ≈ 0 → min_zeta로 바닥
+        result = lyap.clip(proposed_zeta=0.5, ate=0.001, drift_index=100.0)
+        assert result >= 0.01
+

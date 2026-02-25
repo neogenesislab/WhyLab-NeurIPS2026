@@ -11,6 +11,8 @@ Reviewer 기여:
 
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
 import time
 from dataclasses import dataclass, field
@@ -115,6 +117,7 @@ class ShadowDeployController:
         self.mode = mode
         self.cost_budget = cost_budget or CostBudget()
         self._observations: List[ShadowObservation] = []
+        self._dlq: List[Dict[str, Any]] = []  # Dead Letter Queue
         self._fallback_count = 0
 
     def should_run_deep_audit(self) -> bool:
@@ -130,6 +133,38 @@ class ShadowDeployController:
             )
             return False
         return True
+
+    def enqueue_to_dlq(
+        self,
+        decision_id: str,
+        payload: Dict[str, Any],
+        reason: str = "breaker_tripped",
+    ) -> None:
+        """DLQ(Dead Letter Queue) 적재.
+
+        서킷 브레이커 차단 시 심층 감사 대상 로그를 보존.
+        섹도우 배포 종료 후 오프라인 일괄처리(Batch)로 복구 가능.
+        논문 표본 수 확보에 필수.
+        """
+        entry = {
+            "decision_id": decision_id,
+            "reason": reason,
+            "timestamp": time.time(),
+            "payload": payload,
+        }
+        self._dlq.append(entry)
+        logger.info(
+            "📥 DLQ enqueued: %s (reason=%s, queue_size=%d)",
+            decision_id, reason, len(self._dlq),
+        )
+
+    @property
+    def dlq_size(self) -> int:
+        return len(self._dlq)
+
+    @property
+    def dlq_entries(self) -> List[Dict[str, Any]]:
+        return list(self._dlq)
 
     def record_observation(
         self,
@@ -211,3 +246,45 @@ class ShadowDeployController:
         if self.mode == DeploymentMode.SHADOW_ACTIVE:
             self.mode = DeploymentMode.PRODUCTION
             logger.info("🏭 Promoted: SHADOW_ACTIVE → PRODUCTION")
+
+
+# ── 암호학적 데이터 무결성 서명 ──
+
+def compute_daily_hash(rollup_data: Dict[str, Any], date_str: str) -> Dict[str, str]:
+    """데일리 롤업 데이터의 SHA-256 해시.
+
+    체리피킹 방어: 논문 심사위원이 데이터 사후 조작을 의심할 때,
+    GitHub 커밋 타임스탬프 + SHA-256으로 무결성 증명.
+
+    Args:
+        rollup_data: 롤업 레코드 (JSON-serializable)
+        date_str: 날짜 문자열 (e.g. "2026-03-15")
+
+    Returns:
+        {"date": date_str, "sha256": hex_hash, "record_count": n}
+    """
+    canonical = json.dumps(rollup_data, sort_keys=True, ensure_ascii=False)
+    h = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    return {
+        "date": date_str,
+        "sha256": h,
+        "record_count": len(rollup_data.get("records", [])),
+        "bytes": len(canonical),
+    }
+
+
+def append_hash_log(
+    hash_entry: Dict[str, str],
+    log_path: str = "data/integrity_hashes.jsonl",
+) -> str:
+    """Append-only 해시 로그 파일에 추가.
+
+    이 파일을 GitHub에 자동 커밋하면
+    타임스탬프가 찍힌 불변 무결성 레코드 역할.
+    """
+    import os
+    os.makedirs(os.path.dirname(log_path) or ".", exist_ok=True)
+    line = json.dumps(hash_entry, ensure_ascii=False)
+    with open(log_path, "a", encoding="utf-8") as f:
+        f.write(line + "\n")
+    return log_path

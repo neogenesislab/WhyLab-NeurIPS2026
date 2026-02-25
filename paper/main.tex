@@ -110,6 +110,20 @@ reducing $\zeta_t$ under high uncertainty is not heuristic but
 \textbf{[Full proof in Appendix A]}
 \end{proof}
 
+\begin{corollary}[Heavy-Tail Robustness]
+When gradient noise $\omega_t$ follows a heavy-tailed distribution
+(e.g., Pareto with infinite variance), $\zeta_{max} \to 0$,
+causing permanent learning deadlock. To prevent this, we enforce
+a hard floor-ceiling constraint:
+\[
+\zeta_t \in [\epsilon_{\text{floor}}, \mathcal{C}]
+\quad \text{where } \epsilon_{\text{floor}} = 0.01,\; \mathcal{C} = 0.8
+\]
+This guarantees $\zeta_t \geq \epsilon_{\text{floor}} > 0$
+even under arbitrarily large noise variance, ensuring the agent
+continues learning at a minimal but non-zero rate.
+\end{corollary}
+
 
 %% ============================================================
 \section{System Architecture \& Deployment Challenges}
