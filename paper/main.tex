@@ -1,0 +1,205 @@
+% WhyLab: Causal Audit Framework for Autonomous Agent Self-Improvement
+% Target: AAAI 2027 / KDD ADS Track
+% Draft skeleton — fill Experiments after shadow deployment data collection
+
+\documentclass[letterpaper]{article}
+\usepackage{aaai}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+
+\title{Causal Auditing of Autonomous Agents in the Wild:\\
+A Pragmatic Framework for Safe Self-Improvement}
+
+\author{Yesol Heo}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Autonomous AI agents that self-improve through feedback loops face a
+critical risk: hallucination-driven policy oscillation leading to
+performance divergence. We present WhyLab, a pragmatic causal audit
+framework that (1) detects causal drift via information-theoretic
+weighted indices, (2) quantifies robustness against unobserved
+confounders using E-values, and (3) guarantees bounded strategy updates
+through Lyapunov stability analysis. Deployed as a shadow system
+alongside production agents, WhyLab's cost-aware circuit breaker and
+three-phase promotion pipeline ensure safe deployment under real-world
+API budget and latency constraints.
+
+% TODO: Add quantitative results after shadow deployment (3-4 months)
+\end{abstract}
+
+
+%% ============================================================
+\section{Introduction}
+
+% The problem: agents self-improve but may diverge
+% Why existing tools (DoWhy, EconML) are insufficient
+% Our contribution: pragmatic, deployment-tested causal audit
+% NOT: "world's first" or SOTA claims without real data
+
+\textbf{[PLACEHOLDER — write after shadow deployment data is collected]}
+
+
+%% ============================================================
+\section{Methodology}
+
+% Mathematical backbone: R1, R2, R5
+% Honest scope: these are production-ready components
+
+\subsection{Information-Theoretic Drift Index (R1)}
+
+\begin{definition}[Drift Index]
+Given verdict, ATE, and confidence signal streams $S_1, S_2, S_3$
+with Shannon entropies $H(S_i)$, the drift index is:
+\[
+DI = \sum_{i=1}^{3} w_i \cdot d_i, \quad
+w_i = \frac{1/(H(S_i) + \epsilon)}{\sum_j 1/(H(S_j) + \epsilon)}
+\]
+where $\epsilon = 0.1$ prevents zero-entropy explosion and
+$w_i \leq 0.6$ prevents winner-takes-all collapse.
+Bin count follows Sturges' Rule: $k = \lceil 1 + \log_2 N \rceil$.
+\end{definition}
+
+
+\subsection{Sensitivity Analysis via E-value (R2)}
+
+\begin{definition}[E-value \cite{vanderweele2017}]
+For risk ratio $RR = \exp(|ATE| / \sigma_{pre})$:
+\[
+E = RR + \sqrt{RR \cdot (RR - 1)}
+\]
+Interpretation: an unobserved confounder must associate with both
+treatment and outcome at $RR \geq E$ to nullify the observed effect.
+\end{definition}
+
+Robustness Value $RV_q \approx \sqrt{\partial R^2_T}$
+provides the Cinelli \& Hazlett (2020) partial $R^2$ bound.
+
+
+\subsection{Lyapunov-Bounded Damping (R5)}
+
+\begin{theorem}[Convergence of Adaptive Damping]
+Let $\theta_t$ be the agent's strategy, updated as
+$\theta_{t+1} = \theta_t - \zeta_t \hat{g}_t$ where
+$\hat{g}_t = g_t + \omega_t$ ($g_t$: true causal gradient,
+$\omega_t$: noise from LLM judgment and environmental drift).
+
+Define Lyapunov energy $V(\theta_t) = \frac{1}{2}\|\theta_t - \theta^*\|^2$.
+
+Then $\mathbb{E}[\Delta V] \leq 0$ if and only if:
+\[
+\zeta_t \leq \zeta_{max} = \frac{2 \langle \theta_t - \theta^*, g_t \rangle}
+{\mathbb{E}[\|\hat{g}_t\|^2]}
+\]
+
+Since $\mathbb{E}[\|\hat{g}_t\|^2] \propto (DI + \epsilon_{ARES})$,
+reducing $\zeta_t$ under high uncertainty is not heuristic but
+\emph{mathematically necessary} for stability.
+\end{theorem}
+
+\begin{proof}
+\textbf{[Full proof in Appendix A]}
+\end{proof}
+
+
+%% ============================================================
+\section{System Architecture \& Deployment Challenges}
+
+% This section targets KDD ADS track reviewers
+% Honest about limitations and cost tradeoffs
+
+\subsection{Infrastructure Constraints}
+
+% GA4 quota limits → Outbox pattern (C3)
+% DB growth → Weekly partitioning + daily rollup (C2)
+% Trace explosion → OTel dynamic sampling (C4)
+
+\textbf{[PLACEHOLDER — describe each C1-C4 component with lessons learned]}
+
+
+\subsection{Safe Deployment via Shadow Mode}
+
+% 3-phase promotion: DRY_RUN → ACTIVE → PRODUCTION
+% Cost circuit breaker: daily token/USD hard limit
+% This is genuine engineering, not theoretical
+
+\textbf{[PLACEHOLDER — describe shadow.py architecture]}
+
+
+%% ============================================================
+\section{Experiments}
+
+% CRITICAL: Use ONLY real shadow deployment data here
+% Do NOT cite synthetic Who&When or CausalFlip as SOTA comparisons
+
+\subsection{Live Shadow Deployment}
+
+% Metric 1: zeta clipping frequency over time
+% Metric 2: agent performance with/without audit feedback
+% Metric 3: circuit breaker trip patterns
+
+\textbf{[PLACEHOLDER — requires 1-2 months of live data]}
+
+
+\subsection{Ablation Study}
+
+% Which components matter most?
+% Table: Full system vs. no-R1 vs. no-R5 vs. no-C3
+
+\textbf{[PLACEHOLDER — run after live data collection]}
+
+
+\subsection{Limitations}
+\label{sec:limitations}
+
+We explicitly acknowledge the following limitations:
+\begin{itemize}
+\item \textbf{ARES evaluator}: Currently uses mock LLM judges.
+  Production integration with real LLM APIs and associated
+  cost-performance tradeoffs remain future work.
+\item \textbf{Shapley attribution}: Full MACIE computation is
+  $O(2^n)$; our implementation uses a lightweight heuristic
+  approximation, not exact Shapley values.
+\item \textbf{CausalFlip benchmark}: Uses keyword-based causal
+  detection, not true semantic reasoning. Intended as a unit-test
+  framework, not a validated benchmark.
+\end{itemize}
+
+
+%% ============================================================
+\section{Related Work}
+
+% DoWhy, EconML, CausalML — inference tools, not audit frameworks
+% ARES (Saad-Falcon et al. 2024) — our simplified version
+% Lyapunov in RL — Chow et al. 2018, Berkenkamp et al. 2017
+
+\textbf{[PLACEHOLDER]}
+
+
+%% ============================================================
+\section{Conclusion}
+
+\textbf{[PLACEHOLDER — write after experiments]}
+
+
+%% ============================================================
+\bibliographystyle{aaai}
+\bibliography{references}
+
+% Key references:
+% \cite{vanderweele2017} VanderWeele & Ding 2017 — E-value
+% \cite{cinelli2020} Cinelli & Hazlett 2020 — Partial R²
+% \cite{jaynes2003} Jaynes 2003 — Maximum Entropy
+% \cite{sturges1926} Sturges 1926 — Binning rule
+% \cite{agresti1998} Agresti & Coull 1998 — Beta-Binomial CI
+
+\end{document}

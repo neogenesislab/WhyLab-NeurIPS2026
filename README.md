@@ -16,8 +16,11 @@
   <em>▲ 인터랙티브 대시보드 — ROI 시뮬레이터, AI 토론, CATE 탐색기, 인과 그래프</em>
 </p>
 
-WhyLab is the world's first **Decision Intelligence Engine** powered by **Multi-Agent Debate**.
-It bridges the gap between **Causal Inference** (Science) and **Business Decision** (Art).
+WhyLab is a **Decision Intelligence Engine** powered by **Multi-Agent Debate**
+and a **Causal Audit Framework** for autonomous agent systems.
+
+- **v1.0**: Causal inference pipeline (22-Cell), MCP server, interactive dashboard
+- **v2.0**: Causal audit engine for agent self-improvement (drift detection, sensitivity analysis, Lyapunov stability)
 
 ### 🎯 Why WhyLab?
 
@@ -308,6 +311,15 @@ WhyLab/
     config.py         # Central configuration (no magic numbers)
     orchestrator.py   # 22-cell pipeline orchestrator
     cli.py            # CLI entry point
+    audit/            # v2.0 Causal Audit Engine
+      drift_monitor.py  # Information-theoretic drift detection (R1)
+      sensitivity.py    # E-value + Partial R² (R2)
+      lyapunov.py       # ζ stability controller (R5)
+      outbox.py         # Transactional outbox (C3)
+      llm_judge/        # ARES evaluator framework (R3)
+      methods/          # DML, CausalImpact, GSC
+    telemetry/          # OTel dynamic sampling (C4)
+    deploy/             # Shadow deployment controller (P4)
   whylab/
     api.py            # 3-line SDK (analyze → CausalResult)
     server.py         # SDK REST API server (port 8000)
@@ -315,23 +327,56 @@ WhyLab/
     main.py           # Dashboard Backend API (port 4001)
   dashboard/          # Next.js interactive dashboard
     components/       #   PolicySimulator, WhatIfSimulator, DebateVerdict, ...
-  tests/              # 26 test files (58+ cases)
+  tests/              # 142 tests (v1 pipeline + v2 audit engine)
   results/            # Benchmark output (JSON + LaTeX)
   .github/workflows/  # CI (80% gate) + Deploy + PyPI Release (OIDC)
 ```
 
+## v2.0 — Causal Audit Engine
+
+An audit framework that prevents autonomous agents from diverging due to hallucination feedback loops.
+
+### Component Maturity
+
+| Component | Maturity | Description |
+|---|---|---|
+| **Drift Index (R1)** | ✅ Production | Information-theoretic dynamic weights (entropy-inverse) |
+| **E-value Sensitivity (R2)** | ✅ Production | VanderWeele 2017 + Cinelli 2020 Partial R² |
+| **Lyapunov ζ Controller (R5)** | ✅ Production | ζ_max bound clipping, convergence tracking |
+| **Outbox Pattern (C3)** | ✅ Production | WAL-based at-least-once delivery + DLQ |
+| **Partitioning + Rollup (C2)** | ✅ Production | Weekly partitions, daily rollup (permanent) |
+| **OTel Dynamic Sampling (C4)** | ✅ Production | 5% normal, 100% errors/DI-spikes |
+| **Shadow Deploy (P4)** | ✅ Production | 3-phase promotion, cost circuit breaker |
+| **Chaos Tests (C1)** | ✅ Tests | Retry storms, DLQ, partial failures |
+| **ARES Evaluator (R3)** | ⚠️ Framework | Monte Carlo + Beta-Binomial CI; LLM mock only |
+| **CausalFlip (R3)** | ⚠️ Framework | Keyword-based judge; needs real LLM integration |
+| **Who&When Benchmark (R4)** | ⚠️ Internal | Synthetic data only; NOT validated on real dataset |
+
+> **Legend**: ✅ Production-ready | ⚠️ Framework/Mock (needs real integration)
+
+### Quick Test (v2.0 Audit Engine)
+
+```bash
+# All 142 tests (~4 seconds)
+python -m pytest tests/ -q --tb=short
+
+# By module
+python -m pytest tests/test_audit.py tests/test_methods.py      # Core audit
+python -m pytest tests/test_sensitivity.py tests/test_lyapunov.py  # R2 + R5
+python -m pytest tests/test_causal_flip.py                        # R3 ARES
+python -m pytest tests/test_otel.py tests/test_shadow.py          # C4 + P4
+```
+
+---
+
 ## Tests
 
 ```bash
-# All tests
+# Full suite
 python -m pytest tests/ -v
-
-# Phase-specific
-python -m pytest tests/test_phase10.py -v   # IV/DiD/RDD + Temporal + Counterfactual
-python -m pytest tests/test_phase11.py -v   # Server + Audit + Version
 ```
 
-> **58+ tests** | Phase 10: 14 passed | Phase 11: 4 passed, 3 skipped (FastAPI optional)
+> **142 tests** passing (v1.0 Pipeline + v2.0 Audit Engine)
 
 ---
 
