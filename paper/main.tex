@@ -135,6 +135,8 @@ where $R_{max}$ is the achievable upper bound (e.g., maximum observed
 conversion rate over a calibration window). This proxy satisfies the
 key requirement: $V_t \to 0$ as $R_t \to R_{max}$, and $V_t$ decreasing
 after $\zeta$-clipping events provides empirical evidence of stabilization.
+To account for non-stationary environments, we apply a rolling-window
+exponential moving average (EMA) to $R_{max}$ with decay factor $\alpha = 0.1$.
 \end{remark}
 
 %% ============================================================
@@ -233,12 +235,13 @@ operating on lightweight fallback. We report the fraction of
 decisions processed by real vs.\ fallback audit, and measure whether
 agent performance degrades during fallback periods.
 
-\textbf{H3: Causal audit reveals false positives in na\"ive evaluation.}
+\textbf{H3: Causal audit distinguishes robust from fragile successes.}
 We aggregate E-values from \texttt{daily\_agent\_rollup} and report
-the fraction of agent decisions that are robust to unobserved confounders
-($E > 2.0$). We frame this conservatively: ``Of $N$ decisions over 30 days,
-only $M$ (\%$p$) exhibited causal effects robust to moderate unmeasured
-confounding. Standard A/B testing would have attributed all $N$ as successes.''
+the fraction of agent decisions robust to unobserved confounders
+($E > 2.0$). We frame this as sensitivity analysis: ``Of $N$ decisions
+over 30 days, only $M$ (\%$p$) exhibited causal effects that an
+unmeasured confounder would need RR $\geq E$ to explain away.
+Standard A/B testing would have attributed all $N$ as successes.''
 
 \textbf{[Data collection in progress --- results after 30-day shadow period.]}
 

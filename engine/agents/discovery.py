@@ -257,6 +257,14 @@ class DiscoveryAgent:
 
         except ImportError:
             self.logger.warning("       causal-learn 미설치 — 상관 heuristic fallback 사용")
+        except ValueError as e:
+            # Singular correlation matrix: 합성 데이터 공선성 또는 분산 0 컬럼
+            self.logger.warning(
+                "       PC Algorithm ValueError: %s — 상관 heuristic fallback", e
+            )
+
+        # PC 알고리즘 실패 시 (ImportError/ValueError) 상관 heuristic
+        if dag.number_of_edges() == 0:
             corr_matrix = numeric_df.corr().abs()
             threshold = 0.3
 
