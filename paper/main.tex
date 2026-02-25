@@ -430,6 +430,16 @@ Taking expectation over the noise $\omega_t$:
    + \frac{\zeta_t^2}{2}\mathbb{E}[\|\hat{g}_t\|^2]
 \end{align}
 since $\mathbb{E}[\omega_t] = 0$ by the unbiasedness assumption.
+While raw LLM hallucinations often exhibit directional bias
+(i.e., $\mathbb{E}[\omega_t] = \mu \neq 0$ due to sycophancy or
+positivity bias), our integration of the ARES evaluator explicitly
+rejects ungrounded premises and propagated errors, acting as a
+debiasing filter that effectively centers the residual noise
+distribution. Any remaining uncentered bias $\mu$ would introduce
+an additional term $-\zeta_t \langle \theta_t - \theta^*, \mu \rangle$,
+strictly requiring a tighter bound on $\zeta_{max}$---which our
+conservative floor-ceiling guard ($\zeta_t \in [\epsilon_{\text{floor}},
+\mathcal{C}]$) empirically accommodates.
 
 \textbf{Step 3: Stability condition.}
 For $\mathbb{E}[\Delta V] \leq 0$, we require:
