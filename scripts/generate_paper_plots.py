@@ -165,14 +165,43 @@ def load_rollup_data(
 ) -> Dict[str, List]:
     """daily_agent_rollup 데이터 로드.
 
-    실제 사용 시: Supabase REST API 또는 psycopg2로 교체.
-    프로토타입: JSON 파일에서 로드.
+    우선순위:
+    1. Supabase REST API (환경변수 설정 시)
+    2. JSON 파일 폴백
+    3. 빈 구조 반환
     """
+    # Supabase 시도
+    supabase_url = os.environ.get("SUPABASE_URL")
+    supabase_key = os.environ.get("SUPABASE_ANON_KEY")
+
+    if supabase_url and supabase_key:
+        try:
+            import urllib.request
+            url = f"{supabase_url}/rest/v1/daily_agent_rollup?select=*&order=rollup_date.asc"
+            headers = {
+                "apikey": supabase_key,
+                "Authorization": f"Bearer {supabase_key}",
+                "Content-Type": "application/json",
+            }
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                rows = json.loads(resp.read())
+                if rows:
+                    return {
+                        "dates": [r["rollup_date"] for r in rows],
+                        "performance": [r.get("avg_outcome", 0) for r in rows],
+                        "clip_counts": [r.get("decision_count", 0) for r in rows],
+                        "drift_indices": [r.get("std_outcome", 0) for r in rows],
+                        "e_values": [r.get("success_rate", 0) for r in rows],
+                    }
+        except Exception as e:
+            print(f"⚠️ Supabase 연결 실패: {e} — JSON 폴백")
+
+    # JSON 폴백
     if json_path and os.path.exists(json_path):
         with open(json_path, "r") as f:
             return json.load(f)
 
-    # 데이터 없으면 빈 구조 반환
     return {
         "dates": [],
         "performance": [],
