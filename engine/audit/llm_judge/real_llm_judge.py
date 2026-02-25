@@ -102,9 +102,17 @@ class RealLLMJudge:
             except TimeoutError:
                 logger.warning("⏱️ LLM timeout (attempt %d/%d)", attempt + 1, 1 + self.max_retries)
                 self.error_count += 1
+                if attempt < self.max_retries:
+                    import random
+                    backoff = (2 ** attempt) + random.uniform(0, 0.5)
+                    time.sleep(backoff)
             except Exception as e:
                 logger.warning("❌ LLM error: %s (attempt %d)", e, attempt + 1)
                 self.error_count += 1
+                if attempt < self.max_retries:
+                    import random
+                    backoff = (2 ** attempt) + random.uniform(0, 0.5)
+                    time.sleep(backoff)
 
         # 모든 재시도 실패 → 안전한 폴백
         return True
