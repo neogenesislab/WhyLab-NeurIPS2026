@@ -42,12 +42,18 @@ def generate_audit_data(n_samples, rng, fragile_rate=0.2, noise_level=0.3):
     - verdict: binary (positive/negative)
     - true_quality: ground-truth reliability of the verdict
     - E_value: evidence strength (higher = more reliable)
-    - RV: residual variance (lower = more reliable)
+    - RV: sensitivity proxy — residual variance of the effect estimate.
+          In the paper (Appendix C), the robustness value RV_q measures
+          how much confounding is needed to nullify the effect (higher =
+          more robust).  Here we use residual variance as its *inverse*
+          proxy: low RV ≈ high robustness value, so the filter rejects
+          samples with RV > RV_min (equivalently, RV_q < RV_min in the
+          paper's notation).
     - is_fragile: whether this is a "fragile success"
       (positive verdict but unreliable underlying evaluation)
 
     Ground-truth model:
-    - Reliable positives: high E, low RV
+    - Reliable positives: high E, low RV (high robustness)
     - Reliable negatives: variable E, variable RV
     - Fragile positives: moderate E but HIGH RV (looks good but isn't)
     - False negatives: low E, low RV (genuinely negative)
