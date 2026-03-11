@@ -1,4 +1,4 @@
-\begin{thebibliography}{14}
+\begin{thebibliography}{13}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -69,12 +69,6 @@ Noah Shinn, Federico Cassano, Ashwin Labash, Karthik Gopinath, Karthik
 \newblock Reflexion: Language agents with verbal reinforcement learning.
 \newblock In \emph{Advances in Neural Information Processing Systems
   (NeurIPS)}, volume~36, 2023.
-
-\bibitem[Sturges(1926)]{sturges1926}
-Herbert~A. Sturges.
-\newblock The choice of a class interval.
-\newblock \emph{Journal of the American Statistical Association}, 21\penalty0
-  (153):\penalty0 65--66, 1926.
 
 \bibitem[VanderWeele and Ding(2017)]{vanderweele2017}
 Tyler~J. VanderWeele and Peng Ding.

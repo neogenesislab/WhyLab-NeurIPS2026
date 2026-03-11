@@ -1,17 +1,25 @@
 """
-E2: Sensitivity Filtering — C2 Validation
-==========================================
-Tests whether the dual-threshold E-value + RV filter correctly
-separates stable from fragile evaluation outcomes.
+E2: Sensitivity Filtering — C2 Validation (v2: Real E-value + RV)
+==================================================================
+Tests whether the dual-threshold E-value + RV_q filter correctly
+separates genuine from fragile causal estimates using ACTUAL
+computation of E-values and robustness values from OLS regression.
 
 Protocol:
-- Generate synthetic audit outcomes with known ground-truth quality
+- Generate synthetic observational data with known confounders
+- Estimate ATE via OLS (naive, ignoring hidden confounder U)
+- Compute E-value via VanderWeele & Ding (2017) conversion
+- Compute RV_q via Cinelli & Hazlett (2020) formula
 - Compare: E-only / RV-only / E+RV (C2) / no-filter
-- Threshold sweep over E ∈ [1.0, 5.0] and RV ∈ [0.01, 0.5]
-- Metrics: precision, recall, F1, accepted-positive FDR, decision loss
+- Threshold sweep
+- Metrics: fragile rate, recall, fragile rejection, retention
 
-Key: "fragile success" = positive outcome that is unreliable.
-C2's job is to flag and exclude these before they pollute downstream RL.
+Key DGP design:
+- "reliable" scenarios: true causal effect tau > 0, no confounding,
+  low outcome noise → ATE ≈ tau, high E-value, high RV
+- "fragile" scenarios: true causal effect tau = 0, moderate
+  confounding creates spurious positive ATE, high outcome noise
+  → positive ATE due to confounding + noise, but LOW E-value, LOW RV
 """
 import numpy as np
 import pandas as pd
@@ -26,166 +34,161 @@ SEEDS = EXP["seeds"]
 BASE_SEED = EXP["rng_base_seed"]
 
 # Experiment parameters
-N_SAMPLES = 500       # audit outcomes per episode
-N_EPISODES = 50       # episodes per seed
+N_OBS = 50            # observations per scenario (small → SE matters)
+N_SCENARIOS = 80      # scenarios per seed
 E_THRESHOLDS = [1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]
 RV_THRESHOLDS = [0.01, 0.05, 0.1, 0.15, 0.2, 0.3, 0.5]
 
+# Scenario configurations: (label, tau_true, confounding_gamma, outcome_noise_sd, is_fragile)
+SCENARIO_CONFIGS = [
+    ("reliable_strong", 1.0, 0.0, 1.0, False),   # strong true effect, clean
+    ("reliable_weak",   0.5, 0.0, 1.0, False),   # weaker true effect, clean
+    ("fragile_mild",    0.0, 0.3, 3.0, True),    # no real effect, mild confounding + high noise
+    ("fragile_strong",  0.0, 0.5, 3.0, True),    # no real effect, stronger confounding + high noise
+]
+SCENARIO_PROBS = [0.25, 0.25, 0.25, 0.25]
+
 
 # ---------------------------------------------------------------------------
-# Data generation
+# Data Generation
 # ---------------------------------------------------------------------------
-def generate_audit_data(n_samples, rng, fragile_rate=0.2, noise_level=0.3):
-    """Generate synthetic audit outcomes with known ground-truth reliability.
+def generate_scenario(n, rng, tau_true, confounding_strength, noise_sd):
+    """Generate one observational study scenario.
 
-    Each sample has:
-    - verdict: binary (positive/negative)
-    - true_quality: ground-truth reliability of the verdict
-    - E_value: evidence strength (higher = more reliable)
-    - RV: sensitivity proxy — residual variance of the effect estimate.
-          In the paper (Appendix C), the robustness value RV_q measures
-          how much confounding is needed to nullify the effect (higher =
-          more robust).  Here we use residual variance as its *inverse*
-          proxy: low RV ≈ high robustness value, so the filter rejects
-          samples with RV > RV_min (equivalently, RV_q < RV_min in the
-          paper's notation).
-    - is_fragile: whether this is a "fragile success"
-      (positive verdict but unreliable underlying evaluation)
+    Model:
+        X ~ N(0, 1)                              # observed covariate
+        U ~ N(0, 1)                              # hidden confounder
+        T* = 0.3*X + gamma*U + noise             # latent treatment propensity
+        T  = 1{T* > median(T*)}                  # binary treatment
+        Y  = tau*T + 0.5*X + gamma*U + eps       # outcome (eps ~ N(0, noise_sd))
 
-    Ground-truth model:
-    - Reliable positives: high E, low RV (high robustness)
-    - Reliable negatives: variable E, variable RV
-    - Fragile positives: moderate E but HIGH RV (looks good but isn't)
-    - False negatives: low E, low RV (genuinely negative)
+    For fragile: tau=0, gamma>0, high noise → spurious positive ATE
+    For reliable: tau>0, gamma=0, low noise → clean positive ATE
     """
-    is_positive = rng.random(n_samples) > 0.4  # 60% positive rate
-    is_fragile = np.zeros(n_samples, dtype=bool)
+    X = rng.normal(0, 1, n)
+    U = rng.normal(0, 1, n)
 
-    # Mark some positives as fragile
-    pos_idx = np.where(is_positive)[0]
-    n_fragile = int(len(pos_idx) * fragile_rate)
-    if n_fragile > 0:
-        fragile_idx = rng.choice(pos_idx, size=n_fragile, replace=False)
-        is_fragile[fragile_idx] = True
+    T_star = 0.3 * X + confounding_strength * U + rng.normal(0, 0.8, n)
+    T = (T_star > np.median(T_star)).astype(float)
 
-    E_values = np.zeros(n_samples)
-    RV_values = np.zeros(n_samples)
+    Y = (tau_true * T + 0.5 * X
+         + confounding_strength * U
+         + rng.normal(0, noise_sd, n))
 
-    for i in range(n_samples):
-        if is_positive[i] and not is_fragile[i]:
-            # Reliable positive: high E, low RV
-            E_values[i] = rng.lognormal(1.2, 0.4)  # mean ~3.3
-            RV_values[i] = rng.exponential(0.05)    # mean ~0.05
-        elif is_positive[i] and is_fragile[i]:
-            # Fragile positive: moderate E, HIGH RV
-            E_values[i] = rng.lognormal(0.8, 0.5)   # mean ~2.2
-            RV_values[i] = rng.exponential(0.25)     # mean ~0.25
-        else:
-            # Negative: low E, variable RV
-            E_values[i] = rng.lognormal(0.3, 0.6)    # mean ~1.3
-            RV_values[i] = rng.exponential(0.15)      # mean ~0.15
+    return X, T, Y
 
-    # Add noise to make separation imperfect
-    E_values += rng.normal(0, noise_level, n_samples)
-    E_values = np.clip(E_values, 0.01, 100)
-    RV_values += rng.normal(0, noise_level * 0.1, n_samples)
-    RV_values = np.clip(RV_values, 0.001, 10)
 
-    return pd.DataFrame({
-        "verdict": is_positive.astype(int),
-        "is_fragile": is_fragile.astype(int),
-        "E_value": E_values,
-        "RV": RV_values,
-        "true_reliable": ((is_positive) & (~is_fragile)).astype(int),
-    })
+def estimate_ate_ols(X, T, Y):
+    """Estimate ATE via OLS: Y ~ 1 + T + X (does NOT control for U).
+
+    Returns: (ate, se, t_stat, sigma_pooled)
+        sigma_pooled = pooled SD of outcome (for E-value computation)
+    """
+    n = len(Y)
+    A = np.column_stack([np.ones(n), T, X])
+
+    # Pooled SD of outcome for E-value (Def. 2 in paper)
+    sigma_pooled = float(np.std(Y, ddof=1))
+
+    try:
+        beta = np.linalg.lstsq(A, Y, rcond=None)[0]
+    except np.linalg.LinAlgError:
+        return 0.0, 1e6, 0.0, sigma_pooled
+
+    residuals = Y - A @ beta
+    sigma2 = np.sum(residuals**2) / max(n - A.shape[1], 1)
+
+    try:
+        cov = sigma2 * np.linalg.inv(A.T @ A)
+    except np.linalg.LinAlgError:
+        return beta[1], 1e6, 0.0, sigma_pooled
+
+    ate = beta[1]
+    se = np.sqrt(max(cov[1, 1], 1e-12))
+    t_stat = ate / se
+
+    return ate, se, t_stat, sigma_pooled
 
 
 # ---------------------------------------------------------------------------
-# Filtering strategies
+# E-value (VanderWeele & Ding 2017, Def. 2 in paper)
+# ---------------------------------------------------------------------------
+def compute_evalue(ate, sigma_pooled):
+    """Compute approximate E-value for continuous outcomes.
+
+    Following VanderWeele & Ding (2017) / paper Def. 2:
+        d = |ATE| / sigma_pooled  (standardized effect size, NOT SE)
+        RR = exp(0.91 * d)
+        E = RR + sqrt(RR * (RR - 1))
+
+    sigma_pooled is the pooled SD of the outcome, distinct from SE
+    of the coefficient. This makes E-value an effect-size measure,
+    while RV (based on t-stat = ATE/SE) captures statistical precision.
+    """
+    d = min(abs(ate) / max(sigma_pooled, 1e-8), 10.0)
+    rr = np.exp(0.91 * d)
+    return float(rr + np.sqrt(rr * (rr - 1.0))) if rr > 1.0 else 1.0
+
+
+# ---------------------------------------------------------------------------
+# Robustness Value (Cinelli & Hazlett 2020, Appendix C)
+# ---------------------------------------------------------------------------
+def compute_rv(ate, se, q=0.0):
+    """Compute Robustness Value RV_q.
+
+    f_q = (|hat_beta| - q) / SE ; RV_q = 0.5*(sqrt(f^4+4f^2) - f^2)
+    """
+    f_q = (abs(ate) - q) / max(se, 1e-8)
+    if f_q <= 0:
+        return 0.0
+    return float(0.5 * (np.sqrt(f_q**4 + 4 * f_q**2) - f_q**2))
+
+
+# ---------------------------------------------------------------------------
+# Filtering
 # ---------------------------------------------------------------------------
 def apply_filter(df, E_thresh, RV_thresh, mode="E+RV"):
-    """Apply filtering and return accepted samples.
-
-    Modes:
-    - "none": accept all
-    - "E_only": reject if E < E_thresh
-    - "RV_only": reject if RV > RV_thresh
-    - "E+RV": reject if E < E_thresh OR RV > RV_thresh (C2)
-    """
     if mode == "none":
-        return df.copy(), np.ones(len(df), dtype=bool)
+        return np.ones(len(df), dtype=bool)
     elif mode == "E_only":
-        accepted = df["E_value"] >= E_thresh
+        return df["E_value"].values >= E_thresh
     elif mode == "RV_only":
-        accepted = df["RV"] <= RV_thresh
+        return df["RV_q"].values >= RV_thresh
     elif mode == "E+RV":
-        accepted = (df["E_value"] >= E_thresh) & (df["RV"] <= RV_thresh)
-    else:
-        raise ValueError(f"Unknown mode: {mode}")
-
-    return df[accepted], accepted.values
+        return ((df["E_value"].values >= E_thresh)
+                & (df["RV_q"].values >= RV_thresh))
+    raise ValueError(f"Unknown mode: {mode}")
 
 
-def compute_metrics(df, accepted_mask):
-    """Compute filtering quality metrics.
-
-    Metric definitions (note different denominators):
-    - fragile_rate: fragile / accepted_positives (FDR among positives)
-    - reliable_frac: true_reliable / all_accepted (set-level precision)
-    - recall: accepted_reliable / total_reliable
-    - fragile_rej: 1 - accepted_fragile / total_fragile
-
-    fragile_rate != 1 - reliable_frac because reliable_frac includes
-    accepted negatives in the denominator.
-    """
-    accepted = df[accepted_mask]
-
+def compute_metrics(df, mask):
+    accepted = df[mask]
     n_total = len(df)
-    n_accepted = len(accepted)
+    n_accepted = mask.sum()
 
-    # Among accepted positives, fraction that are fragile
-    accepted_positives = accepted[accepted["verdict"] == 1]
-    if len(accepted_positives) > 0:
-        fragile_rate = accepted_positives["is_fragile"].mean()
-    else:
-        fragile_rate = 0.0
+    # Among accepted with positive ATE, fraction that are fragile
+    acc_pos = accepted[accepted["ate_positive"] == 1]
+    fragile_rate = float(acc_pos["is_fragile"].mean() if len(acc_pos) > 0 else 0.0)
 
-    # Fraction of entire accepted set that is truly reliable
-    if n_accepted > 0:
-        reliable_frac = accepted["true_reliable"].mean()
-    else:
-        reliable_frac = 1.0
+    # Recall: fraction of reliable positives kept
+    n_reliable = df["is_reliable"].sum()
+    recall = float(accepted["is_reliable"].sum() / n_reliable if n_reliable > 0 else 1.0)
 
-    # Recall: fraction of true reliable that are accepted
-    n_reliable = df["true_reliable"].sum()
-    recall = accepted["true_reliable"].sum() / n_reliable if n_reliable > 0 else 1.0
-
-    # F1 (based on reliable_frac as proxy for precision)
-    f1 = (2 * reliable_frac * recall / (reliable_frac + recall)
-          if (reliable_frac + recall) > 0 else 0.0)
-
-    # Fragile rejection rate
+    # Fragile rejection
     n_fragile = df["is_fragile"].sum()
-    fragile_rej = (1 - accepted["is_fragile"].sum() / n_fragile
-                   if n_fragile > 0 else 1.0)
-
-    accepted_fragile = accepted["is_fragile"].sum()
+    fragile_rej = float(1 - accepted["is_fragile"].sum() / n_fragile
+                        if n_fragile > 0 else 1.0)
 
     return {
-        "n_accepted": n_accepted,
-        "n_rejected": n_total - n_accepted,
-        "retention_rate": n_accepted / max(n_total, 1),
+        "n_accepted": int(n_accepted),
+        "retention_rate": float(n_accepted / max(n_total, 1)),
         "fragile_rate": fragile_rate,
-        "reliable_frac": reliable_frac,
         "recall": recall,
-        "f1": f1,
         "fragile_rej": fragile_rej,
-        "accepted_fragile": accepted_fragile,
     }
 
 
 # ---------------------------------------------------------------------------
-# Main experiment
+# Main
 # ---------------------------------------------------------------------------
 def run_e2():
     all_rows = []
@@ -194,44 +197,54 @@ def run_e2():
         seed = BASE_SEED + seed_idx
         rng = np.random.default_rng(seed)
 
-        # Generate data
-        df = generate_audit_data(N_SAMPLES, rng)
+        rows = []
+        for sc_idx in range(N_SCENARIOS):
+            cfg_idx = rng.choice(len(SCENARIO_CONFIGS), p=SCENARIO_PROBS)
+            label, tau, gamma, noise_sd, is_fragile = SCENARIO_CONFIGS[cfg_idx]
 
-        # No filter baseline
-        _, mask = apply_filter(df, 0, 0, "none")
-        m = compute_metrics(df, mask)
-        all_rows.append({
-            "seed": seed, "mode": "none",
-            "E_thresh": 0, "RV_thresh": 0, **m
-        })
+            X, T, Y = generate_scenario(N_OBS, rng, tau, gamma, noise_sd)
+            ate, se, t_stat, sigma_pooled = estimate_ate_ols(X, T, Y)
 
-        # Sweep thresholds
-        for E_t in E_THRESHOLDS:
-            # E-only
-            _, mask = apply_filter(df, E_t, 0, "E_only")
-            m = compute_metrics(df, mask)
-            all_rows.append({
-                "seed": seed, "mode": "E_only",
-                "E_thresh": E_t, "RV_thresh": 0, **m
+            e_val = compute_evalue(ate, sigma_pooled)
+            rv_q = compute_rv(ate, se)
+            ate_pos = ate > 0
+
+            rows.append({
+                "seed": seed, "scenario": sc_idx, "type": label,
+                "tau_true": tau, "gamma": gamma, "noise_sd": noise_sd,
+                "ate": ate, "se": se, "t_stat": t_stat,
+                "E_value": e_val, "RV_q": rv_q,
+                "is_fragile": int(is_fragile),
+                "ate_positive": int(ate_pos),
+                "is_reliable": int(ate_pos and not is_fragile),
             })
+
+        df = pd.DataFrame(rows)
+
+        # No filter
+        mask = apply_filter(df, 0, 0, "none")
+        m = compute_metrics(df, mask)
+        all_rows.append({"seed": seed, "mode": "none",
+                         "E_thresh": 0, "RV_thresh": 0, **m})
+
+        # Threshold sweeps
+        for E_t in E_THRESHOLDS:
+            mask = apply_filter(df, E_t, 0, "E_only")
+            m = compute_metrics(df, mask)
+            all_rows.append({"seed": seed, "mode": "E_only",
+                             "E_thresh": E_t, "RV_thresh": 0, **m})
 
         for RV_t in RV_THRESHOLDS:
-            # RV-only
-            _, mask = apply_filter(df, 0, RV_t, "RV_only")
+            mask = apply_filter(df, 0, RV_t, "RV_only")
             m = compute_metrics(df, mask)
-            all_rows.append({
-                "seed": seed, "mode": "RV_only",
-                "E_thresh": 0, "RV_thresh": RV_t, **m
-            })
+            all_rows.append({"seed": seed, "mode": "RV_only",
+                             "E_thresh": 0, "RV_thresh": RV_t, **m})
 
         for E_t, RV_t in product(E_THRESHOLDS, RV_THRESHOLDS):
-            # E+RV (C2)
-            _, mask = apply_filter(df, E_t, RV_t, "E+RV")
+            mask = apply_filter(df, E_t, RV_t, "E+RV")
             m = compute_metrics(df, mask)
-            all_rows.append({
-                "seed": seed, "mode": "E+RV",
-                "E_thresh": E_t, "RV_thresh": RV_t, **m
-            })
+            all_rows.append({"seed": seed, "mode": "E+RV",
+                             "E_thresh": E_t, "RV_thresh": RV_t, **m})
 
         if (seed_idx + 1) % 10 == 0:
             print(f"  seed {seed_idx + 1}/{SEEDS}")
@@ -243,40 +256,32 @@ def run_e2():
     df_all.to_csv(out / "e2_metrics.csv", index=False)
     print(f"\n[E2] Saved: {len(df_all)} rows")
 
-    # Summary: best threshold for each mode
-    print("\n=== E2 Summary: Best FDR-Recall Pareto ===")
-
-    # For each mode, find threshold(s) with FDR < 0.05 and maximum recall
+    # Pareto summary
+    print("\n=== E2 Summary: Best Fragile-Rate / Recall Pareto ===")
     for mode in ["none", "E_only", "RV_only", "E+RV"]:
         sub = df_all[df_all["mode"] == mode]
         agg = sub.groupby(["E_thresh", "RV_thresh"]).agg(
             fragile_rate=("fragile_rate", "mean"),
             recall=("recall", "mean"),
-            reliable_frac=("reliable_frac", "mean"),
-            f1=("f1", "mean"),
             fragile_rej=("fragile_rej", "mean"),
             retention=("retention_rate", "mean"),
         ).reset_index()
 
-        # Best: lowest fragile_rate with recall > 0.5
         good = agg[(agg.recall > 0.5)]
         if len(good) > 0:
             best = good.sort_values("fragile_rate").iloc[0]
-            print(f"\n  {mode:8s} | E={best.E_thresh:.1f} RV={best.RV_thresh:.2f}")
+            print(f"\n  {mode:8s} | E>={best.E_thresh:.1f} RV>={best.RV_thresh:.2f}")
             print(f"           frag_rate={best.fragile_rate:.3f} recall={best.recall:.3f} "
                   f"fragile_rej={best.fragile_rej:.3f} retention={best.retention:.3f}")
         else:
             print(f"\n  {mode:8s} | No config with recall > 0.5")
 
-    # Save detailed summary
+    # Save summary
     agg_full = df_all.groupby(["mode", "E_thresh", "RV_thresh"]).agg(
         fragile_rate=("fragile_rate", "mean"),
         recall=("recall", "mean"),
-        reliable_frac=("reliable_frac", "mean"),
-        f1=("f1", "mean"),
         fragile_rej=("fragile_rej", "mean"),
         retention=("retention_rate", "mean"),
-        accepted_fragile=("accepted_fragile", "mean"),
     ).round(4).reset_index()
     agg_full.to_csv(out / "e2_summary.csv", index=False)
     print(f"\n[E2] Summary saved: {len(agg_full)} rows")

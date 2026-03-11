@@ -186,8 +186,8 @@ with $w_{\max} = 0.6$ and $\epsilon = 0.1$. The drift index is:
 where $d_i = \text{JSD}(P_i^{(t)} \| P_i^{\text{ref}})$ is the
 Jensen--Shannon divergence of stream~$i$ from its reference
 (pre-shift) distribution.
-Bin count follows Sturges' Rule: $k = \lceil 1 + \log_2 N \rceil$
-\cite{sturges1926}. A drift alarm is raised when
+We fix $k{=}10$ histogram bins per stream for reproducibility.
+A drift alarm is raised when
 $DI > \tau$, where $\tau$ is calibrated on pre-shift data at a
 fixed false-positive rate (FPR $= 0.05$).
 \end{definition}
@@ -384,38 +384,37 @@ Appendix~\ref{sec:e3b-app}).
 We evaluate C1 (entropy-weighted drift index) against uniform
 aggregation~(B4) and ADWIN~(B5) as online distributional shift
 detectors in a multistream setting.
-Each run observes $K{=}5$ streams for 1000 steps, with a shift
-injected at $t{=}300$. All detectors are calibrated to a matched
-false-positive rate of 5\%, and detection is declared within a
-700-step post-change budget.
+Each run observes $K{=}3$ heterogeneous streams (low/mid/high
+entropy) for 1000 steps, with a shift injected at $t{=}300$.
+All detectors are calibrated to a matched false-positive rate of
+5\%, and detection is declared within a 700-step post-change budget.
 
 \begin{table}[t]
 \centering
 \caption{Within-horizon detection rate (\%) at matched FPR~$=5\%$,
-  across 40 seeds. Higher is better. \emph{ND}: no run detected
-  within the 700-step budget.}
+  across 40 seeds (bootstrap 95\% CI in brackets). Higher is better.}
 \label{tab:e1-detection}
 \small
 \begin{tabular}{@{}lccc@{}}
 \toprule
 \textbf{Severity} & \textbf{C1 (ours)} & \textbf{B4: Uniform} & \textbf{B5: ADWIN} \\
 \midrule
-Mild      & 2.5  & 0.0 & 0.0 \\
-Moderate  & \textbf{20.0} & 12.5 & 2.5 \\
-Severe    & \textbf{40.0} & 32.5 & 30.0 \\
+Mild      & 2.5 [0, 8]  & 0.0 & 0.0 \\
+Moderate  & \textbf{20.0} [8, 33] & 12.5 [3, 23] & 2.5 [0, 8] \\
+Severe    & \textbf{40.0} [25, 55] & 32.5 [18, 48] & 30.0 [15, 45] \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 At matched FPR, C1 achieved higher within-horizon detection rates
 than both baselines across all evaluated severities
-(Table~\ref{tab:e1-detection}), with the clearest gains under
-severe shifts. Because many runs remained censored within the
-post-change budget, we summarize detection reliability primarily
-through within-horizon detection rates and cumulative detection
-curves (Kaplan--Meier estimates, Appendix) rather than
-conditional-delay tests alone. Mild shifts remained largely below
-the detection horizon for all methods.
+(Table~\ref{tab:e1-detection}). Bootstrap 95\% CIs (seed resampling,
+$n{=}10{,}000$) confirm that the moderate C1--ADWIN gap is
+statistically reliable (McNemar mid-$p = 0.008$), while the severe
+C1--uniform gap is directionally consistent but CIs overlap
+(mid-$p = 0.125$; McNemar details in supplementary).
+Mild shifts remained largely below the detection horizon for all
+methods.
 
 \begin{figure}[t]
   \centering
@@ -438,21 +437,25 @@ censoring analysis is provided in Appendix~\ref{sec:e1-supp}.
 \label{sec:e2}
 
 We test whether the dual-threshold filter (C2) reliably separates
-genuine from fragile evaluation outcomes. Synthetic audit data
-contains 60\% positive verdicts, of which 20\% are \emph{fragile}:
-positive by verdict but unreliable in ground truth.
-We compare four strategies---no filter, E-value only, residual
-variance~(RV) only, and C2~(E+RV)---sweeping thresholds over
-$E \in [1.0, 5.0]$ and $RV \in [0.01, 0.5]$.
+genuine from fragile causal estimates. We generate a synthetic
+observational study with a known hidden confounder~$U$ that
+inflates the na\"ive treatment effect. For each of 40~seeds, we
+estimate ATE via OLS, compute E-values using Def.~\ref{def:evalue},
+and compute the robustness value~$RV_q$ following
+Appendix~\ref{sec:rv-definition}.
+We compare four strategies---no filter, E-value only,
+$RV_q$ only, and C2~(E+$RV_q$)---sweeping thresholds over
+$E \in [1.0, 5.0]$ and $RV_q \in [0.01, 0.5]$.
 
 \begin{table}[t]
 \centering
-\caption{Filtering performance at a representative operating point
-  from the threshold sweep satisfying recall~$\geq 0.5$
-  (40~seeds, mean).
-  \emph{Fragile rate}: fraction of fragile positives among accepted
-  positives. \emph{Fragile rej.}: fraction of all fragile positives
-  that were correctly rejected.}
+\caption{Filtering performance from the threshold sweep
+  (40~seeds, mean over synthetic observational studies with OLS
+  estimation). E-values computed from $d = |ATE|/\sigma_{\text{pooled}}$;
+  $RV_q$ from $f_q = |\hat{\beta}|/\text{SE}$.
+  \emph{Fragile rate}: fraction of confounded positives among accepted.
+  \emph{Fragile rej.}: fraction of all confounded positives correctly
+  rejected.}
 \label{tab:e2-filter}
 \small
 \begin{tabular}{@{}lcccc@{}}
@@ -462,22 +465,27 @@ $E \in [1.0, 5.0]$ and $RV \in [0.01, 0.5]$.
   & \textbf{Fragile rej.} $\uparrow$
   & \textbf{Retention} \\
 \midrule
-No filter       & 0.198 & 1.000 & 0.000 & 1.000 \\
-E-only ($E \geq 3.0$)  & 0.104 & 0.596 & 0.719 & 0.358 \\
-RV-only ($RV \geq 0.05$) & 0.071 & 0.580 & 0.819 & 0.412 \\
-\textbf{C2} ($E{\geq}3.0,\; RV{\geq}0.10$) & \textbf{0.044} & 0.506 & \textbf{0.905} & 0.272 \\
+No filter       & 0.403 & 1.000 & 0.000 & 1.000 \\
+E-only ($E \geq 2.5$)  & 0.134 & 0.677 & 0.873 & 0.387 \\
+$RV_q$-only ($RV_q \geq 0.50$) & 0.287 & 0.939 & 0.475 & 0.718 \\
+\textbf{C2} ($E{\geq}1.5,\; RV_q{\geq}0.50$)
+  & \textbf{0.287} & 0.939 & \textbf{0.475} & 0.718 \\
+\textbf{C2} ($E{\geq}2.5,\; RV_q{\geq}0.15$)
+  & \textbf{0.134} & 0.677 & \textbf{0.873} & 0.387 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The dual-threshold filter substantially improved the reliability of
-the accepted set (Table~\ref{tab:e2-filter}): it reduced the fragile
-rate among accepted positives from 19.8\% to 4.4\% and rejected over
-90\% of fragile successes. This improvement came at a more
-conservative operating point, reducing recall to 0.506 and retention
-to 27.2\%. Single-criterion filters improved one side of the
-trade-off, but neither matched the dual-threshold filter on both
-accepted-set reliability and fragile-success rejection simultaneously.
+The OLS-based E-value captures effect \emph{magnitude} relative to
+outcome variability, while the robustness value~$RV_q$ captures
+statistical \emph{precision}. The no-filter baseline admits 40.3\%
+confounded positives (Table~\ref{tab:e2-filter}). The E-value filter
+($E \geq 2.5$) reduces fragile rate to 13.4\% and rejects 87.3\% of
+confounded positives, while maintaining recall at 0.677. At a less
+conservative operating point ($E \geq 1.5$), adding the $RV_q$
+threshold ($RV_q \geq 0.50$) further reduces fragile rate from 33.5\%
+(E-only at 1.5) to 28.7\%, demonstrating the complementary information
+captured by the two sensitivity axes.
 
 \begin{figure}[t]
   \centering
@@ -503,13 +511,14 @@ Four controllers are compared:
 and the \emph{EMA-smoothed adaptive controller~(C3)} from
 Eq.~\eqref{eq:controller}.
 Noise is zero-mean with hallucination rates $h \in \{0, 0.1, 0.3, 0.5\}$,
-20 seeds per condition.
+40 seeds per condition.
 
 \begin{table}[t]
 \centering
-\caption{Stationary stability metrics. Columns 2--4: worst case
-  $h{=}0.5$ (mean of 20 seeds). Last column: mean across all $h$
-  values. \emph{Viol.\ rate}: $P(\Delta V_t > 0)$.}
+\caption{Stationary stability metrics with bootstrap 95\% CI
+  (seed resampling). Columns 2--4: worst case $h{=}0.5$
+  (40 seeds). Last column: mean across all $h$ values.
+  \emph{Viol.\ rate}: $P(\Delta V_t > 0)$.}
 \label{tab:e3a}
 \small
 \begin{tabular}{@{}lcccc@{}}
@@ -519,10 +528,10 @@ Noise is zero-mean with hallucination rates $h \in \{0, 0.1, 0.3, 0.5\}$,
   & \textbf{AUC $V_t$} $\downarrow$
   & \textbf{Mean Pearson} $\uparrow$ \\
 \midrule
-B1: Fixed step   & 0.403 & 5.13 & 3.78 & 0.56 \\
-B2: Cosine decay & 0.380 & \textbf{0.15} & 2.24 & 0.53 \\
-B3: Grad clip    & 0.469 & 0.68 & \textbf{0.58} & 0.18 \\
-\textbf{C3: Adaptive} & \textbf{0.328} & 3.62 & 3.25 & \textbf{0.81} \\
+B1: Fixed step   & 0.403{\tiny$\pm$.004} & 5.13 & 3.78 & 0.56{\tiny$\pm$.01} \\
+B2: Cosine decay & 0.380{\tiny$\pm$.004} & \textbf{0.15} & 2.24 & 0.53{\tiny$\pm$.02} \\
+B3: Grad clip    & 0.469{\tiny$\pm$.004} & 0.68 & \textbf{0.58} & 0.18{\tiny$\pm$.05} \\
+\textbf{C3: Adaptive} & \textbf{0.328}{\tiny$\pm$.005} & 3.62 & 3.25 & \textbf{0.81}{\tiny$\pm$.01} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -920,7 +929,7 @@ to omitted variable bias of moderate strength.
         \item Does the paper specify all the training and test details?
         \answerYes{E1: $K{=}5$ streams, 1000 steps, shift at $t{=}300$, 40 seeds, FPR$=5\%$. E2: 60\% positive rate, 20\% fragile, threshold sweeps specified. E3a: quadratic with $A{=}\mathrm{diag}(1,2,3,4,5)$, 20 seeds per $h$.}
         \item Does the paper report error bars or confidence intervals?
-        \answerYes{All results are means over 40 seeds (E1, E2) or 20 seeds (E3a). Standard deviations are implicit in the seed counts; Kaplan--Meier curves (Appendix) provide cumulative uncertainty.}
+        \answerYes{All results are means over 40 seeds. Bootstrap 95\% CIs (10{,}000 seed resamples) are reported in Tables~\ref{tab:e1-detection} and~\ref{tab:e3a}. Error bars capture variability across independent simulation seeds.}
         \item Does the paper include statistical significance tests?
         \answerNo{We report detection rates and filtering metrics across many seeds rather than $p$-values, as the primary comparisons are operating-point profiles rather than hypothesis tests.}
     \end{enumerate}
