@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.22)  11 MAR 2026 17:11
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.22)  11 MAR 2026 17:48
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -571,15 +571,15 @@ Package pdftex.def Info: ../experiments/figures/e1_km.pdf  used on input line 4
 24.
 (pdftex.def)             Requested size: 337.86465pt x 135.73221pt.
 
-[4]
+[4] (tables/tab2.tex)
 <../experiments/figures/e2_filtering.pdf, id=31, 787.6495pt x 316.4598pt>
 File: ../experiments/figures/e2_filtering.pdf Graphic file (type pdf)
 <use ../experiments/figures/e2_filtering.pdf>
 Package pdftex.def Info: ../experiments/figures/e2_filtering.pdf  used on input
- line 509.
+ line 476.
 (pdftex.def)             Requested size: 337.86465pt x 135.74669pt.
  [5 <../experiments/figures/e1_km.pdf>]
-Underfull \hbox (badness 1205) in paragraph at lines 604--611
+Underfull \hbox (badness 1205) in paragraph at lines 571--578
 []\OT1/ptm/b/n/10 Safe RL via Lya-punov meth-ods. \OT1/ptm/m/n/10 Chow et al. C
 how et al. [2018] and Berkenkamp et
  []
@@ -589,16 +589,16 @@ how et al. [2018] and Berkenkamp et
 File: ../experiments/figures/e3a_stationary.pdf Graphic file (type pdf)
 <use ../experiments/figures/e3a_stationary.pdf>
 Package pdftex.def Info: ../experiments/figures/e3a_stationary.pdf  used on inp
-ut line 776.
+ut line 743.
 (pdftex.def)             Requested size: 337.86465pt x 135.1461pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 812--818
+Underfull \hbox (badness 10000) in paragraph at lines 779--785
 \OT1/ptm/m/n/10 The E2 thresh-old sweep eval-u-ates all com-bi-na-tions of $\OM
 L/cmm/m/it/10 E[] \OMS/cmsy/m/n/10 2
  []
 
 
-Overfull \hbox (4.1199pt too wide) in paragraph at lines 812--818
+Overfull \hbox (4.1199pt too wide) in paragraph at lines 779--785
 \OMS/cmsy/m/n/10 f\OT1/cmr/m/n/10 1\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 0\OML/cmm/
 m/it/10 ; \OT1/cmr/m/n/10 1\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 5\OML/cmm/m/it/10 
 ; \OT1/cmr/m/n/10 2\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 0\OML/cmm/m/it/10 ; \OT1/c
@@ -625,10 +625,10 @@ L3 programming layer <2025-12-24>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 12180 strings out of 467871
- 187026 string characters out of 5418376
+ 12190 strings out of 467871
+ 187251 string characters out of 5418376
  623510 words of memory out of 5000000
- 40877 multiletter control sequences out of 15000+600000
+ 40882 multiletter control sequences out of 15000+600000
  653045 words of font info for 88 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  72i,14n,79p,543b,589s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -657,7 +657,7 @@ vr8a.pfb><C:/Users/yesol/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/ut
 mb8a.pfb><C:/Users/yesol/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/ut
 mr8a.pfb><C:/Users/yesol/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/ut
 mri8a.pfb>
-Output written on main.pdf (11 pages, 486394 bytes).
+Output written on main.pdf (11 pages, 486389 bytes).
 PDF statistics:
  387 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)

@@ -450,40 +450,7 @@ We compare four strategies---no filter, E-value only,
 $RV_q$ only, and C2~(E+$RV_q$)---sweeping thresholds over
 $E \in [1.0, 5.0]$ and $RV_q \in [0.01, 0.5]$.
 
-\begin{table}[t]
-\centering
-\caption{Filtering performance under two operating regimes from the
-  threshold sweep (40~seeds, mean over synthetic observational studies).
-  For each regime, the operating point minimizing fragile rate
-  is selected per filter.
-  E-values: $d = |ATE|/\sigma_{\text{pooled}}$;
-  $RV_q$: $f_q = |\hat{\beta}|/\text{SE}$.}
-\label{tab:e2-filter}
-\small
-\begin{tabular}{@{}llcccc@{}}
-\toprule
-\textbf{Regime} & \textbf{Filter}
-  & \textbf{Frag.\,rate} $\downarrow$
-  & \textbf{Recall} $\uparrow$
-  & \textbf{Frag.\,rej.} $\uparrow$
-  & \textbf{Retention} \\
-\midrule
-\multirow{4}{*}{\rotatebox[origin=c]{90}{\scriptsize Recall$\geq$0.9}}
-  & No filter       & 0.403 & 1.000 & 0.000 & 1.000 \\
-  & E-only ($E{\geq}1.5$)  & 0.335 & 0.963 & 0.312 & 0.813 \\
-  & $RV_q$-only ($RV_q{\geq}0.50$) & 0.287 & 0.939 & 0.475 & 0.718 \\
-  & \textbf{C2} ($E{\geq}1.0,\; RV_q{\geq}0.50$)
-    & \textbf{0.287} & 0.939 & \textbf{0.475} & 0.718 \\
-\midrule
-\multirow{4}{*}{\rotatebox[origin=c]{90}{\scriptsize Recall$\geq$0.5}}
-  & No filter       & 0.403 & 1.000 & 0.000 & 1.000 \\
-  & E-only ($E{\geq}5.0$) & 0.209 & 0.867 & 0.690 & 0.572 \\
-  & $RV_q$-only ($RV_q{\geq}0.50$) & 0.287 & 0.939 & 0.475 & 0.718 \\
-  & \textbf{C2} ($E{\geq}5.0,\; RV_q{\geq}0.20$)
-    & \textbf{0.209} & 0.867 & \textbf{0.690} & 0.572 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\input{tables/tab2}
 
 The two axes capture complementary information: E-values
 measure effect \emph{magnitude} (standardized by outcome
@@ -497,8 +464,8 @@ axis dominates: $RV_q$-only and C2 both reduce fragile rate
 from 33.5\% (E-only) to 28.7\%, demonstrating that $RV_q$ captures
 fragile estimates that E-value alone misses.
 Under the high-precision regime (recall~$\geq 0.5$), the E-value
-axis dominates: E-only and C2 both achieve 20.9\% fragile rate
-and 69\% fragile rejection.
+axis dominates: E-only and C2 both achieve 13.4\% fragile rate
+and 87.3\% fragile rejection.
 Across both regimes, C2 matches or exceeds the better of the two
 single-axis filters, confirming that the dual-threshold design
 never degrades performance while providing a \emph{robustness envelope}
