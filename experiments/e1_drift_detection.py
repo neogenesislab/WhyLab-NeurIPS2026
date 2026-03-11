@@ -7,7 +7,7 @@ on online change detection with K=3 heterogeneous streams.
 Protocol:
 - Single shift per episode at t=300
 - shift_stream = 0 (low-entropy, informative)
-- 3 severity levels × 20 seeds
+- 3 severity levels × 40 seeds
 - Threshold calibrated at matched FPR = 5%
 """
 import numpy as np

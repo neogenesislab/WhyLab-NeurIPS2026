@@ -392,7 +392,10 @@ All detectors are calibrated to a matched false-positive rate of
 \begin{table}[t]
 \centering
 \caption{Within-horizon detection rate (\%) at matched FPR~$=5\%$,
-  across 40 seeds (bootstrap 95\% CI in brackets). Higher is better.}
+  across 40 seeds (bootstrap 95\% CI in brackets). Higher is better.
+  ADWIN uses a speed-optimized variant (single-split budget-bounded
+  scan) rather than the full adaptive-window algorithm of
+  \citet{bifet2007adwin}.}
 \label{tab:e1-detection}
 \small
 \begin{tabular}{@{}lccc@{}}
@@ -940,11 +943,11 @@ to omitted variable bias of moderate strength.
         \item Does the paper include the code, data, and instructions needed to reproduce the main experimental results?
         \answerYes{Experiment code will be included in the supplementary material. All environments are synthetic and fully specified.}
         \item Does the paper specify all the training and test details?
-        \answerYes{E1: $K{=}5$ streams, 1000 steps, shift at $t{=}300$, 40 seeds, FPR$=5\%$. E2: 60\% positive rate, 20\% fragile, threshold sweeps specified. E3a: quadratic with $A{=}\mathrm{diag}(1,2,3,4,5)$, 20 seeds per $h$.}
+        \answerYes{E1: $K{=}3$ streams (low/mid/high entropy), 1000 steps, shift at $t{=}300$, 40 seeds, FPR$=5\%$. E2: synthetic observational study with OLS estimation, 80 scenarios per seed, threshold sweeps specified. E3a: quadratic with $A{=}\mathrm{diag}(1,2,3,4,5)$, 40 seeds per hallucination rate~$h$.}
         \item Does the paper report error bars or confidence intervals?
         \answerYes{All results are means over 40 seeds. Bootstrap 95\% CIs (10{,}000 seed resamples) are reported in Tables~\ref{tab:e1-detection} and~\ref{tab:e3a}. Error bars capture variability across independent simulation seeds.}
         \item Does the paper include statistical significance tests?
-        \answerNo{We report detection rates and filtering metrics across many seeds rather than $p$-values, as the primary comparisons are operating-point profiles rather than hypothesis tests.}
+        \answerYes{McNemar mid-$p$ tests are reported for E1 (C1 vs.\ ADWIN, $p{=}0.008$ at moderate severity; discordant pairs $b{=}7, c{=}0$). For other comparisons, bootstrap CIs are the primary inferential tool.}
     \end{enumerate}
 
 \item {\bf Broader Impacts}
