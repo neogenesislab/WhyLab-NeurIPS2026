@@ -22,8 +22,23 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Secrets & local data
+.env
+*.db
+_diag.json
+
+# Build distributions
+dist/
+
+# Agent skills (submodule)
+.agent/
+
+# Large binary results
+*.parquet
+
 # Reports (local only)
 paper/reports/
 paper/visions/
 paper/whylab_v2_deep_dive.md
 paper/.gitkeep
+paper/data/
