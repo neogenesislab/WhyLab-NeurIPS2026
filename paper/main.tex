@@ -22,8 +22,8 @@
 % Placeholder command for TODO items
 \newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
 
-\title{Causal Auditing for Stable Self-Improving Agents:\\
-Drift Detection, Sensitivity Filtering, and Lyapunov-Bounded Updates}
+\title{WhyLab: A Causal Safety Monitoring Framework for\\
+Stable Self-Improving Agents}
 
 \author{
   Anonymous Author(s)
@@ -40,11 +40,11 @@ risk \emph{cognitive policy oscillation}---a failure mode where
 hallucinated or spuriously correlated feedback causes strategy
 degradation below the pre-improvement baseline. Existing causal
 inference tools (DoWhy, EconML) provide rigorous offline estimation but
-do not directly address online drift-aware update control in noisy
-agent environments.
+do not directly address the need for online safety monitoring and
+drift-aware update control in noisy agent environments.
 
-We present three contributions that together form a causal audit
-framework for stable agent self-improvement:
+We present WhyLab, a causal safety monitoring framework for
+stable agent self-improvement, comprising three main components:
 \textbf{(C1)}~an information-theoretic drift index using
 entropy-inverse weighting that detects distributional shifts earlier
 than standard monitoring baselines;
@@ -55,9 +55,11 @@ under hidden confounders; and
 a sufficient condition for energy non-increase
 ($\mathbb{E}[\Delta V] \leq 0$).
 
-Controlled experiments on synthetic agent environments show that the
+Controlled experiments on synthetic agent environments and a
+ReAct-style LLM coding agent (HumanEval) show that the
 framework improves drift detection reliability, filters fragile
-successes, and stabilizes proxy-observable updates under noisy feedback
+successes (reducing oscillation by 16\% with minimal pass-rate cost),
+and stabilizes proxy-observable updates under noisy feedback
 with hallucination rates up to 50\%.
 \end{abstract}
 
@@ -98,29 +100,39 @@ Existing causal inference tools address parts of this problem in
 isolation. DoWhy~\cite{dowhy2022} provides a principled
 model--identify--estimate--refute workflow, and EconML~\cite{econml2019}
 offers heterogeneous treatment effect estimators including Double
-Machine Learning. However, these libraries do not directly provide
-online drift-aware update control or bounded strategy updates for
-continuously operating agents.
+Machine Learning. However, these libraries are designed for offline
+observational data and do not provide an online safety monitoring
+framework capable of real-time drift detection and bounded strategy
+updates for continuously operating agents.
 
-We present three contributions that together form a causal audit
-framework for stable agent self-improvement:
+We present WhyLab, a causal safety monitoring framework that provides
+the missing runtime safeguards for stable agent self-improvement.
+Our framework makes the following contributions:
 
 \begin{enumerate}
     \item[\textbf{C1.}] \textbf{Information-theoretic drift detection}
       (\S\ref{sec:drift}). An entropy-weighted drift index that
       automatically adapts signal importance based on information
-      content, with a cap that prevents winner-takes-all collapse.
+      content, providing an early warning system for environmental
+      shifts.
     \item[\textbf{C2.}] \textbf{Sensitivity-aware effect filtering}
       (\S\ref{sec:sensitivity}). Integration of E-values and partial
       $R^2$ bounds to quantify robustness against unmeasured
-      confounders, filtering fragile successes before they influence
-      strategy updates.
+      confounders, acting as a safety gate to filter fragile successes
+      before they trigger harmful updates.
     \item[\textbf{C3.}] \textbf{Lyapunov-bounded adaptive damping}
       (\S\ref{sec:lyapunov}). A mathematically grounded controller
-      with a sufficient condition for energy non-increase, connecting
-      drift severity (C1) and sensitivity confidence (C2) into a
-      unified feedback control loop.
+      with a sufficient condition for energy non-increase, translating
+      drift severity (C1) and sensitivity confidence (C2) into safe,
+      bounded policy steps.
 \end{enumerate}
+
+We validate WhyLab on both controlled synthetic environments and an
+actual self-improving LLM coding agent based on
+Reflexion~\cite{shinn2023reflexion}. Across both regimes, the safety
+monitoring framework successfully prevents cognitive oscillation with
+minimal cost to overall performance, confirming its practical utility
+for safe agent deployment.
 
 
 % ============================================================
@@ -661,6 +673,16 @@ without over-constraining the agent.
 
 % ~0.5 pages
 
+\textbf{Self-improving AI agents.}
+Recent architectures empower LLMs to iteratively refine performance
+through self-reflection~\cite{shinn2023reflexion} or reasoning
+traces~\cite{yao2023react}. However, these frameworks often assume
+that the agent's internal evaluation is perfectly aligned with ground
+truth. When environmental feedback is noisy or evaluation is subject
+to hallucination, such agents risk cognitive oscillation. WhyLab
+provides a principled safety monitoring layer that integrates into
+these self-improvement loops to ensure stability.
+
 \textbf{Causal inference tools.}
 DoWhy~\cite{dowhy2022} provides a principled four-step causal
 workflow; EconML~\cite{econml2019} extends this with heterogeneous
@@ -696,17 +718,17 @@ mechanisms.
 
 % ~0.5 pages
 
-We presented a causal audit framework for stable agent
+We presented a causal safety monitoring framework for stable agent
 self-improvement, addressing three failure vectors through
 information-theoretic drift detection~(C1), sensitivity-aware
 effect filtering~(C2), and Lyapunov-bounded adaptive damping~(C3).
-Experiments show that C1 improves within-horizon detection
-reliability, C2 substantially reduces fragile acceptance rates, and
-C3 achieves the lowest violation frequency with strong proxy--state
-alignment. These results support the practical usefulness of the
-control loop, while also revealing complementary strengths of
-alternative controllers (gradient clipping for overshoot, cosine
-decay for stationary energy).
+Experiments across synthetic environments and an actual LLM coding
+agent show that C1 improves within-horizon detection
+reliability, C2 successfully rejects fragile updates to reduce
+cognitive oscillation, and C3 achieves the lowest violation frequency
+with strong proxy--state alignment. These results validate the
+framework's ability to maintain real-time safety during autonomous
+learning loops.
 
 \textbf{Limitations.}
 The observable energy proxy $\hat{V}_t = \tfrac{1}{2}(R_{\max} - R_t)^2$
@@ -719,10 +741,10 @@ heuristic that trades the theoretical guarantee of
 Theorem~\ref{thm:lyapunov} for empirical robustness under heavy
 tails---a trade-off we believe is appropriate for safety-critical
 agent auditing.
-All experiments use controlled synthetic environments; validating
-the full audit loop in deployed self-improving agent systems
-(e.g., tool-using ReAct-style settings with real LLM outputs)
-is an important direction for future work.
+While our E4 experiment demonstrates integration with a ReAct-style
+coding agent on HumanEval, extending this monitoring framework to
+long-horizon, multi-agent tool-using environments with dynamic
+state spaces remains an important direction for future work.
 
 
 % ============================================================
