@@ -43,13 +43,21 @@ def load_config():
     return full["experiment"], full["e4"]
 
 
-def run_e4(seeds: int = None, problems_subset: int = None, mode: str = None):
+def run_e4(
+    seeds: int = None,
+    problems_subset: int = None,
+    mode: str = None,
+    split: str = None,
+    holdout_exclude: str = None,
+):
     """Run the E4 agent benchmark experiment.
 
     Args:
         seeds: Override number of seeds (default: from config).
         problems_subset: Override problem count (default: from config).
         mode: Override LLM cache mode (default: from config).
+        split: Named split from config.splits (pilot/main/full).
+        holdout_exclude: Exclude problems used in this split (e.g. 'pilot').
     """
     # Lazy imports to avoid circular dependencies
     from experiments.humaneval_loader import load_humaneval, download_humaneval
@@ -59,13 +67,21 @@ def run_e4(seeds: int = None, problems_subset: int = None, mode: str = None):
 
     exp_cfg, e4_cfg = load_config()
 
-    n_seeds = seeds or exp_cfg["seeds"]
     base_seed = exp_cfg["rng_base_seed"]
     max_attempts = e4_cfg["max_attempts"]
-    subset = problems_subset or e4_cfg.get("problems_subset")
     llm_cfg = e4_cfg["llm"]
     audit_cfg = e4_cfg["audit"]
     ablations = e4_cfg["ablations"]
+
+    # Resolve split-based seeds/problems
+    splits_cfg = e4_cfg.get("splits", {})
+    if split and split in splits_cfg:
+        s = splits_cfg[split]
+        n_seeds = seeds or s["n_seeds"]
+        subset = problems_subset or s["n_problems"]
+    else:
+        n_seeds = seeds or exp_cfg["seeds"]
+        subset = problems_subset or e4_cfg.get("problems_subset")
 
     # LLM cache mode
     cache_mode = mode or llm_cfg.get("cache_mode", "hybrid")
@@ -73,7 +89,21 @@ def run_e4(seeds: int = None, problems_subset: int = None, mode: str = None):
     # Load HumanEval
     print("[E4] Loading HumanEval dataset...")
     download_humaneval()
-    problems = load_humaneval(subset=subset)
+    all_problems = load_humaneval(subset=None)  # load all first
+
+    # Holdout exclusion: skip problems used in exclude split
+    exclude_n = 0
+    if holdout_exclude and holdout_exclude in splits_cfg:
+        exclude_n = splits_cfg[holdout_exclude]["n_problems"]
+
+    if exclude_n > 0:
+        all_problems = all_problems[exclude_n:]  # skip first N (used by pilot)
+
+    # Apply subset limit
+    if subset is not None:
+        problems = all_problems[:subset]
+    else:
+        problems = all_problems
     print(f"[E4] Loaded {len(problems)} problems")
 
     # Initialize LLM client
@@ -204,16 +234,21 @@ if __name__ == "__main__":
                         help="Subset of problems (for piloting)")
     parser.add_argument("--mode", choices=["online", "replay", "hybrid"],
                         default=None, help="LLM cache mode")
+    parser.add_argument("--split", choices=["pilot", "main", "full"],
+                        default=None, help="Named split from config.splits")
+    parser.add_argument("--holdout_exclude", type=str, default=None,
+                        help="Exclude problems from this split (e.g. pilot)")
     parser.add_argument("--pilot", action="store_true",
                         help="Quick pilot: 2 seeds, 5 problems")
     args = parser.parse_args()
 
     if args.pilot:
-        args.seeds = args.seeds or 2
-        args.problems = args.problems or 5
+        args.split = args.split or "pilot"
 
     run_e4(
         seeds=args.seeds,
         problems_subset=args.problems,
         mode=args.mode,
+        split=args.split,
+        holdout_exclude=args.holdout_exclude,
     )

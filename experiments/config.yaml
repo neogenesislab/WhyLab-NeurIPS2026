@@ -62,6 +62,10 @@ e4:
   benchmark: "humaneval"
   max_attempts: 5          # Reflexion max retry per problem
   problems_subset: null    # null = all 164, integer = pilot subset
+  splits:
+    pilot:  {n_problems: 10, n_seeds: 2}   # calibration only
+    main:   {n_problems: 30, n_seeds: 5}   # holdout evaluation
+    full:   {n_problems: 164, n_seeds: 20} # optional extension
   llm:
     model: "gemini-2.0-flash"
     temperature: 0.7       # Reflexion standard (seed diversity)
