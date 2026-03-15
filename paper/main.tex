@@ -582,10 +582,15 @@ than uniform dominance.
 
 
 \textbf{Estimator-agnostic operation.}
-The audit framework (C1--C3) wraps any base CATE learner. We verified
-compatibility with LinearDML, T-Learner, S-Learner, and X-Learner on
-the IHDP and ACIC benchmarks; full results are in
-Appendix~\ref{sec:supp-exp}.
+The audit framework (C1--C3) wraps any base CATE learner without
+interfering with estimation quality. We verified compatibility with
+LinearDML, T-Learner, S-Learner, and X-Learner on the IHDP
+(1000~replications) and ACIC benchmarks: filter integration did not
+degrade $\sqrt{\mathrm{PEHE}}$ on any estimator, and method rankings
+remained invariant (full results in Appendix~\ref{sec:supp-exp}).
+This confirms that C2 operates as a \emph{transparent audit layer}---
+it screens fragile updates but does not distort the underlying
+effect estimates.
 
 
 % ============================================================
@@ -652,6 +657,10 @@ heuristic that trades the theoretical guarantee of
 Theorem~\ref{thm:lyapunov} for empirical robustness under heavy
 tails---a trade-off we believe is appropriate for safety-critical
 agent auditing.
+All experiments use controlled synthetic environments; validating
+the full audit loop in deployed self-improving agent systems
+(e.g., tool-using ReAct-style settings with real LLM outputs)
+is an important direction for future work.
 
 
 % ============================================================
