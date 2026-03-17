@@ -103,10 +103,12 @@ gate fragile successes; and
 non-increase guarantees.
 
 On SWE-bench Lite~\cite{jimenez2024swebench} (300 real-world coding
-problems), WhyLab achieves 67.3\% pass@1---outperforming Best-of-7
-(65.5\%), Rollback (62.7\%), and Self-Consistency (62.3\%) at equal
-inference cost---while maintaining zero regressions across 10{,}500
-episodes.
+problems), the C2 sensitivity filter maintains zero regressions
+across 10{,}500 episodes.
+A non-stationary online learning experiment~(E6) shows all three
+components contributing independently: C3 reduces energy by 49\%,
+C2 reduces oscillation by 76\%, and C1 cuts drift detection delay
+by 16\%.
 
 \begin{figure}[t]
   \centering
@@ -909,55 +911,28 @@ conditions.
 \section{Related Work}
 \label{sec:related}
 
-% ~0.5 pages
-
 \textbf{Self-improving AI agents.}
-Recent architectures empower LLMs to iteratively refine performance
-through self-reflection~\cite{shinn2023reflexion} or reasoning
-traces~\cite{yao2023react}. However, these frameworks often assume
-that the agent's internal evaluation is perfectly aligned with ground
-truth. When environmental feedback is noisy or evaluation is subject
-to hallucination, such agents risk cognitive oscillation.
-Shao et al.~\cite{misevolution2025} demonstrate that autonomous
-self-improvement can lead to \emph{misevolution}---unintended safety
-degradation across model, memory, tool, and workflow pathways---even
-in top-tier LLMs. Complementary benchmarks such as
-R-Judge~\cite{rjudge2024} and AgentHarm~\cite{agentharm2025}
-systematically evaluate safety risk awareness in agentic settings,
-revealing that current models exhibit limited capability to detect
-their own unsafe behaviors.
-WhyLab addresses a complementary gap: rather than evaluating agents
-\emph{post hoc}, it provides a principled \emph{runtime} safety
-monitoring layer that detects and prevents misevolution-inducing
-updates during the self-improvement loop itself.
+Reflexion~\cite{shinn2023reflexion} and ReAct~\cite{yao2023react}
+enable iterative refinement through self-reflection, but assume
+aligned evaluation. Shao et al.~\cite{misevolution2025} show that
+unchecked self-improvement can cause misevolution across model,
+memory, and tool pathways. Complementary safety
+benchmarks~\cite{rjudge2024,agentharm2025} reveal that current models
+poorly detect their own unsafe behaviors. WhyLab provides
+\emph{runtime} monitoring to prevent such degradation.
 
-\textbf{Causal inference tools.}
-DoWhy~\cite{dowhy2022} provides a principled four-step causal
-workflow; EconML~\cite{econml2019} extends this with heterogeneous
-effect estimators including CausalForestDML~\cite{wager2018} and
-DRLearner~\cite{kennedy2023}.
-These tools do not directly address online drift-aware update control.
-Our work provides a complementary \emph{continuous auditing} layer
-that can wrap any base estimator.
+\textbf{Causal inference and safe RL.}
+DoWhy~\cite{dowhy2022} and EconML~\cite{econml2019} provide offline
+causal estimation; we add a continuous \emph{online} auditing layer.
+Lyapunov methods for safe RL~\cite{chow2018lyapunov,berkenkamp2017safe}
+address continuous control; we adapt them to cognitive stability
+in LLM agents under hallucinated feedback.
 
-\textbf{Safe RL via Lyapunov methods.}
-Chow et al.~\cite{chow2018lyapunov} and Berkenkamp
-et al.~\cite{berkenkamp2017safe} establish Lyapunov constraints for
-safe policy optimization in continuous control. We adapt this framework
-to \emph{cognitive} stability in LLM agents, where noise arises from
-hallucinated judgments rather than sensor noise, and address the
-practical challenge of heavy-tailed evaluation noise.
-
-\textbf{Multi-agent failure attribution.}
+\textbf{Evaluation and failure attribution.}
 Zhang et al.~\cite{zhang2025whowhen} formalize failure attribution in
-LLM multi-agent systems. Our work complements this by moving from
-offline evaluation to real-time audit with bounded strategy updates.
-
-\textbf{LLM evaluation guarantees.}
-ARES~\cite{saadfacon2024ares} provides statistical guarantees for
-LLM-based evaluation. We operate in a more constrained setting where
-evaluation budgets are hard-capped, requiring cost-aware fallback
-mechanisms.
+multi-agent systems; ARES~\cite{saadfacon2024ares} provides statistical
+evaluation guarantees. We complement both by moving to real-time audit
+with bounded updates under hard-capped evaluation budgets.
 
 
 % ============================================================
@@ -968,44 +943,39 @@ mechanisms.
 
 We presented a causal safety monitoring framework for stable agent
 self-improvement, addressing three failure vectors through
-information-theoretic drift detection~(C1), sensitivity-aware
-effect filtering~(C2), and Lyapunov-bounded adaptive damping~(C3).
-Experiments across synthetic environments and two real-world LLM
-agent benchmarks---HumanEval (well-solved) and SWE-bench Lite
-(challenging, multi-file)---demonstrate that the audit layer
-activates proportionally to environmental difficulty.
-On SWE-bench Lite, the full calibrated audit reduces oscillation and
-regression while preserving task completion, validating the
-framework's utility in precisely the scenarios where self-improvement
-is most brittle.
+drift detection~(C1), sensitivity filtering~(C2), and Lyapunov
+damping~(C3). Six experiments reveal a consistent pattern: on
+static LLM benchmarks (E4, E5), C2 provides zero-regression safety;
+on non-stationary environments with aggressive updates (E6), all
+three components contribute independently (C3: $-49$\% energy,
+C2: $-76$\% oscillation, C1: $-16$\% detection delay).
+The oscillation difference in E5 is not statistically significant
+(bootstrap $p{=}0.26$), so the primary validated contribution is
+the \textbf{zero-regression guarantee} across 10{,}500 episodes.
 
 \textbf{Limitations.}
-The observable energy proxy $\hat{V}_t = \tfrac{1}{2}(R_{\max} - R_t)^2$
-assumes a known reward upper bound, which may not hold in
-non-stationary environments. Our sensitivity filter relies on the
-E-value via an approximate conversion for continuous outcomes, which
-may lose precision for non-normally distributed treatment effects.
-The floor-ceiling constraint~\eqref{eq:floor} is a practical
-heuristic that trades the theoretical guarantee of
-Theorem~\ref{thm:lyapunov} for empirical robustness under heavy
-tails---a trade-off we believe is appropriate for safety-critical
-agent auditing.
-Furthermore, the C2 sensitivity thresholds derived for static observational 
-studies require calibration when applied to online, low-budget agent loops 
-(e.g., max 5 attempts). To mitigate tuning concerns, we report both default 
-and calibrated thresholds, explicitly characterizing the precision-safety 
-tradeoff Pareto frontier.
-The E5 evaluation uses lightweight (string-match) test execution
-rather than Docker-sandboxed test suites; while this is standard
-for ablation-scale studies, it may overestimate absolute pass rates.
-Safety baseline comparisons (Best-of-$N$, Self-Consistency) in
-Table~\ref{tab:e5-baselines} are \emph{estimated} via $1-(1-p_1)^N$
-under an independence assumption; actual parallel generation may
-yield different results due to prompt-level correlations.
-All experiments use a single LLM (Gemini Flash); generalization
-across model families remains to be validated.
-Extending this framework to long-horizon, multi-agent environments
-with dynamic state spaces is an important direction for future work.
+The energy proxy assumes a known reward upper bound.
+The E-value conversion may lose precision for non-normal effects.
+The floor-ceiling constraint trades theoretical guarantees for
+heavy-tail robustness.
+E5 uses lightweight (string-match) evaluation; absolute pass rates
+may be overestimated.
+Safety baselines are estimated via $1{-}(1{-}p_1)^N$ under
+independence; actual results may differ.
+All LLM experiments use a single model (Gemini~2.0~Flash);
+generalization across families remains to be validated.
+
+\textbf{Future work.}
+Our immediate next step is multi-model validation across three
+LLM families (GPT-5 series, Claude~4 series, Gemini~3 series)
+on SWE-bench Lite to establish whether oscillation is a universal
+phenomenon. We chose mid-tier models (e.g., GPT-5~mini,
+Claude~Sonnet~4.6, Gemini~3~Flash) for cost-controlled
+comparisons---flagship models (GPT-5.4~Pro, Opus~4.6, Gemini~3~Pro)
+would strengthen claims but at substantially higher cost; we plan
+to include a flagship subset in the final version.
+Extending C1/C3 validation to real LLM agents in non-stationary
+deployment settings is an important longer-term direction.
 
 
 % ============================================================

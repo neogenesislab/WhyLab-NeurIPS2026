@@ -6,45 +6,45 @@ The style file: plainnat.bst
 Reallocating 'name_of_file' (item size: 1) to 11 items.
 Database file #1: references.bib
 Warning--empty booktitle in econml2019
-You've used 19 entries,
+You've used 17 entries,
             2773 wiz_defined-function locations,
-            694 strings with 9025 characters,
-and the built_in function-call counts, 10645 in all, are:
-= -- 850
-> -- 879
-< -- 12
-+ -- 295
-- -- 276
-* -- 916
-:= -- 1679
-add.period$ -- 61
-call.type$ -- 19
-change.case$ -- 147
-chr.to.int$ -- 19
-cite$ -- 39
-duplicate$ -- 429
-empty$ -- 755
-format.name$ -- 306
-if$ -- 2181
+            681 strings with 8698 characters,
+and the built_in function-call counts, 9762 in all, are:
+= -- 764
+> -- 848
+< -- 10
++ -- 284
+- -- 267
+* -- 846
+:= -- 1548
+add.period$ -- 55
+call.type$ -- 17
+change.case$ -- 138
+chr.to.int$ -- 17
+cite$ -- 35
+duplicate$ -- 389
+empty$ -- 671
+format.name$ -- 293
+if$ -- 1995
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 19
-newline$ -- 107
-num.names$ -- 76
-pop$ -- 322
+missing$ -- 17
+newline$ -- 97
+num.names$ -- 68
+pop$ -- 307
 preamble$ -- 1
-purify$ -- 128
+purify$ -- 121
 quote$ -- 0
-skip$ -- 349
+skip$ -- 320
 stack$ -- 0
-substring$ -- 201
-swap$ -- 41
+substring$ -- 135
+swap$ -- 39
 text.length$ -- 4
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 209
+type$ -- 187
 warning$ -- 1
-while$ -- 70
+while$ -- 60
 width$ -- 0
-write$ -- 252
+write$ -- 226
 (There was 1 warning)

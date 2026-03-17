@@ -1,4 +1,4 @@
-\begin{thebibliography}{19}
+\begin{thebibliography}{17}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -73,13 +73,6 @@ Carlos~E. Jimenez, John Yang, Alexander Wettig, Shunyu Yao, Kexin Pei, Ofir
 \newblock In \emph{International Conference on Learning Representations
   (ICLR)}, 2024.
 
-\bibitem[Kennedy(2023)]{kennedy2023}
-Edward~H. Kennedy.
-\newblock Towards optimal doubly robust estimation of heterogeneous causal
-  effects.
-\newblock \emph{Electronic Journal of Statistics}, 17\penalty0 (2):\penalty0
-  3008--3049, 2023.
-
 \bibitem[Saad-Falcon et~al.(2024)Saad-Falcon, Khattab, Potts, and
   Zaharia]{saadfacon2024ares}
 Jon Saad-Falcon, Omar Khattab, Christopher Potts, and Matei Zaharia.
@@ -118,13 +111,6 @@ Tyler~J. VanderWeele and Peng Ding.
 \newblock \emph{Annals of Internal Medicine}, 167\penalty0 (4):\penalty0
   268--274, 2017.
 \newblock \doi{10.7326/M16-2607}.
-
-\bibitem[Wager and Athey(2018)]{wager2018}
-Stefan Wager and Susan Athey.
-\newblock Estimation and inference of heterogeneous treatment effects using
-  random forests.
-\newblock \emph{Journal of the American Statistical Association}, 113\penalty0
-  (523):\penalty0 1228--1242, 2018.
 
 \bibitem[Yao et~al.(2023)Yao, Zhao, Yu, Du, Shafran, Narasimhan, and
   Cao]{yao2023react}
