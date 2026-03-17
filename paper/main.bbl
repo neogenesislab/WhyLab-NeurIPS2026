@@ -1,9 +1,19 @@
-\begin{thebibliography}{13}
+\begin{thebibliography}{19}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Andriushchenko et~al.(2025)Andriushchenko, Souly, Dziemian, Duenas,
+  Lin, Wang, Hendrycks, Zou, Kolter, Fredrikson, Winsor, Wynne, Gal, and
+  Davies]{agentharm2025}
+Maksym Andriushchenko, Alexandra Souly, Mateusz Dziemian, Derek Duenas, Maxwell
+  Lin, Justin Wang, Dan Hendrycks, Andy Zou, Zico Kolter, Matt Fredrikson, Eric
+  Winsor, Jerome Wynne, Yarin Gal, and Xander Davies.
+\newblock Agentharm: A benchmark for measuring harmfulness of {LLM} agents.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2025.
 
 \bibitem[Battocchi et~al.(2019)Battocchi, Dillon, Hei, Lewis, Raz, Oprescu, and
   Syrgkanis]{econml2019}
@@ -27,6 +37,14 @@ Albert Bifet and Ricard Gavald\`{a}.
 \newblock In \emph{Proceedings of the 2007 SIAM International Conference on
   Data Mining (SDM)}, pages 443--448, 2007.
 
+\bibitem[Chen et~al.(2021)Chen, Tworek, Jun, Yuan, Pinto, Kaplan, Edwards,
+  Burda, Joseph, Brockman, et~al.]{chen2021evaluating}
+Mark Chen, Jerry Tworek, Heewoo Jun, Qiming Yuan, Henrique Ponde de~Oliveira
+  Pinto, Jared Kaplan, Harri Edwards, Yuri Burda, Nicholas Joseph, Greg
+  Brockman, et~al.
+\newblock Evaluating large language models trained on code.
+\newblock \emph{arXiv preprint arXiv:2107.03374}, 2021.
+
 \bibitem[Chow et~al.(2018)Chow, Nachum, Duenez-Guzman, and
   Ghavamzadeh]{chow2018lyapunov}
 Yinlam Chow, Ofir Nachum, Edgar Duenez-Guzman, and Mohammad Ghavamzadeh.
@@ -41,6 +59,20 @@ Carlos Cinelli and Chad Hazlett.
   82\penalty0 (1):\penalty0 39--67, 2020.
 \newblock \doi{10.1111/rssb.12348}.
 
+\bibitem[Hill(2011)]{hill2011}
+Jennifer~L. Hill.
+\newblock Bayesian nonparametric modeling for causal inference.
+\newblock \emph{Journal of Computational and Graphical Statistics}, 20\penalty0
+  (1):\penalty0 217--240, 2011.
+
+\bibitem[Jimenez et~al.(2024)Jimenez, Yang, Wettig, Yao, Pei, Press, and
+  Narasimhan]{jimenez2024swebench}
+Carlos~E. Jimenez, John Yang, Alexander Wettig, Shunyu Yao, Kexin Pei, Ofir
+  Press, and Karthik Narasimhan.
+\newblock {SWE}-bench: Can language models resolve real-world {GitHub} issues?
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2024.
+
 \bibitem[Kennedy(2023)]{kennedy2023}
 Edward~H. Kennedy.
 \newblock Towards optimal doubly robust estimation of heterogeneous causal
@@ -48,14 +80,23 @@ Edward~H. Kennedy.
 \newblock \emph{Electronic Journal of Statistics}, 17\penalty0 (2):\penalty0
   3008--3049, 2023.
 
-\bibitem[Saad-Falcon et~al.(2025)Saad-Falcon, Barber, Krishnamurthy,
-  Athiwaratkun, Solai, and Khashabi]{saadfacon2025ares}
-Jon Saad-Falcon, Omar Barber, Akash Krishnamurthy, Ben Athiwaratkun,
-  Sathish~Reddy Solai, and Daniel Khashabi.
+\bibitem[Saad-Falcon et~al.(2024)Saad-Falcon, Khattab, Potts, and
+  Zaharia]{saadfacon2024ares}
+Jon Saad-Falcon, Omar Khattab, Christopher Potts, and Matei Zaharia.
 \newblock {ARES}: An automated evaluation framework for retrieval-augmented
   generation systems.
-\newblock In \emph{Proceedings of the 2025 Conference on Empirical Methods in
-  Natural Language Processing (EMNLP)}, 2025.
+\newblock In \emph{Proceedings of the 2024 Conference of the North American
+  Chapter of the Association for Computational Linguistics: Human Language
+  Technologies (NAACL-HLT)}, 2024.
+
+\bibitem[Shao et~al.(2025)Shao, Ren, Qian, Wei, Guo, Yang, Song, Zhang, Zhang,
+  Liu, and Shao]{misevolution2025}
+Shuai Shao, Qihan Ren, Chen Qian, Boyi Wei, Dadi Guo, Jingyi Yang, Xinhao Song,
+  Linfeng Zhang, Weinan Zhang, Dongrui Liu, and Jing Shao.
+\newblock Your agent may misevolve: Emergent risks in self-evolving {LLM}
+  agents.
+\newblock \emph{arXiv preprint arXiv:2509.26354}, 2025.
+\newblock Accepted at ICLR 2026.
 
 \bibitem[Sharma and Kiciman(2022)]{dowhy2022}
 Amit Sharma and Emre Kiciman.
@@ -93,11 +134,17 @@ Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik Narasimhan,
 \newblock In \emph{International Conference on Learning Representations
   (ICLR)}, 2023.
 
+\bibitem[Yuan et~al.(2024)]{rjudge2024}
+Tongxin Yuan et~al.
+\newblock R-judge: Benchmarking safety risk awareness for {LLM} agents.
+\newblock In \emph{Findings of the Association for Computational Linguistics:
+  EMNLP 2024}, 2024.
+
 \bibitem[Zhang et~al.(2025)Zhang, Li, and Peng]{zhang2025whowhen}
 Shuo Zhang, Liangcai Li, and Nanyun Peng.
 \newblock Which agent causes task failures and when? {On} automated failure
   attribution of {LLM} multi-agent systems.
 \newblock In \emph{Proceedings of the 42nd International Conference on Machine
-  Learning (ICML)}, 2025.
+  Learning (ICML)}, Proceedings of Machine Learning Research (PMLR), 2025.
 
 \end{thebibliography}

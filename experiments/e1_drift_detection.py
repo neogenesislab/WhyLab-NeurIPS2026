@@ -18,8 +18,8 @@ from scipy.spatial.distance import jensenshannon
 from scipy.stats import entropy as scipy_entropy
 
 ROOT = Path(__file__).resolve().parent
-CFG = yaml.safe_load((ROOT / "config.yaml").read_text())["e1"]
-EXP = yaml.safe_load((ROOT / "config.yaml").read_text())["experiment"]
+CFG = yaml.safe_load((ROOT / "config.yaml").read_text(encoding="utf-8"))["e1"]
+EXP = yaml.safe_load((ROOT / "config.yaml").read_text(encoding="utf-8"))["experiment"]
 
 SEEDS = EXP["seeds"]
 BASE_SEED = EXP["rng_base_seed"]
@@ -140,12 +140,94 @@ class ADWIN:
         return False
 
 
-def run_adwin(obs_list, ref_hists, window=WINDOW):
+class CUSUM:
+    """Standard cumulative sum (CUSUM) change detector.
+
+    Monitors the cumulative deviation from a reference mean.
+    Raises alarm when cumulative sum exceeds threshold h.
+    """
+
+    def __init__(self, h: float = 5.0, drift: float = 0.0):
+        self.h = h
+        self.drift = drift
+        self.reset()
+
+    def reset(self):
+        self.s_pos = 0.0
+        self.s_neg = 0.0
+        self._ref_mean = None
+        self._calibrating = True
+        self._cal_vals = []
+
+    def update(self, val: float) -> bool:
+        if self._calibrating:
+            self._cal_vals.append(val)
+            if len(self._cal_vals) >= 50:
+                self._ref_mean = np.mean(self._cal_vals)
+                self._calibrating = False
+            return False
+
+        z = val - self._ref_mean - self.drift
+        self.s_pos = max(0, self.s_pos + z)
+        self.s_neg = min(0, self.s_neg + z)
+
+        if self.s_pos > self.h or abs(self.s_neg) > self.h:
+            self.s_pos = 0.0
+            self.s_neg = 0.0
+            return True
+        return False
+
+
+class PageHinkley:
+    """Page-Hinkley change detector.
+
+    Monitors the cumulative deviation from the running mean.
+    Raises alarm when the maximum deviation exceeds threshold lambda_.
+    """
+
+    def __init__(self, lambda_: float = 50.0, alpha: float = 0.005):
+        self.lambda_ = lambda_
+        self.alpha = alpha
+        self.reset()
+
+    def reset(self):
+        self._n = 0
+        self._sum = 0.0
+        self._mean = 0.0
+        self._cum_sum = 0.0
+        self._min_cum = float("inf")
+
+    def update(self, val: float) -> bool:
+        self._n += 1
+        self._sum += val
+        self._mean = self._sum / self._n
+        self._cum_sum += val - self._mean - self.alpha
+        self._min_cum = min(self._min_cum, self._cum_sum)
+
+        if self._n < 30:
+            return False
+
+        return (self._cum_sum - self._min_cum) > self.lambda_
+
+
+def run_streaming_detector(obs_list, ref_hists, detector_type, window=WINDOW):
+    """Run a streaming change detector (ADWIN, CUSUM, or Page-Hinkley).
+
+    Returns (alarms_array, di_values_array).
+    """
     T = len(obs_list[0])
     K = len(obs_list)
     alarms = np.zeros(T, dtype=bool)
     di_vals = np.zeros(T)
-    detectors = [ADWIN(ADWIN_DELTA) for _ in range(K)]
+
+    if detector_type == "adwin":
+        detectors = [ADWIN(ADWIN_DELTA) for _ in range(K)]
+    elif detector_type == "cusum":
+        detectors = [CUSUM(h=5.0) for _ in range(K)]
+    elif detector_type == "page_hinkley":
+        detectors = [PageHinkley(lambda_=50.0) for _ in range(K)]
+    else:
+        raise ValueError(f"Unknown detector: {detector_type}")
 
     for t in range(T):
         start = max(0, t - window + 1)
@@ -183,15 +265,17 @@ def run_e1():
                 obs_list.append(generate_observations(
                     ref_dists[i], HORIZON, mag, SHIFT_T, rng))
 
-            for det in ["entropy_weighted", "uniform", "adwin"]:
-                if det != "adwin":
+            for det in ["entropy_weighted", "uniform", "adwin",
+                        "cusum", "page_hinkley"]:
+                if det in ("entropy_weighted", "uniform"):
                     di_all = compute_all_di(obs_list, ref_hists, det)
                     cal = di_all[:CAL_WINDOW]
                     tau = np.quantile(cal, 1.0 - FPR_TARGET)
                     alarms = di_all > tau
                     di_vals = di_all
                 else:
-                    alarms, di_vals = run_adwin(obs_list, ref_hists)
+                    alarms, di_vals = run_streaming_detector(
+                        obs_list, ref_hists, det)
 
                 pre_fpr = alarms[:SHIFT_T].sum() / SHIFT_T
                 post_a = np.where(alarms[SHIFT_T:])[0]

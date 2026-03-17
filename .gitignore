@@ -36,9 +36,28 @@ dist/
 # Large binary results
 *.parquet
 
+# E4 experiment cache & data
+experiments/cache/
+experiments/data/HumanEval*
+
 # Reports (local only)
 paper/reports/
 paper/visions/
 paper/whylab_v2_deep_dive.md
 paper/.gitkeep
 paper/data/
+
+# Temp analysis files
+*.tmp
+tmp_test/
+analysis_deep.txt
+audit_result.txt
+col_check.txt
+unused_bib.txt
+section_sizes.txt
+page_analysis.txt
+repo_audit.txt
+paper/full_audit.py
+paper/repo_audit.py
+paper/verify_paper.py
+paper/verify_result.txt

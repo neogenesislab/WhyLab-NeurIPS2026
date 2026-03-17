@@ -119,10 +119,36 @@ def ctrl_adaptive(t, T, g_hat, state, epsilon_floor=0.01, ceiling=0.8, **kw):
     return float(np.clip(zeta_max, epsilon_floor, ceiling))
 
 
+def ctrl_adam(t, T, g_hat, state, lr=0.1, beta1=0.9, beta2=0.999,
+              eps=1e-8, **kw):
+    """Adam optimizer baseline.
+
+    Standard adaptive learning rate method. Returns effective step size
+    based on Adam's bias-corrected first/second moment estimates.
+    """
+    if state.get("adam_m") is None:
+        dim = len(g_hat)
+        state["adam_m"] = np.zeros(dim)
+        state["adam_v"] = np.zeros(dim)
+        state["adam_t"] = 0
+
+    state["adam_t"] += 1
+    state["adam_m"] = beta1 * state["adam_m"] + (1 - beta1) * g_hat
+    state["adam_v"] = beta2 * state["adam_v"] + (1 - beta2) * g_hat ** 2
+
+    m_hat = state["adam_m"] / (1 - beta1 ** state["adam_t"])
+    v_hat = state["adam_v"] / (1 - beta2 ** state["adam_t"])
+
+    # Effective step size = lr * ||m_hat|| / ||sqrt(v_hat) + eps||
+    effective = lr * np.linalg.norm(m_hat) / (np.linalg.norm(np.sqrt(v_hat) + eps) + 1e-10)
+    return float(np.clip(effective, 0.01, 0.8))
+
+
 CONTROLLERS = {
     "no_damping": (ctrl_no_damping, {}),
     "cosine": (ctrl_cosine, {}),
     "grad_clip": (ctrl_grad_clip, {"c": 1.0}),
+    "adam": (ctrl_adam, {"lr": 0.1}),
     "adaptive": (ctrl_adaptive, {"epsilon_floor": 0.01, "ceiling": 0.8}),
 }
 

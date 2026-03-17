@@ -1,5 +1,5 @@
 # E1 + E3a Experiment Configuration
-# All runs: 40 seeds, mean ± 95% CI
+# All runs: 40 seeds, mean +/- 95% CI
 
 experiment:
   seeds: 40
@@ -128,3 +128,65 @@ e4:
       c2_e_thresh: 1.5
       c2_rv_thresh: 0.05
       max_attempts: 10
+
+e5:
+  name: "SWE-bench Agent Benchmark"
+  benchmark: "swe-bench-lite"
+  max_attempts: 7             # max retry per problem
+  problems_subset: null       # null = all 300
+  eval_mode: "lightweight"    # "lightweight" or "docker"
+  splits:
+    pilot:  {n_problems: 30, n_seeds: 2}    # quick validation
+    main:   {n_problems: 300, n_seeds: 5}   # paper results
+    full:   {n_problems: 300, n_seeds: 10}  # extended (optional)
+  llm:
+    model: "gemini-2.0-flash"
+    temperature: 0.7
+    max_tokens: 4096           # patches need more tokens
+    prompt_version: "v1"
+    cache_mode: "hybrid"
+  max_tokens_per_seed: 1000000
+  audit:
+    c1_window: 5
+    c1_agreement_threshold: 0.4
+    c2_e_thresh: 1.5           # calibrated default
+    c2_rv_thresh: 0.05
+    c3_epsilon_floor: 0.01
+    c3_ceiling: 0.8
+  ablations:
+    - name: "none"
+      c1: false
+      c2: false
+      c3: false
+    - name: "simple_retry"     # strawman: retry without reflection
+      c1: false
+      c2: false
+      c3: false
+      # (reflexion disabled -- handled in swebench_reflexion.py via flag)
+    - name: "C1_only"
+      c1: true
+      c2: false
+      c3: false
+    - name: "C2_default"
+      c1: false
+      c2: true
+      c3: false
+      c2_e_thresh: 2.0
+      c2_rv_thresh: 0.1
+    - name: "C2_calibrated"
+      c1: false
+      c2: true
+      c3: false
+      c2_e_thresh: 1.5
+      c2_rv_thresh: 0.05
+    - name: "C3_only"
+      c1: false
+      c2: false
+      c3: true
+    - name: "full_calibrated"
+      c1: true
+      c2: true
+      c3: true
+      c2_e_thresh: 1.5
+      c2_rv_thresh: 0.05
+

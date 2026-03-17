@@ -3,10 +3,12 @@
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
 \citation{shinn2023reflexion,yao2023react}
-\citation{dowhy2022}
-\citation{econml2019}
+\citation{dowhy2022,econml2019}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
 \newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
+\citation{jimenez2024swebench}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces WhyLab causal safety monitoring framework. Instead of uncritically accepting potentially hallucinated updates ($\hat  {g}_t$) that cause cognitive oscillation, proposed updates are routed through a safety monitoring layer. \textbf  {C1} detects environmental drift, \textbf  {C2} filters out fragile successes lacking unmeasured-confounder robustness, and \textbf  {C3} adapts the step size to bound the Lyapunov energy of the policy. Unsafe updates are rejected, preserving the status quo.}}{2}{figure.1}\protected@file@percent }
+\newlabel{fig:framework}{{1}{2}{WhyLab causal safety monitoring framework. Instead of uncritically accepting potentially hallucinated updates ($\hat {g}_t$) that cause cognitive oscillation, proposed updates are routed through a safety monitoring layer. \textbf {C1} detects environmental drift, \textbf {C2} filters out fragile successes lacking unmeasured-confounder robustness, and \textbf {C3} adapts the step size to bound the Lyapunov energy of the policy. Unsafe updates are rejected, preserving the status quo}{figure.1}{}}
 \def\@LN@column{1}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Problem Formulation}{2}{section.2}\protected@file@percent }
 \newlabel{sec:problem}{{2}{2}{Problem Formulation}{section.2}{}}
@@ -16,13 +18,13 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}C1: Information-Theoretic Drift Index}{2}{subsection.3.1}\protected@file@percent }
 \newlabel{sec:drift}{{3.1}{2}{C1: Information-Theoretic Drift Index}{subsection.3.1}{}}
 \newlabel{def:drift}{{1}{2}{Drift Index}{definition.1}{}}
-\newlabel{eq:cap}{{2}{2}{Drift Index}{equation.2}{}}
-\newlabel{eq:drift}{{3}{2}{Drift Index}{equation.3}{}}
-\newlabel{prop:detection}{{1}{2}{Detection advantage under inactive projection}{proposition.1}{}}
 \citation{vanderweele2017}
 \citation{vanderweele2017}
 \citation{cinelli2020}
 \def\@LN@column{1}
+\newlabel{eq:cap}{{2}{3}{Drift Index}{equation.2}{}}
+\newlabel{eq:drift}{{3}{3}{Drift Index}{equation.3}{}}
+\newlabel{prop:detection}{{1}{3}{Detection advantage under inactive projection}{proposition.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}C2: Sensitivity-Aware Effect Filtering}{3}{subsection.3.2}\protected@file@percent }
 \newlabel{sec:sensitivity}{{3.2}{3}{C2: Sensitivity-Aware Effect Filtering}{subsection.3.2}{}}
 \newlabel{def:evalue}{{2}{3}{Approximate E-value for continuous outcomes \cite {vanderweele2017}}{definition.2}{}}
@@ -31,30 +33,59 @@
 \newlabel{sec:lyapunov}{{3.3}{3}{C3: Lyapunov-Bounded Adaptive Damping}{subsection.3.3}{}}
 \newlabel{thm:lyapunov}{{1}{3}{Sufficient condition for stable updates}{theorem.1}{}}
 \newlabel{eq:zeta_max}{{5}{3}{Sufficient condition for stable updates}{equation.5}{}}
-\newlabel{eq:zeta-raw}{{6}{3}{C3: Lyapunov-Bounded Adaptive Damping}{equation.6}{}}
-\newlabel{eq:controller}{{7}{3}{C3: Lyapunov-Bounded Adaptive Damping}{equation.7}{}}
-\newlabel{par:heavytail}{{3.3}{3}{C3: Lyapunov-Bounded Adaptive Damping}{equation.7}{}}
-\newlabel{eq:floor}{{8}{3}{C3: Lyapunov-Bounded Adaptive Damping}{equation.8}{}}
-\citation{bifet2007adwin}
-\citation{bifet2007adwin}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Within-horizon detection rate (\%) at matched FPR~$=5\%$, across 40 seeds (bootstrap 95\% CI in brackets). Higher is better. ADWIN uses a speed-optimized variant (single-split budget-bounded scan) rather than the full adaptive-window algorithm of \citet  {bifet2007adwin}.}}{4}{table.1}\protected@file@percent }
-\newlabel{tab:e1-detection}{{1}{4}{Within-horizon detection rate (\%) at matched FPR~$=5\%$, across 40 seeds (bootstrap 95\% CI in brackets). Higher is better. ADWIN uses a speed-optimized variant (single-split budget-bounded scan) rather than the full adaptive-window algorithm of \citet {bifet2007adwin}}{table.1}{}}
 \def\@LN@column{1}
+\newlabel{eq:zeta-raw}{{6}{4}{C3: Lyapunov-Bounded Adaptive Damping}{equation.6}{}}
+\newlabel{eq:controller}{{7}{4}{C3: Lyapunov-Bounded Adaptive Damping}{equation.7}{}}
+\newlabel{par:heavytail}{{3.3}{4}{C3: Lyapunov-Bounded Adaptive Damping}{equation.7}{}}
+\newlabel{eq:floor}{{8}{4}{C3: Lyapunov-Bounded Adaptive Damping}{equation.8}{}}
+\newlabel{prop:proxy-fidelity}{{2}{4}{Proxy Fidelity}{proposition.2}{}}
+\newlabel{eq:proxy-bound}{{9}{4}{Proxy Fidelity}{equation.9}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}System Overview}{4}{section.4}\protected@file@percent }
 \newlabel{sec:system}{{4}{4}{System Overview}{section.4}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {5}Experiments}{4}{section.5}\protected@file@percent }
 \newlabel{sec:experiments}{{5}{4}{Experiments}{section.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}E1: Drift Detection Performance}{4}{subsection.5.1}\protected@file@percent }
-\newlabel{sec:e1}{{5.1}{4}{E1: Drift Detection Performance}{subsection.5.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}E2: Sensitivity Filtering}{4}{subsection.5.2}\protected@file@percent }
-\newlabel{sec:e2}{{5.2}{4}{E2: Sensitivity Filtering}{subsection.5.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Kaplan--Meier cumulative detection curves for severe shifts (40~seeds). C1 (solid blue) detects shifts earlier and more frequently than uniform (dashed orange) and ADWIN (dotted green). Lower $S(t)$ indicates faster, more reliable detection.}}{5}{figure.1}\protected@file@percent }
-\newlabel{fig:e1-km}{{1}{5}{Kaplan--Meier cumulative detection curves for severe shifts (40~seeds). C1 (solid blue) detects shifts earlier and more frequently than uniform (dashed orange) and ADWIN (dotted green). Lower $S(t)$ indicates faster, more reliable detection}{figure.1}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Filtering performance under two operating regimes from the threshold sweep (40~seeds, mean over synthetic observational studies). For each regime, the operating point minimizing fragile rate is selected per filter. E-values: $d = |ATE|/\sigma _{\text  {pooled}}$; $RV_q$: $f_q = |\hat  {\beta }|/\text  {SE}$.}}{5}{table.2}\protected@file@percent }
-\newlabel{tab:e2-filter}{{2}{5}{Filtering performance under two operating regimes from the threshold sweep (40~seeds, mean over synthetic observational studies). For each regime, the operating point minimizing fragile rate is selected per filter. E-values: $d = |ATE|/\sigma _{\text {pooled}}$; $RV_q$: $f_q = |\hat {\beta }|/\text {SE}$}{table.2}{}}
+\citation{bifet2007adwin}
+\citation{bifet2007adwin}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Within-horizon detection rate (\%) at matched FPR~$=5\%$, across 40 seeds (bootstrap 95\% CI in brackets). Higher is better. ADWIN uses a speed-optimized variant (single-split budget-bounded scan) rather than the full adaptive-window algorithm of \citet  {bifet2007adwin}.}}{5}{table.1}\protected@file@percent }
+\newlabel{tab:e1-detection}{{1}{5}{Within-horizon detection rate (\%) at matched FPR~$=5\%$, across 40 seeds (bootstrap 95\% CI in brackets). Higher is better. ADWIN uses a speed-optimized variant (single-split budget-bounded scan) rather than the full adaptive-window algorithm of \citet {bifet2007adwin}}{table.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Kaplan--Meier cumulative detection curves for severe shifts (40~seeds). C1 (solid blue) detects shifts earlier and more frequently than uniform (dashed orange) and ADWIN (dotted green). Lower $S(t)$ indicates faster, more reliable detection.}}{5}{figure.2}\protected@file@percent }
+\newlabel{fig:e1-km}{{2}{5}{Kaplan--Meier cumulative detection curves for severe shifts (40~seeds). C1 (solid blue) detects shifts earlier and more frequently than uniform (dashed orange) and ADWIN (dotted green). Lower $S(t)$ indicates faster, more reliable detection}{figure.2}{}}
 \def\@LN@column{1}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}E3a: Stability Validation}{5}{subsection.5.3}\protected@file@percent }
-\newlabel{sec:e3a}{{5.3}{5}{E3a: Stability Validation}{subsection.5.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}E1: Drift Detection Performance}{5}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:e1}{{5.1}{5}{E1: Drift Detection Performance}{subsection.5.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}E2: Sensitivity Filtering}{5}{subsection.5.2}\protected@file@percent }
+\newlabel{sec:e2}{{5.2}{5}{E2: Sensitivity Filtering}{subsection.5.2}{}}
+\citation{dowhy2022}
+\citation{vanderweele2017,cinelli2020}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Filtering performance under two operating regimes from the threshold sweep (40~seeds, mean over synthetic observational studies). For each regime, the operating point minimizing fragile rate is selected per filter. E-values: $d = |ATE|/\sigma _{\text  {pooled}}$; $RV_q$: $f_q = |\hat  {\beta }|/\text  {SE}$.}}{6}{table.2}\protected@file@percent }
+\newlabel{tab:e2-filter}{{2}{6}{Filtering performance under two operating regimes from the threshold sweep (40~seeds, mean over synthetic observational studies). For each regime, the operating point minimizing fragile rate is selected per filter. E-values: $d = |ATE|/\sigma _{\text {pooled}}$; $RV_q$: $f_q = |\hat {\beta }|/\text {SE}$}{table.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces E2 threshold sweep: (a)~fragile rate vs.\ recall Pareto frontier and (b)~fragile rejection vs.\ retention. Each marker represents one (E, $RV_q$) threshold pair.}}{6}{figure.3}\protected@file@percent }
+\newlabel{fig:e2-pareto}{{3}{6}{E2 threshold sweep: (a)~fragile rate vs.\ recall Pareto frontier and (b)~fragile rejection vs.\ retention. Each marker represents one (E, $RV_q$) threshold pair}{figure.3}{}}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}E3a: Stability Validation}{6}{subsection.5.3}\protected@file@percent }
+\newlabel{sec:e3a}{{5.3}{6}{E3a: Stability Validation}{subsection.5.3}{}}
+\citation{shinn2023reflexion}
+\citation{chen2021evaluating}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Stationary stability metrics with bootstrap 95\% CI (seed resampling). Columns 2--4: worst case $h{=}0.5$ (40 seeds). Last column: mean across all $h$ values. \emph  {Viol.\ rate}: $P(\Delta V_t > 0)$.}}{7}{table.3}\protected@file@percent }
+\newlabel{tab:e3a}{{3}{7}{Stationary stability metrics with bootstrap 95\% CI (seed resampling). Columns 2--4: worst case $h{=}0.5$ (40 seeds). Last column: mean across all $h$ values. \emph {Viol.\ rate}: $P(\Delta V_t > 0)$}{table.3}{}}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Heavy-Tail Robustness}{7}{subsection.5.4}\protected@file@percent }
+\newlabel{sec:e3b}{{5.4}{7}{Heavy-Tail Robustness}{subsection.5.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}E4: Agent Benchmark}{7}{subsection.5.5}\protected@file@percent }
+\newlabel{sec:e4}{{5.5}{7}{E4: Agent Benchmark}{subsection.5.5}{}}
+\citation{jimenez2024swebench}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces E4: Reflexion agent on HumanEval (164 problems $\times $ 5~seeds). \emph  {Osc.}~= oscillation index; \emph  {Acc.}~= update acceptance rate.}}{8}{table.4}\protected@file@percent }
+\newlabel{tab:e4}{{4}{8}{E4: Reflexion agent on HumanEval (164 problems $\times $ 5~seeds). \emph {Osc.}~= oscillation index; \emph {Acc.}~= update acceptance rate}{table.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces E5: Ablation study on SWE-bench Lite (300 $\times $ 5~seeds).}}{8}{table.5}\protected@file@percent }
+\newlabel{tab:e5}{{5}{8}{E5: Ablation study on SWE-bench Lite (300 $\times $ 5~seeds)}{table.5}{}}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}E5: Real-World Software Engineering (SWE-bench Lite)}{8}{subsection.5.6}\protected@file@percent }
+\newlabel{sec:e5}{{5.6}{8}{E5: Real-World Software Engineering (SWE-bench Lite)}{subsection.5.6}{}}
+\citation{shinn2023reflexion}
+\citation{yao2023react}
+\citation{misevolution2025}
+\citation{rjudge2024}
+\citation{agentharm2025}
 \citation{dowhy2022}
 \citation{econml2019}
 \citation{wager2018}
@@ -62,60 +93,88 @@
 \citation{chow2018lyapunov}
 \citation{berkenkamp2017safe}
 \citation{zhang2025whowhen}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces E2 threshold sweep: (a)~fragile rate vs.\ recall Pareto frontier and (b)~fragile rejection vs.\ retention. Each marker represents one (E, $RV_q$) threshold pair.}}{6}{figure.2}\protected@file@percent }
-\newlabel{fig:e2-pareto}{{2}{6}{E2 threshold sweep: (a)~fragile rate vs.\ recall Pareto frontier and (b)~fragile rejection vs.\ retention. Each marker represents one (E, $RV_q$) threshold pair}{figure.2}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Stationary stability metrics with bootstrap 95\% CI (seed resampling). Columns 2--4: worst case $h{=}0.5$ (40 seeds). Last column: mean across all $h$ values. \emph  {Viol.\ rate}: $P(\Delta V_t > 0)$.}}{6}{table.3}\protected@file@percent }
-\newlabel{tab:e3a}{{3}{6}{Stationary stability metrics with bootstrap 95\% CI (seed resampling). Columns 2--4: worst case $h{=}0.5$ (40 seeds). Last column: mean across all $h$ values. \emph {Viol.\ rate}: $P(\Delta V_t > 0)$}{table.3}{}}
+\citation{saadfacon2024ares}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Safety baselines comparison on SWE-bench Lite at equal inference cost (7~LLM calls per problem). \emph  {Best-of-$N$} generates $N$ independent solutions and selects the best. \emph  {Rollback} reverts to the last passing state on failure. Pass rates for Best-of-$N$ are estimated as $1-(1-p_1)^N$ per problem using per-problem first-attempt pass rates.}}{9}{table.6}\protected@file@percent }
+\newlabel{tab:e5-baselines}{{6}{9}{Safety baselines comparison on SWE-bench Lite at equal inference cost (7~LLM calls per problem). \emph {Best-of-$N$} generates $N$ independent solutions and selects the best. \emph {Rollback} reverts to the last passing state on failure. Pass rates for Best-of-$N$ are estimated as $1-(1-p_1)^N$ per problem using per-problem first-attempt pass rates}{table.6}{}}
 \def\@LN@column{1}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Heavy-Tail Robustness}{6}{subsection.5.4}\protected@file@percent }
-\newlabel{sec:e3b}{{5.4}{6}{Heavy-Tail Robustness}{subsection.5.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Related Work}{6}{section.6}\protected@file@percent }
-\newlabel{sec:related}{{6}{6}{Related Work}{section.6}{}}
-\citation{saadfacon2025ares}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.7}Cross-Environment Analysis}{9}{subsection.5.7}\protected@file@percent }
+\newlabel{sec:cross-env}{{5.7}{9}{Cross-Environment Analysis}{subsection.5.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Related Work}{9}{section.6}\protected@file@percent }
+\newlabel{sec:related}{{6}{9}{Related Work}{section.6}{}}
 \bibstyle{plainnat}
 \bibdata{references}
-\bibcite{econml2019}{{1}{2019}{{Battocchi et~al.}}{{Battocchi, Dillon, Hei, Lewis, Raz, Oprescu, and Syrgkanis}}}
-\bibcite{berkenkamp2017safe}{{2}{2017}{{Berkenkamp et~al.}}{{Berkenkamp, Turchetta, Schoellig, and Krause}}}
-\bibcite{bifet2007adwin}{{3}{2007}{{Bifet and Gavald\`{a}}}{{}}}
-\bibcite{chow2018lyapunov}{{4}{2018}{{Chow et~al.}}{{Chow, Nachum, Duenez-Guzman, and Ghavamzadeh}}}
-\bibcite{cinelli2020}{{5}{2020}{{Cinelli and Hazlett}}{{}}}
-\bibcite{kennedy2023}{{6}{2023}{{Kennedy}}{{}}}
-\bibcite{saadfacon2025ares}{{7}{2025}{{Saad-Falcon et~al.}}{{Saad-Falcon, Barber, Krishnamurthy, Athiwaratkun, Solai, and Khashabi}}}
-\bibcite{dowhy2022}{{8}{2022}{{Sharma and Kiciman}}{{}}}
-\bibcite{shinn2023reflexion}{{9}{2023}{{Shinn et~al.}}{{Shinn, Cassano, Labash, Gopinath, Narasimhan, and Yao}}}
-\bibcite{vanderweele2017}{{10}{2017}{{VanderWeele and Ding}}{{}}}
-\bibcite{wager2018}{{11}{2018}{{Wager and Athey}}{{}}}
+\bibcite{agentharm2025}{{1}{2025}{{Andriushchenko et~al.}}{{Andriushchenko, Souly, Dziemian, Duenas, Lin, Wang, Hendrycks, Zou, Kolter, Fredrikson, Winsor, Wynne, Gal, and Davies}}}
+\bibcite{econml2019}{{2}{2019}{{Battocchi et~al.}}{{Battocchi, Dillon, Hei, Lewis, Raz, Oprescu, and Syrgkanis}}}
+\bibcite{berkenkamp2017safe}{{3}{2017}{{Berkenkamp et~al.}}{{Berkenkamp, Turchetta, Schoellig, and Krause}}}
+\bibcite{bifet2007adwin}{{4}{2007}{{Bifet and Gavald\`{a}}}{{}}}
+\bibcite{chen2021evaluating}{{5}{2021}{{Chen et~al.}}{{Chen, Tworek, Jun, Yuan, Pinto, Kaplan, Edwards, Burda, Joseph, Brockman, et~al.}}}
+\bibcite{chow2018lyapunov}{{6}{2018}{{Chow et~al.}}{{Chow, Nachum, Duenez-Guzman, and Ghavamzadeh}}}
+\bibcite{cinelli2020}{{7}{2020}{{Cinelli and Hazlett}}{{}}}
+\bibcite{hill2011}{{8}{2011}{{Hill}}{{}}}
 \def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{7}{section.7}\protected@file@percent }
-\newlabel{sec:conclusion}{{7}{7}{Conclusion}{section.7}{}}
-\bibcite{yao2023react}{{12}{2023}{{Yao et~al.}}{{Yao, Zhao, Yu, Du, Shafran, Narasimhan, and Cao}}}
-\bibcite{zhang2025whowhen}{{13}{2025}{{Zhang et~al.}}{{Zhang, Li, and Peng}}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{10}{section.7}\protected@file@percent }
+\newlabel{sec:conclusion}{{7}{10}{Conclusion}{section.7}{}}
+\bibcite{jimenez2024swebench}{{9}{2024}{{Jimenez et~al.}}{{Jimenez, Yang, Wettig, Yao, Pei, Press, and Narasimhan}}}
+\bibcite{kennedy2023}{{10}{2023}{{Kennedy}}{{}}}
+\bibcite{saadfacon2024ares}{{11}{2024}{{Saad-Falcon et~al.}}{{Saad-Falcon, Khattab, Potts, and Zaharia}}}
+\bibcite{misevolution2025}{{12}{2025}{{Shao et~al.}}{{Shao, Ren, Qian, Wei, Guo, Yang, Song, Zhang, Zhang, Liu, and Shao}}}
+\bibcite{dowhy2022}{{13}{2022}{{Sharma and Kiciman}}{{}}}
+\bibcite{shinn2023reflexion}{{14}{2023}{{Shinn et~al.}}{{Shinn, Cassano, Labash, Gopinath, Narasimhan, and Yao}}}
+\bibcite{vanderweele2017}{{15}{2017}{{VanderWeele and Ding}}{{}}}
+\bibcite{wager2018}{{16}{2018}{{Wager and Athey}}{{}}}
+\bibcite{yao2023react}{{17}{2023}{{Yao et~al.}}{{Yao, Zhao, Yu, Du, Shafran, Narasimhan, and Cao}}}
+\bibcite{rjudge2024}{{18}{2024}{{Yuan et~al.}}{{}}}
+\bibcite{zhang2025whowhen}{{19}{2025}{{Zhang et~al.}}{{Zhang, Li, and Peng}}}
 \def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {A}Full Lyapunov Stability Proof}{8}{appendix.A}\protected@file@percent }
-\newlabel{sec:proof}{{A}{8}{Full Lyapunov Stability Proof}{appendix.A}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {B}Proposition~\ref {prop:detection} Proof}{8}{appendix.B}\protected@file@percent }
-\newlabel{sec:prop-proof}{{B}{8}{Proposition~\ref {prop:detection} Proof}{appendix.B}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Full Lyapunov Stability Proof}{11}{appendix.A}\protected@file@percent }
+\newlabel{sec:proof}{{A}{11}{Full Lyapunov Stability Proof}{appendix.A}{}}
+\citation{hill2011}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {section}{\numberline {B}Proposition~\ref {prop:detection} Proof}{12}{appendix.B}\protected@file@percent }
+\newlabel{sec:prop-proof}{{B}{12}{Proposition~\ref {prop:detection} Proof}{appendix.B}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C}Proposition~\ref {prop:proxy-fidelity} Proof}{12}{appendix.C}\protected@file@percent }
+\newlabel{sec:proxy-fidelity-proof}{{C}{12}{Proposition~\ref {prop:proxy-fidelity} Proof}{appendix.C}{}}
 \citation{bifet2007adwin}
 \def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {C}Additional Experimental Details}{9}{appendix.C}\protected@file@percent }
-\newlabel{sec:supp-exp}{{C}{9}{Additional Experimental Details}{appendix.C}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {C.1}C3-Oracle Ablation}{9}{subsection.C.1}\protected@file@percent }
-\newlabel{sec:oracle-ablation}{{C.1}{9}{C3-Oracle Ablation}{subsection.C.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Proxy energy $\hat  {V}_t$ trajectories over 1000 steps ($h{=}0.5$, representative seed). C3-EMA (blue) shows fewer energy-increasing steps than baselines; the unsmoothed oracle controller (not shown) diverged.}}{9}{figure.3}\protected@file@percent }
-\newlabel{fig:e3a-proxy}{{3}{9}{Proxy energy $\hat {V}_t$ trajectories over 1000 steps ($h{=}0.5$, representative seed). C3-EMA (blue) shows fewer energy-increasing steps than baselines; the unsmoothed oracle controller (not shown) diverged}{figure.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {C.2}E1: Kaplan--Meier Analysis and ADWIN Calibration}{9}{subsection.C.2}\protected@file@percent }
-\newlabel{sec:e1-supp}{{C.2}{9}{E1: Kaplan--Meier Analysis and ADWIN Calibration}{subsection.C.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {C.3}E2: Threshold Selection Protocol}{9}{subsection.C.3}\protected@file@percent }
-\newlabel{sec:e2-supp}{{C.3}{9}{E2: Threshold Selection Protocol}{subsection.C.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {D}Additional Experimental Details}{13}{appendix.D}\protected@file@percent }
+\newlabel{sec:supp-exp}{{D}{13}{Additional Experimental Details}{appendix.D}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {D.1}C3-Oracle Ablation}{13}{subsection.D.1}\protected@file@percent }
+\newlabel{sec:oracle-ablation}{{D.1}{13}{C3-Oracle Ablation}{subsection.D.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Proxy energy $\hat  {V}_t$ trajectories over 1000 steps ($h{=}0.5$, representative seed). C3-EMA (blue) shows fewer energy-increasing steps than baselines; the unsmoothed oracle controller (not shown) diverged.}}{13}{figure.4}\protected@file@percent }
+\newlabel{fig:e3a-proxy}{{4}{13}{Proxy energy $\hat {V}_t$ trajectories over 1000 steps ($h{=}0.5$, representative seed). C3-EMA (blue) shows fewer energy-increasing steps than baselines; the unsmoothed oracle controller (not shown) diverged}{figure.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {D.2}E1: Kaplan--Meier Analysis and ADWIN Calibration}{13}{subsection.D.2}\protected@file@percent }
+\newlabel{sec:e1-supp}{{D.2}{13}{E1: Kaplan--Meier Analysis and ADWIN Calibration}{subsection.D.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {D.3}E2: Threshold Selection Protocol}{13}{subsection.D.3}\protected@file@percent }
+\newlabel{sec:e2-supp}{{D.3}{13}{E2: Threshold Selection Protocol}{subsection.D.3}{}}
+\citation{dowhy2022}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {section}{\numberline {E}Heavy-Tail Stress Test}{14}{appendix.E}\protected@file@percent }
+\newlabel{sec:e3b-app}{{E}{14}{Heavy-Tail Stress Test}{appendix.E}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Heavy-tail stress test: C3-EMA vs C3-raw under different noise distributions ($h{=}0.5$, 40~seeds). All metrics computed independently per noise type.}}{14}{table.7}\protected@file@percent }
+\newlabel{tab:e3b}{{7}{14}{Heavy-tail stress test: C3-EMA vs C3-raw under different noise distributions ($h{=}0.5$, 40~seeds). All metrics computed independently per noise type}{table.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {F}C2 Identification Assumptions}{14}{appendix.F}\protected@file@percent }
+\newlabel{sec:assumptions-app}{{F}{14}{C2 Identification Assumptions}{appendix.F}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {G}E2 Refutation Results}{14}{appendix.G}\protected@file@percent }
+\newlabel{sec:refutation-app}{{G}{14}{E2 Refutation Results}{appendix.G}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Identification assumptions, failure modes, and mitigations for C2 (sensitivity filter) and C3 (Lyapunov controller).}}{15}{table.8}\protected@file@percent }
+\newlabel{tab:assumptions}{{8}{15}{Identification assumptions, failure modes, and mitigations for C2 (sensitivity filter) and C3 (Lyapunov controller)}{table.8}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Refutation pass rates by scenario type (mean $\pm $ 95\% CI). Reliable scenarios should pass; fragile scenarios should fail. $\Delta $~Ratio${}= |\text  {ATE}_{\text  {refuted}} - \text  {ATE}_{\text  {orig}}| / (|\text  {ATE}_{\text  {orig}}| + 10^{-8})$; for Data Subset, $\Delta $~Ratio is the coefficient of variation across 5 subsets.}}{15}{table.9}\protected@file@percent }
+\newlabel{tab:refutation}{{9}{15}{Refutation pass rates by scenario type (mean $\pm $ 95\% CI). Reliable scenarios should pass; fragile scenarios should fail. $\Delta $~Ratio${}= |\text {ATE}_{\text {refuted}} - \text {ATE}_{\text {orig}}| / (|\text {ATE}_{\text {orig}}| + 10^{-8})$; for Data Subset, $\Delta $~Ratio is the coefficient of variation across 5 subsets}{table.9}{}}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {section}{\numberline {H}E3a Component Ablation}{15}{appendix.H}\protected@file@percent }
+\newlabel{sec:ablation-app}{{H}{15}{E3a Component Ablation}{appendix.H}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {I}Conclusion Invariance Check}{15}{appendix.I}\protected@file@percent }
+\newlabel{sec:invariance-app}{{I}{15}{Conclusion Invariance Check}{appendix.I}{}}
 \citation{cinelli2020}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Component ablation: violation rate and convergence by hallucination rate (mean $\pm $ 95\% CI, 20 seeds). Conv.${}= P(V_T < 0.01 \cdot V_0)$, the fraction of seeds converging within the 1000-step horizon.}}{16}{table.10}\protected@file@percent }
+\newlabel{tab:ablation}{{10}{16}{Component ablation: violation rate and convergence by hallucination rate (mean $\pm $ 95\% CI, 20 seeds). Conv.${}= P(V_T < 0.01 \cdot V_0)$, the fraction of seeds converging within the 1000-step horizon}{table.10}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Conclusion invariance check: perturbing implementation choices does not change method rankings. $\epsilon = 0.15$ relative tolerance.}}{16}{table.11}\protected@file@percent }
+\newlabel{tab:invariance}{{11}{16}{Conclusion invariance check: perturbing implementation choices does not change method rankings. $\epsilon = 0.15$ relative tolerance}{table.11}{}}
 \def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {D}Heavy-Tail Stress Test}{10}{appendix.D}\protected@file@percent }
-\newlabel{sec:e3b-app}{{D}{10}{Heavy-Tail Stress Test}{appendix.D}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Heavy-tail stress test: C3-EMA vs C3-raw under different noise distributions ($h{=}0.5$, 40~seeds). All metrics computed independently per noise type.}}{10}{table.4}\protected@file@percent }
-\newlabel{tab:e3b}{{4}{10}{Heavy-tail stress test: C3-EMA vs C3-raw under different noise distributions ($h{=}0.5$, 40~seeds). All metrics computed independently per noise type}{table.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {E}Robustness Value Definition}{10}{appendix.E}\protected@file@percent }
-\newlabel{sec:rv-definition}{{E}{10}{Robustness Value Definition}{appendix.E}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {J}Robustness Value Definition}{16}{appendix.J}\protected@file@percent }
+\newlabel{sec:rv-definition}{{J}{16}{Robustness Value Definition}{appendix.J}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {K}NeurIPS Paper Checklist}{16}{appendix.K}\protected@file@percent }
+\newlabel{sec:checklist}{{K}{16}{NeurIPS Paper Checklist}{appendix.K}{}}
+\citation{jimenez2024swebench}
 \def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {F}NeurIPS Paper Checklist}{11}{appendix.F}\protected@file@percent }
-\newlabel{sec:checklist}{{F}{11}{NeurIPS Paper Checklist}{appendix.F}{}}
-\gdef \@abspage@last{11}
+\gdef \@abspage@last{17}

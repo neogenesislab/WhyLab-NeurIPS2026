@@ -1,6 +1,6 @@
 # 🔬 WhyLab — PROJECT SPEC
 
-> **최종 업데이트**: 2026-03-11 | **유형**: NeurIPS 2026 제출 논문
+> **최종 업데이트**: 2026-03-15 | **유형**: NeurIPS 2026 제출 논문 | **커밋**: 101개 (📈 +22)
 > **상위 문서**: [PAPER PROJECT_SPEC](../PROJECT_SPEC.md) | [마스터 바이블](file:///d:/00.test/FOLDER_BIBLE.md)
 
 ---
