@@ -27,6 +27,7 @@ ZENODO_API_BASE = "https://zenodo.org/api"
 ENV_PATHS = [
     PROJECT_ROOT / ".env",
     PROJECT_ROOT.parent / "EthicaAI" / ".env",
+    Path(r"d:\00.test\PAPER\EthicaAI\.env"),
 ]
 
 
