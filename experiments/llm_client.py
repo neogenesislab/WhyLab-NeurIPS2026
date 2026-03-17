@@ -12,23 +12,15 @@ Each entry stores: prompt, response, token counts, latency, timestamp.
 import hashlib
 import json
 import os
+import re
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
-import google.generativeai as genai
+from experiments.llm_providers import LLMResponse, create_provider
 
 
-@dataclass
-class LLMResponse:
-    """Structured LLM response with metadata."""
-    text: str
-    prompt_tokens: int = 0
-    completion_tokens: int = 0
-    latency_ms: float = 0.0
-    cache_hit: bool = False
-    model: str = ""
 
 
 class CacheMissError(Exception):
@@ -36,11 +28,19 @@ class CacheMissError(Exception):
     pass
 
 
+def _safe_model_name(model: str) -> str:
+    """Convert model name to filesystem-safe string."""
+    return re.sub(r'[^a-zA-Z0-9._-]', '_', model)
+
+
 class CachedLLMClient:
     """LLM client with deterministic caching for reproducibility.
 
+    Supports Gemini, OpenAI (GPT-5), and Anthropic (Claude) via
+    the Provider pattern in llm_providers.py.
+
     Args:
-        model: Model identifier (e.g. "gemini-2.0-flash").
+        model: Model identifier (e.g. "gemini-2.0-flash", "gpt-5-mini", "claude-sonnet-4.6").
         cache_dir: Directory for cache JSONL files.
         mode: "online" | "replay" | "hybrid".
         temperature: Sampling temperature (0.0 for deterministic).
@@ -70,21 +70,23 @@ class CachedLLMClient:
         self.max_tokens = max_tokens
         self.prompt_version = prompt_version
 
-        # Cache: key → response dict
+        # Cache: key → response dict (model-specific file)
         self._cache: dict[str, dict] = {}
-        self._cache_file = self.cache_dir / "e4_llm_cache.jsonl"
-        self._load_cache()
+        safe_name = _safe_model_name(model)
+        self._cache_file = self.cache_dir / f"llm_cache_{safe_name}.jsonl"
+        # Legacy fallback: also load old e4_llm_cache.jsonl if it exists
+        legacy_file = self.cache_dir / "e4_llm_cache.jsonl"
+        if legacy_file.exists():
+            self._load_cache_from(legacy_file)
+        self._load_cache_from(self._cache_file)
 
         # Stats
         self.stats = {"calls": 0, "cache_hits": 0, "api_calls": 0, "total_tokens": 0}
 
-        # Init API client (lazy — only if online/hybrid)
-        self._api_client = None
+        # Init provider (lazy — only if online/hybrid)
+        self._provider = None
         if mode in ("online", "hybrid"):
-            api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-            if api_key:
-                genai.configure(api_key=api_key)
-                self._api_client = genai.GenerativeModel(model)
+            self._provider = create_provider(model, temperature, max_tokens)
 
     def _cache_key(self, system_prompt: str, user_prompt: str, seed: int = 0) -> str:
         """Deterministic cache key from all parameters that affect output."""
@@ -99,11 +101,11 @@ class CachedLLMClient:
         }, sort_keys=True, ensure_ascii=False)
         return hashlib.sha256(payload.encode()).hexdigest()
 
-    def _load_cache(self):
-        """Load existing cache from JSONL file."""
-        if not self._cache_file.exists():
+    def _load_cache_from(self, path: Path):
+        """Load cache entries from a JSONL file."""
+        if not path.exists():
             return
-        with open(self._cache_file, "r", encoding="utf-8") as f:
+        with open(path, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if not line:
@@ -117,57 +119,18 @@ class CachedLLMClient:
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
     def _call_api(self, system_prompt: str, user_prompt: str, seed: int = 0) -> LLMResponse:
-        """Make actual API call to Gemini with automatic retry on rate limit.
-
-        Args:
-            system_prompt: System instructions.
-            user_prompt: User prompt.
-            seed: Seed for best-effort reproducibility (passed to API).
-        """
-        if self._api_client is None:
+        """Make API call via provider with automatic retry on rate limit."""
+        if self._provider is None:
             raise RuntimeError(
-                "API client not initialized. Set GEMINI_API_KEY env var."
+                f"Provider not initialized for {self.model}. Check API keys."
             )
 
-        full_prompt = f"{system_prompt}\n\n{user_prompt}" if system_prompt else user_prompt
-
-        # Build generation config with seed for best-effort reproducibility
-        gen_config = genai.GenerationConfig(
-            temperature=self.temperature,
-            max_output_tokens=self.max_tokens,
-        )
-        # Pass seed if supported by the API version
-        try:
-            gen_config.seed = seed
-        except (AttributeError, TypeError):
-            pass  # Older SDK versions may not support seed
-
-        # Retry with exponential backoff on rate limit (429) errors
         max_retries = 5
-        base_delay = 10  # seconds
+        base_delay = 10
 
         for attempt in range(max_retries + 1):
             try:
-                start = time.time()
-                response = self._api_client.generate_content(
-                    full_prompt,
-                    generation_config=gen_config,
-                )
-                latency_ms = (time.time() - start) * 1000
-
-                text = response.text if response.text else ""
-                # Token counts (best effort)
-                pt = getattr(response.usage_metadata, "prompt_token_count", 0) if hasattr(response, "usage_metadata") else 0
-                ct = getattr(response.usage_metadata, "candidates_token_count", 0) if hasattr(response, "usage_metadata") else 0
-
-                return LLMResponse(
-                    text=text,
-                    prompt_tokens=pt,
-                    completion_tokens=ct,
-                    latency_ms=latency_ms,
-                    cache_hit=False,
-                    model=self.model,
-                )
+                return self._provider.call(system_prompt, user_prompt, seed=seed)
             except Exception as e:
                 err_str = str(e).lower()
                 is_rate_limit = "429" in err_str or "rate" in err_str or "quota" in err_str or "resource" in err_str
