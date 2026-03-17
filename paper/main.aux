@@ -18,11 +18,11 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}C1: Information-Theoretic Drift Index}{2}{subsection.3.1}\protected@file@percent }
 \newlabel{sec:drift}{{3.1}{2}{C1: Information-Theoretic Drift Index}{subsection.3.1}{}}
 \newlabel{def:drift}{{1}{2}{Drift Index}{definition.1}{}}
+\newlabel{eq:cap}{{2}{2}{Drift Index}{equation.2}{}}
 \citation{vanderweele2017}
 \citation{vanderweele2017}
 \citation{cinelli2020}
 \def\@LN@column{1}
-\newlabel{eq:cap}{{2}{3}{Drift Index}{equation.2}{}}
 \newlabel{eq:drift}{{3}{3}{Drift Index}{equation.3}{}}
 \newlabel{prop:detection}{{1}{3}{Detection advantage under inactive projection}{proposition.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}C2: Sensitivity-Aware Effect Filtering}{3}{subsection.3.2}\protected@file@percent }
@@ -66,6 +66,7 @@
 \newlabel{sec:e3a}{{5.3}{6}{E3a: Stability Validation}{subsection.5.3}{}}
 \citation{shinn2023reflexion}
 \citation{chen2021evaluating}
+\citation{jimenez2024swebench}
 \@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Stationary stability metrics with bootstrap 95\% CI (seed resampling). Columns 2--4: worst case $h{=}0.5$ (40 seeds). Last column: mean across all $h$ values. \emph  {Viol.\ rate}: $P(\Delta V_t > 0)$.}}{7}{table.3}\protected@file@percent }
 \newlabel{tab:e3a}{{3}{7}{Stationary stability metrics with bootstrap 95\% CI (seed resampling). Columns 2--4: worst case $h{=}0.5$ (40 seeds). Last column: mean across all $h$ values. \emph {Viol.\ rate}: $P(\Delta V_t > 0)$}{table.3}{}}
 \def\@LN@column{1}
@@ -73,7 +74,6 @@
 \newlabel{sec:e3b}{{5.4}{7}{Heavy-Tail Robustness}{subsection.5.4}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.5}E4: Agent Benchmark}{7}{subsection.5.5}\protected@file@percent }
 \newlabel{sec:e4}{{5.5}{7}{E4: Agent Benchmark}{subsection.5.5}{}}
-\citation{jimenez2024swebench}
 \@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces E4: Reflexion agent on HumanEval (164 problems $\times $ 5~seeds). \emph  {Osc.}~= oscillation index; \emph  {Acc.}~= update acceptance rate.}}{8}{table.4}\protected@file@percent }
 \newlabel{tab:e4}{{4}{8}{E4: Reflexion agent on HumanEval (164 problems $\times $ 5~seeds). \emph {Osc.}~= oscillation index; \emph {Acc.}~= update acceptance rate}{table.4}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces E5: Ablation study on SWE-bench Lite (300 $\times $ 5~seeds).}}{8}{table.5}\protected@file@percent }
@@ -93,7 +93,6 @@
 \citation{chow2018lyapunov}
 \citation{berkenkamp2017safe}
 \citation{zhang2025whowhen}
-\citation{saadfacon2024ares}
 \@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Safety baselines comparison on SWE-bench Lite at equal inference cost (7~LLM calls per problem). \emph  {Best-of-$N$} generates $N$ independent solutions and selects the best. \emph  {Rollback} reverts to the last passing state on failure. Pass rates for Best-of-$N$ are estimated as $1-(1-p_1)^N$ per problem using per-problem first-attempt pass rates.}}{9}{table.6}\protected@file@percent }
 \newlabel{tab:e5-baselines}{{6}{9}{Safety baselines comparison on SWE-bench Lite at equal inference cost (7~LLM calls per problem). \emph {Best-of-$N$} generates $N$ independent solutions and selects the best. \emph {Rollback} reverts to the last passing state on failure. Pass rates for Best-of-$N$ are estimated as $1-(1-p_1)^N$ per problem using per-problem first-attempt pass rates}{table.6}{}}
 \def\@LN@column{1}
@@ -101,6 +100,7 @@
 \newlabel{sec:cross-env}{{5.7}{9}{Cross-Environment Analysis}{subsection.5.7}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {6}Related Work}{9}{section.6}\protected@file@percent }
 \newlabel{sec:related}{{6}{9}{Related Work}{section.6}{}}
+\citation{saadfacon2024ares}
 \bibstyle{plainnat}
 \bibdata{references}
 \bibcite{agentharm2025}{{1}{2025}{{Andriushchenko et~al.}}{{Andriushchenko, Souly, Dziemian, Duenas, Lin, Wang, Hendrycks, Zou, Kolter, Fredrikson, Winsor, Wynne, Gal, and Davies}}}
@@ -109,11 +109,11 @@
 \bibcite{bifet2007adwin}{{4}{2007}{{Bifet and Gavald\`{a}}}{{}}}
 \bibcite{chen2021evaluating}{{5}{2021}{{Chen et~al.}}{{Chen, Tworek, Jun, Yuan, Pinto, Kaplan, Edwards, Burda, Joseph, Brockman, et~al.}}}
 \bibcite{chow2018lyapunov}{{6}{2018}{{Chow et~al.}}{{Chow, Nachum, Duenez-Guzman, and Ghavamzadeh}}}
-\bibcite{cinelli2020}{{7}{2020}{{Cinelli and Hazlett}}{{}}}
-\bibcite{hill2011}{{8}{2011}{{Hill}}{{}}}
 \def\@LN@column{1}
 \@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{10}{section.7}\protected@file@percent }
 \newlabel{sec:conclusion}{{7}{10}{Conclusion}{section.7}{}}
+\bibcite{cinelli2020}{{7}{2020}{{Cinelli and Hazlett}}{{}}}
+\bibcite{hill2011}{{8}{2011}{{Hill}}{{}}}
 \bibcite{jimenez2024swebench}{{9}{2024}{{Jimenez et~al.}}{{Jimenez, Yang, Wettig, Yao, Pei, Press, and Narasimhan}}}
 \bibcite{kennedy2023}{{10}{2023}{{Kennedy}}{{}}}
 \bibcite{saadfacon2024ares}{{11}{2024}{{Saad-Falcon et~al.}}{{Saad-Falcon, Khattab, Potts, and Zaharia}}}
@@ -163,14 +163,14 @@
 \def\@LN@column{1}
 \@writefile{toc}{\contentsline {section}{\numberline {H}E3a Component Ablation}{15}{appendix.H}\protected@file@percent }
 \newlabel{sec:ablation-app}{{H}{15}{E3a Component Ablation}{appendix.H}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {I}Conclusion Invariance Check}{15}{appendix.I}\protected@file@percent }
-\newlabel{sec:invariance-app}{{I}{15}{Conclusion Invariance Check}{appendix.I}{}}
 \citation{cinelli2020}
 \@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Component ablation: violation rate and convergence by hallucination rate (mean $\pm $ 95\% CI, 20 seeds). Conv.${}= P(V_T < 0.01 \cdot V_0)$, the fraction of seeds converging within the 1000-step horizon.}}{16}{table.10}\protected@file@percent }
 \newlabel{tab:ablation}{{10}{16}{Component ablation: violation rate and convergence by hallucination rate (mean $\pm $ 95\% CI, 20 seeds). Conv.${}= P(V_T < 0.01 \cdot V_0)$, the fraction of seeds converging within the 1000-step horizon}{table.10}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Conclusion invariance check: perturbing implementation choices does not change method rankings. $\epsilon = 0.15$ relative tolerance.}}{16}{table.11}\protected@file@percent }
 \newlabel{tab:invariance}{{11}{16}{Conclusion invariance check: perturbing implementation choices does not change method rankings. $\epsilon = 0.15$ relative tolerance}{table.11}{}}
 \def\@LN@column{1}
+\@writefile{toc}{\contentsline {section}{\numberline {I}Conclusion Invariance Check}{16}{appendix.I}\protected@file@percent }
+\newlabel{sec:invariance-app}{{I}{16}{Conclusion Invariance Check}{appendix.I}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {J}Robustness Value Definition}{16}{appendix.J}\protected@file@percent }
 \newlabel{sec:rv-definition}{{J}{16}{Robustness Value Definition}{appendix.J}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {K}NeurIPS Paper Checklist}{16}{appendix.K}\protected@file@percent }

@@ -1,0 +1,13 @@
+﻿N(none) = 1500, N(C2) = 1500
+Mean osc none = 0.0401
+Mean osc C2   = 0.0360
+Delta         = 0.0042
+
+Bootstrap 95% CI: [-0.0085, 0.0171]
+p-value (one-sided): 0.2635
+Significant at 0.05: False
+
+Pass rate none = 0.6867
+Pass rate C2   = 0.6733
+Delta pass     = 0.0133
+Pass delta 95% CI: [-0.0193, 0.0460]

@@ -42,31 +42,24 @@ risk \emph{cognitive policy oscillation}---a failure mode where
 hallucinated or spuriously correlated feedback causes strategy
 degradation below the pre-improvement baseline. Existing causal
 inference tools (DoWhy, EconML) provide rigorous offline estimation but
-do not directly address the need for online safety monitoring and
-drift-aware update control in noisy agent environments.
+do not address online safety monitoring in noisy agent environments.
 
-We present WhyLab, a causal safety monitoring framework for
-stable agent self-improvement, comprising three main components:
-\textbf{(C1)}~an information-theoretic drift index using
-entropy-inverse weighting that detects distributional shifts earlier
-than standard monitoring baselines;
-\textbf{(C2)}~a sensitivity filter combining approximate E-values and
-partial~$R^2$ bounds that reduces false attribution of causal effects
-under hidden confounders; and
-\textbf{(C3)}~a Lyapunov-bounded adaptive damping controller with
-a sufficient condition for energy non-increase
-($\mathbb{E}[\Delta V] \leq 0$).
+We present WhyLab, a causal safety monitoring framework comprising:
+\textbf{(C1)}~an information-theoretic drift index for detecting
+distributional shifts;
+\textbf{(C2)}~a sensitivity filter combining E-values and
+partial~$R^2$ bounds to reject fragile successes; and
+\textbf{(C3)}~a Lyapunov-bounded adaptive damping controller.
 
-Controlled experiments on synthetic agent environments and a
-ReAct-style LLM coding agent (HumanEval) show that the
-framework improves drift detection reliability, filters fragile
-successes (reducing the oscillation index from 0.051 to 0.043
-on HumanEval with negligible pass-rate cost),
-and stabilizes proxy-observable updates under noisy feedback
-with hallucination rates up to 50\%. Furthermore, we establish a 
-pilot-holdout calibration method to adapt observational sensitivity 
-thresholds to low-sample online agent loops, characterizing the 
-precision-safety Pareto tradeoff.
+On SWE-bench Lite (300 real-world coding problems), the C2 sensitivity
+filter maintains \textbf{zero regressions} across 10{,}500 episodes
+with only 1.4 percentage-point pass-rate cost. C1 and C3 are validated
+in controlled synthetic experiments: C1 detects distributional drift
+11.7\% earlier than uniform monitoring; C3 prevents energy divergence
+($10^{11}\times$ reduction vs.\ uncontrolled updates).
+On static agent benchmarks (HumanEval, SWE-bench), C1 and C3 operate
+transparently---as expected, since these benchmarks lack the
+non-stationarity and continuous parameter updates they target.
 \end{abstract}
 
 
@@ -816,23 +809,31 @@ per problem):
   \end{tabular}
 \end{table}
 
-\textbf{WhyLab dominates safety baselines.}
-At equal cost, WhyLab~C2 achieves 67.3\% pass@1, outperforming
-Best-of-7 (65.5\%, $+1.8$~pp), Rollback (62.7\%, $+4.7$~pp), and
-Self-Consistency (62.3\%, $+5.0$~pp).
-The key advantage is that WhyLab retains the ability to perform
-\emph{iterative refinement}---recovering 70~episodes where the first
-attempt failed---while the causal audit prevents the regressions that
-plague unaudited Reflexion.
+\textbf{Comparison with safety baselines.}
+Table~\ref{tab:e5-baselines} compares inference strategies at equal
+cost (7~LLM calls). Iterative methods (Reflexion, WhyLab) outperform
+independent sampling (Best-of-$N$, Self-Consistency) because they
+leverage error feedback across attempts---this gap reflects the value
+of iterative refinement, not of WhyLab specifically.
+Within iterative methods, WhyLab~C2 trades 1.4~pp pass-rate
+(68.7\% $\to$ 67.3\%) for a 10\% oscillation reduction
+and zero regressions. However, we note that the oscillation
+difference (0.040 $\to$ 0.036) is \emph{not} statistically significant
+(bootstrap 95\%~CI: $[-0.009, 0.017]$, $p{=}0.26$, $N{=}1{,}500$
+episodes per ablation), and neither is the pass-rate difference
+(95\%~CI: $[-0.019, 0.046]$).
+The primary safety guarantee is therefore the \textbf{zero regression}
+result: across all 10{,}500 episodes and 7~configurations, no
+configuration produced a pass$\to$fail transition.
 
-\textbf{Subset analysis: where oscillation matters.}
-Of the 300~problems, 45 exhibit oscillation under the baseline agent.
-On this critical subset, the gap widens dramatically:
-WhyLab~C2 achieves 40.9\% pass rate versus 26.3\% for Best-of-7
-and 11.1\% for Rollback ($+14.6$ and $+29.8$~pp respectively).
-On the remaining 255 non-oscillating problems, WhyLab operates
-transparently: 72.0\% versus 71.8\% for the unaudited agent
-($+0.2$~pp, i.e., zero overhead).
+\textbf{Subset analysis.}
+Of 300~problems, 45 exhibit oscillation under the baseline.
+On this subset, WhyLab~C2 achieves 40.9\% pass rate;
+Best-of-7 achieves 26.3\% and Rollback 11.1\%.
+As noted above, the higher rates for Reflexion-based methods (including
+WhyLab) reflect iterative refinement rather than WhyLab's audit layer;
+the comparison illustrates that maintaining iterative refinement
+(rather than falling back to independent sampling) is crucial.
 
 
 % -------- Cross-environment Analysis --------
@@ -841,15 +842,23 @@ transparently: 72.0\% versus 71.8\% for the unaudited agent
 
 Comparing E4 (HumanEval) and E5 (SWE-bench Lite) reveals that the
 audit layer's effect is proportional to environmental difficulty.
-On easy tasks (HumanEval, 95.5\% baseline), the layer is transparent.
-On challenging tasks (SWE-bench Lite), WhyLab \emph{dominates}
-standard safety strategies---Best-of-$N$, Rollback, and
-Self-Consistency---by combining iterative refinement with causal
-safety filtering.
-The oscillation-conditioned analysis reveals the strongest result:
-on the 45~problems where oscillation naturally occurs, WhyLab's
-advantage over the best competing safety method (Best-of-7) exceeds
-14~percentage points.
+On easy tasks, the layer is transparent; on harder tasks, C2 provides
+zero-regression safety at modest cost.
+
+\textbf{Scope of each component.}
+We note that C1 and C3 show \emph{zero independent effect} in E4
+and E5 (Table~\ref{tab:e5}). This is expected:
+HumanEval and SWE-bench are \emph{static} benchmarks where
+distributional drift (C1's target) does not occur, and the
+Reflexion loop uses discrete code patches rather than continuous
+parameter updates (C3's target).
+E1 validates C1's drift detection in its designed operating conditions
+(11.7\% earlier detection than uniform monitoring).
+E3a validates C3's stability control ($10^{11}\times$ energy
+reduction vs.\ uncontrolled updates).
+Validating all three components jointly on non-stationary,
+continuous-parameter agent environments is an important direction
+for future work.
 
 
 % ============================================================
