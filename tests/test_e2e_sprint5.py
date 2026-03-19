@@ -14,6 +14,15 @@ import pandas as pd
 import pytest
 
 
+def _has_torch():
+    """PyTorch 설치 여부 확인."""
+    try:
+        import torch
+        return True
+    except ImportError:
+        return False
+
+
 # ──────────────────────────────────────────────
 # 공통 픽스처
 # ──────────────────────────────────────────────
@@ -216,6 +225,10 @@ class TestToolDebateE2E:
 # S5-1e. DeepCATECell E2E (GPU/CPU 분기)
 # ──────────────────────────────────────────────
 
+@pytest.mark.skipif(
+    not _has_torch(),
+    reason="PyTorch not installed (optional dependency)",
+)
 class TestDeepCATEE2E:
     """DeepCATECell GPU/CPU 분기 E2E."""
 

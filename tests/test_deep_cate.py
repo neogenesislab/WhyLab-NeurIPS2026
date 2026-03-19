@@ -15,6 +15,9 @@ import pytest
 import sys
 from pathlib import Path
 
+# PyTorch 필수 — 미설치 환경에서는 전체 모듈 skip
+torch = pytest.importorskip("torch", reason="PyTorch not installed (optional dependency)")
+
 # 프로젝트 루트
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
