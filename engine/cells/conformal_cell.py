@@ -289,15 +289,56 @@ class ConformalCell(BaseCell):
         from engine.gpu_factory import create_lgbm_regressor
         from sklearn.linear_model import LogisticRegression
 
-        # 이진화
+        # 이진화: median 기준으로 분할 (연속형 treatment 지원)
         threshold = np.median(T_tr)
-        T_tr_bin = (T_tr >= threshold).astype(int)
-        T_cal_bin = (T_cal >= threshold).astype(int)
+        T_tr_bin = (T_tr > threshold).astype(int)
+        T_cal_bin = (T_cal > threshold).astype(int)
 
-        # Outcome 모델 (처치별) — GPU 가속
+        # 안전장치: mask가 비어있으면 threshold를 조정
         mask1 = T_tr_bin == 1
         mask0 = T_tr_bin == 0
 
+        min_samples = max(2, len(T_tr) // 100)  # 최소 2개 또는 1%
+
+        if mask0.sum() < min_samples or mask1.sum() < min_samples:
+            # median에 중복값이 많은 경우: strict > 대신 percentile 조정
+            self.logger.warning(
+                "⚠️ 이진화 불균형 감지 (mask0=%d, mask1=%d). "
+                "Threshold를 40th percentile로 조정합니다.",
+                mask0.sum(), mask1.sum(),
+            )
+            threshold = np.percentile(T_tr, 40)
+            T_tr_bin = (T_tr > threshold).astype(int)
+            T_cal_bin = (T_cal > threshold).astype(int)
+            mask1 = T_tr_bin == 1
+            mask0 = T_tr_bin == 0
+
+        # 그래도 빈 경우: 전체 데이터로 단일 모델 대체
+        if mask0.sum() < 2 or mask1.sum() < 2:
+            self.logger.warning(
+                "⚠️ 이진화 실패 (mask0=%d, mask1=%d). "
+                "단일 모델로 폴백합니다.",
+                mask0.sum(), mask1.sum(),
+            )
+            mu_single = create_lgbm_regressor(self.config, lightweight=True)
+            mu_single.fit(X_tr, Y_tr)
+
+            # Propensity Score
+            ps = LogisticRegression(max_iter=1000, random_state=42)
+            # 이진화 데이터가 단일 클래스면 균일 propensity
+            if len(np.unique(T_tr_bin)) < 2:
+                e_hat = np.full(len(X_cal), 0.5)
+            else:
+                ps.fit(X_tr, T_tr_bin)
+                e_hat = np.clip(ps.predict_proba(X_cal)[:, 1], 0.01, 0.99)
+
+            mu_cal = mu_single.predict(X_cal)
+            # Simplified DR: μ(x) 기반 ITE 근사
+            gamma = T_cal_bin * (Y_cal - mu_cal) / np.maximum(e_hat, 0.01) \
+                  - (1 - T_cal_bin) * (Y_cal - mu_cal) / np.maximum(1 - e_hat, 0.01)
+            return gamma
+
+        # Outcome 모델 (처치별) — GPU 가속
         mu1 = create_lgbm_regressor(self.config, lightweight=True)
         mu0 = create_lgbm_regressor(self.config, lightweight=True)
         mu1.fit(X_tr[mask1], Y_tr[mask1])
@@ -316,3 +357,4 @@ class ConformalCell(BaseCell):
                  - (1 - T_cal_bin) * (Y_cal - mu0_cal) / (1 - e_hat))
 
         return gamma
+
