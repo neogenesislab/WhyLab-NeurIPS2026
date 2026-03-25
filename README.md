@@ -10,6 +10,14 @@ WhyLab is a causal safety monitoring framework that prevents cognitive policy os
 - **C2**: Sensitivity-aware effect filtering (E-values + partial R^2)
 - **C3**: Lyapunov-bounded adaptive damping
 
+```mermaid
+flowchart LR
+    Agent[Agent Policy $\theta_t$] --> Evaluate[Test & Reward $\Delta R$]
+    Evaluate --> Audit{Audit Layer: C1, C2, C3}
+    Audit --> Safe[Safe Update $\theta_{t+1}$]
+    Safe --> Agent
+```
+
 ## Repository Structure
 
 ```text
@@ -76,6 +84,18 @@ python -m experiments.e5_subset_analysis
 # Safety baseline comparison (Best-of-N, Rollback, etc.)
 python -m experiments.e5_safety_baselines
 ```
+
+> **Statistical Reproducibility Note**: All non-deterministic differences reported in the paper (e.g., Pass@1 improvements in E5) are validated using Bootstrap 95% Confidence Intervals ($N=10,000$). For reviewers wishing to recalculate the CI, you can adapt the following snippet:
+> ```python
+> import numpy as np
+> # Example: Bootstrap CI for Pass@1 differences
+> diffs = []
+> for _ in range(10000):
+>     idx = np.random.randint(0, len(pass_reflexion), len(pass_reflexion))
+>     diff = pass_whylab[idx].mean() - pass_reflexion[idx].mean()
+>     diffs.append(diff)
+> print(f"Pass@1 diff 95% CI: {np.percentile(diffs, [2.5, 97.5])}")
+> ```
 
 ## Building the Paper
 
