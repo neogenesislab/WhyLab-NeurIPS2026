@@ -90,21 +90,12 @@ causally robust rather than spuriously confounded
 (3)~\emph{step-size control}---bounding update magnitude to prevent
 oscillation without causing learning deadlock under heavy-tailed noise
 (\S\ref{sec:lyapunov}).
-Existing tools~\cite{dowhy2022,econml2019} address parts of this
-problem in isolation but do not provide an online safety framework
-for continuously operating agents.
+Recent studies on agent \emph{misevolution}~\cite{misevolution2025} and alignment drift~\cite{sahoo2026sahoo} have highlighted the catastrophic risks of unconstrained self-improvement. Notably, the SAHOO framework~\cite{sahoo2026sahoo} mitigates drift using heuristic predicates and safety bounds. While sharing this goal, WhyLab takes a fundamentally divergent approach: instead of relying on manually constructed heuristics, we adapt rigorous Double Machine Learning (DML) and causality metrics (E-values) into an online safety audit loop.
 
-We present \textbf{WhyLab}, a causal safety monitoring framework with
-three contributions:
-\textbf{C1}~Information-theoretic drift detection
-(\S\ref{sec:drift})---an entropy-weighted index providing early
-warning for environmental shifts;
-\textbf{C2}~Sensitivity-aware effect filtering
-(\S\ref{sec:sensitivity})---E-values and partial $R^2$ bounds that
-gate fragile successes; and
-\textbf{C3}~Lyapunov-bounded adaptive damping
-(\S\ref{sec:lyapunov})---a controller with provable energy
-non-increase guarantees.
+We present \textbf{WhyLab}, a causal safety monitoring framework designed to test three core hypotheses:
+\textbf{(H1)} An information-theoretic drift index (\textbf{C1}, \S\ref{sec:drift}) provides earlier detection of environmental shifts than standard cumulative-sum methods (e.g., ADWIN) under a fixed false-positive rate.
+\textbf{(H2)} A sensitivity-aware effect filter (\textbf{C2}, \S\ref{sec:sensitivity}) based on E-values proactively rejects causally fragile (spurious) successes, reducing catastrophic zero-day regressions to near zero.
+\textbf{(H3)} A Lyapunov-bounded adaptive damping controller (\textbf{C3}, \S\ref{sec:lyapunov}) significantly reduces policy energy divergence (oscillation) in non-stationary environments.
 
 On SWE-bench Lite~\cite{jimenez2024swebench} (300 real-world coding
 problems), the C2 sensitivity filter maintains zero regressions
@@ -294,7 +285,8 @@ $RR \approx \exp(0.91 \cdot d)$, yielding:
   \label{eq:evalue}
 \end{equation}
 An unobserved confounder must associate with both treatment and
-outcome at $RR \geq E$ to nullify the observed effect.
+outcome at $RR \geq E$ to nullify the observed effect. 
+\textbf{Limitation (Normality Assumption).} Converting the continuous reward to a risk-ratio via $\exp(0.91 \cdot d)$ inherently assumes the underlying effect distribution is roughly normal. In LLM text adjustments where power-law behaviors are common, this approximation may lose precision, necessitating careful threshold calibration.
 \end{definition}
 
 \textbf{Robustness Value.} We complement the E-value with the
@@ -319,7 +311,7 @@ We derive a sufficient condition for stable strategy updates.
 \textbf{Assumptions.}
 \begin{enumerate}
   \item[(A1)] \emph{Local gradient alignment:}
-    $\langle \theta_t - \theta^*, g_t \rangle > 0$ (the true gradient
+    $\langle \theta_t - \theta^*, g_t \rangle > 0$. As the loss landscape of modern LLMs is highly non-convex, this assumption implies the true gradient points toward an optimum only within a local convex neighborhood.
     points toward the optimum).
   \item[(A2)] \emph{Zero-mean residual noise:}
     $\mathbb{E}[\omega_t] = 0$ after C2 filtering (see
@@ -380,22 +372,16 @@ product; the EMA smoothing provides implicit regularization that
 prevents the per-step bound from being brittle under stochastic
 fluctuations (validated in \S\ref{sec:e3a}).
 
-\textbf{Floor-ceiling constraint.}
+\textbf{Floor-ceiling constraint as a real-world safeguard.}
 \label{par:heavytail}
-When noise $\omega_t$ is heavy-tailed (e.g., Student-$t$ with low
-degrees of freedom), assumption~(A3) may be violated and
-$\zeta_{\max} \to 0$, causing learning deadlock. As a practical
-safeguard, Eq.~\eqref{eq:controller} enforces:
+Since Assumption (A1) may fail in highly non-convex LLM landscapes, and heavy-tailed noise $\omega_t$ may violate (A3) causing $\zeta_{\max} \to 0$ (deadlock), Eq.~\eqref{eq:controller} enforces a hard empirical safeguard:
 \begin{equation}
   \zeta_t \in [\epsilon_{\text{floor}}, \mathcal{C}]
   \quad \text{where } \epsilon_{\text{floor}} = 0.01,\;
   \mathcal{C} = 0.8
   \label{eq:floor}
 \end{equation}
-This maintains nonzero step sizes even under high noise variance,
-at the cost of losing the theoretical guarantee of
-Theorem~\ref{thm:lyapunov}. We analyze this trade-off in
-Appendix~\ref{sec:e3b-app}.
+While this practical clipping sacrifices the absolute theoretical guarantee of Theorem~\ref{thm:lyapunov}, it is an indispensable engineering necessity to prevent system collapse under infinite second moments in real-world deployments.
 
 \textbf{Observable energy proxy.} Since $\theta^*$ is unknown in
 practice, we monitor an observable proxy:
@@ -565,7 +551,7 @@ that guards against the failure mode of either axis alone.
 \textbf{Refutation tests.}
 To confirm that the robust/fragile separation is not an artifact of
 threshold sweeping, we conduct three standard refutation tests following
-the DoWhy workflow~\cite{dowhy2022}: (i)~adding a random common cause
+the DoWhy workflow~\cite{dowhy2020}: (i)~adding a random common cause
 $Z {\sim} \mathcal{N}(0,1)$ to the estimator, (ii)~replacing treatment
 with a placebo $T_{\text{rand}} {\sim} \text{Bernoulli}(0.5)$, and
 (iii)~re-estimating on five 80\% data subsets.
@@ -657,7 +643,7 @@ $\zeta_{\max}$ bound diverged (final~$V > 1000$), confirming that
 EMA smoothing acts as an implicit regularizer for the bound estimate
 (Appendix~\ref{sec:oracle-ablation}).
 
-% [fig:e3a-proxy moved to appendix — see Appendix~\ref{sec:oracle-ablation}]
+% [fig:e3a-proxy moved to appendix ??see Appendix~\ref{sec:oracle-ablation}]
 Proxy energy trajectories (Appendix~\ref{sec:oracle-ablation},
 Figure~\ref{fig:e3a-proxy}) show that C3-EMA exhibits fewer
 energy-increasing steps than all baselines at $h{=}0.5$.
@@ -916,7 +902,7 @@ poorly detect their own unsafe behaviors. WhyLab provides
 \emph{runtime} monitoring to prevent such degradation.
 
 \textbf{Causal inference and safe RL.}
-DoWhy~\cite{dowhy2022} and EconML~\cite{econml2019} provide offline
+DoWhy~\cite{dowhy2020} and EconML~\cite{econml2019} provide offline
 causal estimation; we add a continuous \emph{online} auditing layer.
 Lyapunov methods for safe RL~\cite{chow2018lyapunov,berkenkamp2017safe}
 address continuous control; we adapt them to cognitive stability
@@ -924,7 +910,7 @@ in LLM agents under hallucinated feedback.
 
 \textbf{Evaluation and failure attribution.}
 Zhang et al.~\cite{zhang2025whowhen} formalize failure attribution in
-multi-agent systems; ARES~\cite{saadfacon2024ares} provides statistical
+multi-agent systems; ARES~\cite{saadfalcon2024ares} provides statistical
 evaluation guarantees. We complement both by moving to real-time audit
 with bounded updates under hard-capped evaluation budgets.
 
@@ -1313,7 +1299,7 @@ C3-A3 & $\theta^*$ exists and is reachable
 \label{sec:refutation-app}
 
 We conduct three standard causal refutation tests on the E2 synthetic
-DGP, following the DoWhy workflow~\cite{dowhy2022}. Each refuter is
+DGP, following the DoWhy workflow~\cite{dowhy2020}. Each refuter is
 applied to all 40 seeds $\times$ 80 scenarios.
 
 \begin{table}[h]
