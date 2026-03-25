@@ -1,3 +1,0 @@
-# WhyLab 개발 의존성 (engine/requirements.txt 포함)
--r engine/requirements.txt
-pytest>=8.0.0

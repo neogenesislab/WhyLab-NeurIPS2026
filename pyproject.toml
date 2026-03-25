@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "whylab"
 version = "1.0.0"
-description = "Causal Decision Intelligence Engine with Multi-Agent Debate"
+description = "WhyLab: Causal Safety Monitoring Framework for Stable Agent Self-Improvement"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.9"
@@ -27,30 +27,18 @@ classifiers = [
 dependencies = [
     "numpy>=1.24",
     "pandas>=2.0",
-    "scikit-learn>=1.3",
-    "econml>=0.14",
-    "lightgbm>=4.0",
-    "duckdb>=0.9",
-    "shap>=0.42",
-    "networkx>=3.0",
-    "statsmodels>=0.14",
+    "scipy>=1.10",
+    "pyyaml>=6.0",
+    "openai>=1.0",
+    "google-generativeai>=0.4",
+    "python-dotenv>=1.0",
 ]
 
 [project.optional-dependencies]
-gpu = ["lightgbm[gpu]", "torch>=2.0"]
-dashboard = ["fastapi", "uvicorn", "websockets"]
-rag = ["chromadb>=0.4", "sentence-transformers>=2.2", "google-generativeai>=0.3"]
-mcp = ["mcp>=1.0"]
-sql = ["sqlalchemy>=2.0", "pymysql>=1.1", "psycopg2-binary>=2.9"]
-bigquery = ["google-cloud-bigquery>=3.0", "pandas-gbq>=0.19"]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
 ]
-all = ["whylab[gpu,dashboard,rag,mcp,sql,bigquery,dev]"]
-
-[project.scripts]
-whylab = "engine.pipeline:main"
 
 [project.urls]
 Homepage = "https://github.com/Yesol-Pilot/WhyLab"

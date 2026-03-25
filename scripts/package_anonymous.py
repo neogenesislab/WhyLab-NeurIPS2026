@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parent.parent
 ARCHIVE_NAME = "WhyLab_NeurIPS2026_anonymous.zip"
 
 INCLUDE_DIRS = ["paper", "experiments"]
-INCLUDE_FILES = ["requirements.txt", "README_ANON.md"]
+INCLUDE_FILES = ["requirements.txt", "README_ANON.md", "example_usage.py"]
 EXCLUDE_DIRS = [".git", ".github", "paper/figs_raw", "paper/.aux", "dashboard", "engine"]
 EXCLUDE_EXTS = [".aux", ".bbl", ".blg", ".log", ".out", ".fdb_latexmk", ".fls", ".synctex.gz", ".toc", ".pyc", ".db"]
 

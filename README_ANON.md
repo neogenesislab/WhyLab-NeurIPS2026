@@ -29,6 +29,9 @@ python experiments/e1_drift_detection.py
 python experiments/e2_sensitivity_filter.py
 python experiments/e3a_stationary.py
 python experiments/e3b_heavy_tail.py
+
+# 3. Non-stationary Agent Environment (E6)
+python experiments/e6_nonstationary_agent.py
 ```
 
 ## 📁 Repository Structure
@@ -42,7 +45,8 @@ WhyLab_Anonymous/
 │   ├── e1_drift_detection.py
 │   ├── e2_sensitivity_filter.py
 │   ├── e3a_stationary.py
-│   └── e3b_heavy_tail.py
+│   ├── e3b_heavy_tail.py
+│   └── e6_nonstationary_agent.py
 └── paper/                   # Paper LaTeX source
     ├── main.tex
     ├── references.bib

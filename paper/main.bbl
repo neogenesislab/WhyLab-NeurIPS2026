@@ -1,4 +1,4 @@
-\begin{thebibliography}{17}
+\begin{thebibliography}{16}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -36,14 +36,6 @@ Albert Bifet and Ricard Gavald\`{a}.
 \newblock Learning from time-changing data with adaptive windowing.
 \newblock In \emph{Proceedings of the 2007 SIAM International Conference on
   Data Mining (SDM)}, pages 443--448, 2007.
-
-\bibitem[Chen et~al.(2021)Chen, Tworek, Jun, Yuan, Pinto, Kaplan, Edwards,
-  Burda, Joseph, Brockman, et~al.]{chen2021evaluating}
-Mark Chen, Jerry Tworek, Heewoo Jun, Qiming Yuan, Henrique Ponde de~Oliveira
-  Pinto, Jared Kaplan, Harri Edwards, Yuri Burda, Nicholas Joseph, Greg
-  Brockman, et~al.
-\newblock Evaluating large language models trained on code.
-\newblock \emph{arXiv preprint arXiv:2107.03374}, 2021.
 
 \bibitem[Chow et~al.(2018)Chow, Nachum, Duenez-Guzman, and
   Ghavamzadeh]{chow2018lyapunov}

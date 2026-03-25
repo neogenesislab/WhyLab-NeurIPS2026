@@ -9,7 +9,7 @@ agent-specific signals (cheap eval → full eval calibration, etc.).
 """
 import numpy as np
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, List, Tuple, Dict, Any
 
 
 @dataclass
@@ -18,8 +18,8 @@ class AuditDecision:
     accept: bool               # whether the update should be accepted
     c1_alarm: bool = False     # C1: cheap↔full calibration drift detected
     c2_reject: bool = False    # C2: fragile improvement filtered
-    c3_damped: float = 1.0    # C3: damping factor applied (0..1)
-    details: dict = field(default_factory=dict)
+    c3_damped: float = 1.0     # C3: damping factor applied (0..1)
+    details: Dict[str, Any] = field(default_factory=dict)
 
 
 class DriftMonitor:
@@ -58,7 +58,7 @@ class DriftMonitor:
         agreement_rate = agreements / self.window
         return agreement_rate < self.agreement_threshold
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset history (e.g., after recalibration)."""
         self._history.clear()
 
@@ -81,7 +81,7 @@ class SensitivityGate:
     def __init__(self, e_thresh: float = 2.0, rv_thresh: float = 0.1):
         self.e_thresh = e_thresh
         self.rv_thresh = rv_thresh
-        self._history: list[dict] = []  # track updates for stats
+        self._history: List[Dict[str, Any]] = []  # track updates for stats
 
     def compute_evalue(self, delta: float, sigma_pooled: float) -> float:
         """E-value via VanderWeele & Ding (2017) continuous approximation.
@@ -106,9 +106,9 @@ class SensitivityGate:
 
     def evaluate(
         self,
-        scores_before: list[float],
-        scores_after: list[float],
-    ) -> tuple[bool, dict]:
+        scores_before: List[float],
+        scores_after: List[float],
+    ) -> Tuple[bool, Dict[str, Any]]:
         """Evaluate whether improvement from before→after is robust.
 
         Args:

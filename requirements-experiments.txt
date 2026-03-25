@@ -1,7 +1,0 @@
-# E4 Agent Benchmark — additional dependencies
-# (Supplement to root requirements.txt for experiment scripts)
-pyyaml>=6.0
-python-dotenv>=1.0.0
-google-generativeai>=0.8.0
-matplotlib>=3.7.0
-scipy>=1.12.0

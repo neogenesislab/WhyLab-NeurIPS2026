@@ -18,11 +18,11 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}C1: Information-Theoretic Drift Index}{2}{subsection.3.1}\protected@file@percent }
 \newlabel{sec:drift}{{3.1}{2}{C1: Information-Theoretic Drift Index}{subsection.3.1}{}}
 \newlabel{def:drift}{{1}{2}{Drift Index}{definition.1}{}}
-\newlabel{eq:cap}{{2}{2}{Drift Index}{equation.2}{}}
 \citation{vanderweele2017}
 \citation{vanderweele2017}
 \citation{cinelli2020}
 \def\@LN@column{1}
+\newlabel{eq:cap}{{2}{3}{Drift Index}{equation.2}{}}
 \newlabel{eq:drift}{{3}{3}{Drift Index}{equation.3}{}}
 \newlabel{prop:detection}{{1}{3}{Detection advantage under inactive projection}{proposition.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}C2: Sensitivity-Aware Effect Filtering}{3}{subsection.3.2}\protected@file@percent }
@@ -64,36 +64,35 @@
 \def\@LN@column{1}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.3}E3a: Stability Validation}{6}{subsection.5.3}\protected@file@percent }
 \newlabel{sec:e3a}{{5.3}{6}{E3a: Stability Validation}{subsection.5.3}{}}
-\citation{shinn2023reflexion}
-\citation{chen2021evaluating}
 \citation{jimenez2024swebench}
 \@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Stationary stability metrics with bootstrap 95\% CI (seed resampling). Columns 2--4: worst case $h{=}0.5$ (40 seeds). Last column: mean across all $h$ values. \emph  {Viol.\ rate}: $P(\Delta V_t > 0)$.}}{7}{table.3}\protected@file@percent }
 \newlabel{tab:e3a}{{3}{7}{Stationary stability metrics with bootstrap 95\% CI (seed resampling). Columns 2--4: worst case $h{=}0.5$ (40 seeds). Last column: mean across all $h$ values. \emph {Viol.\ rate}: $P(\Delta V_t > 0)$}{table.3}{}}
 \def\@LN@column{1}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Heavy-Tail Robustness}{7}{subsection.5.4}\protected@file@percent }
 \newlabel{sec:e3b}{{5.4}{7}{Heavy-Tail Robustness}{subsection.5.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}E4: Agent Benchmark}{7}{subsection.5.5}\protected@file@percent }
-\newlabel{sec:e4}{{5.5}{7}{E4: Agent Benchmark}{subsection.5.5}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces E4: Reflexion agent on HumanEval (164 problems $\times $ 5~seeds). \emph  {Osc.}~= oscillation index; \emph  {Acc.}~= update acceptance rate.}}{8}{table.4}\protected@file@percent }
-\newlabel{tab:e4}{{4}{8}{E4: Reflexion agent on HumanEval (164 problems $\times $ 5~seeds). \emph {Osc.}~= oscillation index; \emph {Acc.}~= update acceptance rate}{table.4}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces E5: Ablation study on SWE-bench Lite (300 $\times $ 5~seeds).}}{8}{table.5}\protected@file@percent }
-\newlabel{tab:e5}{{5}{8}{E5: Ablation study on SWE-bench Lite (300 $\times $ 5~seeds)}{table.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}E5: Real-World Software Engineering (SWE-bench Lite)}{7}{subsection.5.5}\protected@file@percent }
+\newlabel{sec:e5}{{5.5}{7}{E5: Real-World Software Engineering (SWE-bench Lite)}{subsection.5.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces E5: Ablation study on SWE-bench Lite (300 $\times $ 5~seeds).}}{8}{table.4}\protected@file@percent }
+\newlabel{tab:e5}{{4}{8}{E5: Ablation study on SWE-bench Lite (300 $\times $ 5~seeds)}{table.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Safety baselines comparison on SWE-bench Lite at equal inference cost (7~LLM calls per problem). \emph  {Best-of-$N$} generates $N$ independent solutions and selects the best. \emph  {Rollback} reverts to the last passing state on failure. Pass rates for Best-of-$N$ are estimated as $1-(1-p_1)^N$ per problem using per-problem first-attempt pass rates.}}{8}{table.5}\protected@file@percent }
+\newlabel{tab:e5-baselines}{{5}{8}{Safety baselines comparison on SWE-bench Lite at equal inference cost (7~LLM calls per problem). \emph {Best-of-$N$} generates $N$ independent solutions and selects the best. \emph {Rollback} reverts to the last passing state on failure. Pass rates for Best-of-$N$ are estimated as $1-(1-p_1)^N$ per problem using per-problem first-attempt pass rates}{table.5}{}}
 \def\@LN@column{1}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}E5: Real-World Software Engineering (SWE-bench Lite)}{8}{subsection.5.6}\protected@file@percent }
-\newlabel{sec:e5}{{5.6}{8}{E5: Real-World Software Engineering (SWE-bench Lite)}{subsection.5.6}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Safety baselines comparison on SWE-bench Lite at equal inference cost (7~LLM calls per problem). \emph  {Best-of-$N$} generates $N$ independent solutions and selects the best. \emph  {Rollback} reverts to the last passing state on failure. Pass rates for Best-of-$N$ are estimated as $1-(1-p_1)^N$ per problem using per-problem first-attempt pass rates.}}{9}{table.6}\protected@file@percent }
-\newlabel{tab:e5-baselines}{{6}{9}{Safety baselines comparison on SWE-bench Lite at equal inference cost (7~LLM calls per problem). \emph {Best-of-$N$} generates $N$ independent solutions and selects the best. \emph {Rollback} reverts to the last passing state on failure. Pass rates for Best-of-$N$ are estimated as $1-(1-p_1)^N$ per problem using per-problem first-attempt pass rates}{table.6}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces E6 results under aggressive learning rate ($\eta {=}0.5$, $h{=}0.3$, 20~seeds). \emph  {Energy}: final $V_t$ (lower = better). \emph  {Osc}: oscillation index. \emph  {Delay}: mean drift detection delay in steps (lower = better).}}{9}{table.7}\protected@file@percent }
-\newlabel{tab:e6}{{7}{9}{E6 results under aggressive learning rate ($\eta {=}0.5$, $h{=}0.3$, 20~seeds). \emph {Energy}: final $V_t$ (lower = better). \emph {Osc}: oscillation index. \emph {Delay}: mean drift detection delay in steps (lower = better)}{table.7}{}}
-\def\@LN@column{1}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.7}E6: Non-Stationary Online Learning Agent}{9}{subsection.5.7}\protected@file@percent }
-\newlabel{sec:e6}{{5.7}{9}{E6: Non-Stationary Online Learning Agent}{subsection.5.7}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.8}Cross-Environment Analysis}{9}{subsection.5.8}\protected@file@percent }
-\newlabel{sec:cross-env}{{5.8}{9}{Cross-Environment Analysis}{subsection.5.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}E6: Non-Stationary Online Learning Agent}{8}{subsection.5.6}\protected@file@percent }
+\newlabel{sec:e6}{{5.6}{8}{E6: Non-Stationary Online Learning Agent}{subsection.5.6}{}}
+\citation{yao2023react}
 \citation{shinn2023reflexion}
 \citation{yao2023react}
 \citation{misevolution2025}
 \citation{rjudge2024,agentharm2025}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces E6 results under aggressive learning rate ($\eta {=}0.5$, $h{=}0.3$, 20~seeds). \emph  {Energy}: final $V_t$ (lower = better). \emph  {Osc}: oscillation index. \emph  {Delay}: mean drift detection delay in steps (lower = better).}}{9}{table.6}\protected@file@percent }
+\newlabel{tab:e6}{{6}{9}{E6 results under aggressive learning rate ($\eta {=}0.5$, $h{=}0.3$, 20~seeds). \emph {Energy}: final $V_t$ (lower = better). \emph {Osc}: oscillation index. \emph {Delay}: mean drift detection delay in steps (lower = better)}{table.6}{}}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.7}E7: Dynamic ReAct Benchmark with GPT-5.4}{9}{subsection.5.7}\protected@file@percent }
+\newlabel{sec:e7}{{5.7}{9}{E7: Dynamic ReAct Benchmark with GPT-5.4}{subsection.5.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.8}Cross-Environment Analysis}{9}{subsection.5.8}\protected@file@percent }
+\newlabel{sec:cross-env}{{5.8}{9}{Cross-Environment Analysis}{subsection.5.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Related Work}{9}{section.6}\protected@file@percent }
+\newlabel{sec:related}{{6}{9}{Related Work}{section.6}{}}
 \citation{dowhy2022}
 \citation{econml2019}
 \citation{chow2018lyapunov,berkenkamp2017safe}
@@ -105,24 +104,21 @@
 \bibcite{econml2019}{{2}{2019}{{Battocchi et~al.}}{{Battocchi, Dillon, Hei, Lewis, Raz, Oprescu, and Syrgkanis}}}
 \bibcite{berkenkamp2017safe}{{3}{2017}{{Berkenkamp et~al.}}{{Berkenkamp, Turchetta, Schoellig, and Krause}}}
 \bibcite{bifet2007adwin}{{4}{2007}{{Bifet and Gavald\`{a}}}{{}}}
-\bibcite{chen2021evaluating}{{5}{2021}{{Chen et~al.}}{{Chen, Tworek, Jun, Yuan, Pinto, Kaplan, Edwards, Burda, Joseph, Brockman, et~al.}}}
+\bibcite{chow2018lyapunov}{{5}{2018}{{Chow et~al.}}{{Chow, Nachum, Duenez-Guzman, and Ghavamzadeh}}}
+\bibcite{cinelli2020}{{6}{2020}{{Cinelli and Hazlett}}{{}}}
+\bibcite{hill2011}{{7}{2011}{{Hill}}{{}}}
 \def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Related Work}{10}{section.6}\protected@file@percent }
-\newlabel{sec:related}{{6}{10}{Related Work}{section.6}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{10}{section.7}\protected@file@percent }
 \newlabel{sec:conclusion}{{7}{10}{Conclusion}{section.7}{}}
-\bibcite{chow2018lyapunov}{{6}{2018}{{Chow et~al.}}{{Chow, Nachum, Duenez-Guzman, and Ghavamzadeh}}}
-\bibcite{cinelli2020}{{7}{2020}{{Cinelli and Hazlett}}{{}}}
-\bibcite{hill2011}{{8}{2011}{{Hill}}{{}}}
-\bibcite{jimenez2024swebench}{{9}{2024}{{Jimenez et~al.}}{{Jimenez, Yang, Wettig, Yao, Pei, Press, and Narasimhan}}}
-\bibcite{saadfacon2024ares}{{10}{2024}{{Saad-Falcon et~al.}}{{Saad-Falcon, Khattab, Potts, and Zaharia}}}
-\bibcite{misevolution2025}{{11}{2025}{{Shao et~al.}}{{Shao, Ren, Qian, Wei, Guo, Yang, Song, Zhang, Zhang, Liu, and Shao}}}
-\bibcite{dowhy2022}{{12}{2022}{{Sharma and Kiciman}}{{}}}
-\bibcite{shinn2023reflexion}{{13}{2023}{{Shinn et~al.}}{{Shinn, Cassano, Labash, Gopinath, Narasimhan, and Yao}}}
-\bibcite{vanderweele2017}{{14}{2017}{{VanderWeele and Ding}}{{}}}
-\bibcite{yao2023react}{{15}{2023}{{Yao et~al.}}{{Yao, Zhao, Yu, Du, Shafran, Narasimhan, and Cao}}}
-\bibcite{rjudge2024}{{16}{2024}{{Yuan et~al.}}{{}}}
-\bibcite{zhang2025whowhen}{{17}{2025}{{Zhang et~al.}}{{Zhang, Li, and Peng}}}
+\bibcite{jimenez2024swebench}{{8}{2024}{{Jimenez et~al.}}{{Jimenez, Yang, Wettig, Yao, Pei, Press, and Narasimhan}}}
+\bibcite{saadfacon2024ares}{{9}{2024}{{Saad-Falcon et~al.}}{{Saad-Falcon, Khattab, Potts, and Zaharia}}}
+\bibcite{misevolution2025}{{10}{2025}{{Shao et~al.}}{{Shao, Ren, Qian, Wei, Guo, Yang, Song, Zhang, Zhang, Liu, and Shao}}}
+\bibcite{dowhy2022}{{11}{2022}{{Sharma and Kiciman}}{{}}}
+\bibcite{shinn2023reflexion}{{12}{2023}{{Shinn et~al.}}{{Shinn, Cassano, Labash, Gopinath, Narasimhan, and Yao}}}
+\bibcite{vanderweele2017}{{13}{2017}{{VanderWeele and Ding}}{{}}}
+\bibcite{yao2023react}{{14}{2023}{{Yao et~al.}}{{Yao, Zhao, Yu, Du, Shafran, Narasimhan, and Cao}}}
+\bibcite{rjudge2024}{{15}{2024}{{Yuan et~al.}}{{}}}
+\bibcite{zhang2025whowhen}{{16}{2025}{{Zhang et~al.}}{{Zhang, Li, and Peng}}}
 \def\@LN@column{1}
 \@writefile{toc}{\contentsline {section}{\numberline {A}Full Lyapunov Stability Proof}{11}{appendix.A}\protected@file@percent }
 \newlabel{sec:proof}{{A}{11}{Full Lyapunov Stability Proof}{appendix.A}{}}
@@ -148,31 +144,36 @@
 \def\@LN@column{1}
 \@writefile{toc}{\contentsline {section}{\numberline {E}Heavy-Tail Stress Test}{14}{appendix.E}\protected@file@percent }
 \newlabel{sec:e3b-app}{{E}{14}{Heavy-Tail Stress Test}{appendix.E}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Heavy-tail stress test: C3-EMA vs C3-raw under different noise distributions ($h{=}0.5$, 40~seeds). All metrics computed independently per noise type.}}{14}{table.8}\protected@file@percent }
-\newlabel{tab:e3b}{{8}{14}{Heavy-tail stress test: C3-EMA vs C3-raw under different noise distributions ($h{=}0.5$, 40~seeds). All metrics computed independently per noise type}{table.8}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Heavy-tail stress test: C3-EMA vs C3-raw under different noise distributions ($h{=}0.5$, 40~seeds). All metrics computed independently per noise type.}}{14}{table.7}\protected@file@percent }
+\newlabel{tab:e3b}{{7}{14}{Heavy-tail stress test: C3-EMA vs C3-raw under different noise distributions ($h{=}0.5$, 40~seeds). All metrics computed independently per noise type}{table.7}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {F}C2 Identification Assumptions}{14}{appendix.F}\protected@file@percent }
 \newlabel{sec:assumptions-app}{{F}{14}{C2 Identification Assumptions}{appendix.F}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {G}E2 Refutation Results}{14}{appendix.G}\protected@file@percent }
 \newlabel{sec:refutation-app}{{G}{14}{E2 Refutation Results}{appendix.G}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Identification assumptions, failure modes, and mitigations for C2 (sensitivity filter) and C3 (Lyapunov controller).}}{15}{table.9}\protected@file@percent }
-\newlabel{tab:assumptions}{{9}{15}{Identification assumptions, failure modes, and mitigations for C2 (sensitivity filter) and C3 (Lyapunov controller)}{table.9}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Refutation pass rates by scenario type (mean $\pm $ 95\% CI). Reliable scenarios should pass; fragile scenarios should fail. $\Delta $~Ratio${}= |\text  {ATE}_{\text  {refuted}} - \text  {ATE}_{\text  {orig}}| / (|\text  {ATE}_{\text  {orig}}| + 10^{-8})$; for Data Subset, $\Delta $~Ratio is the coefficient of variation across 5 subsets.}}{15}{table.10}\protected@file@percent }
-\newlabel{tab:refutation}{{10}{15}{Refutation pass rates by scenario type (mean $\pm $ 95\% CI). Reliable scenarios should pass; fragile scenarios should fail. $\Delta $~Ratio${}= |\text {ATE}_{\text {refuted}} - \text {ATE}_{\text {orig}}| / (|\text {ATE}_{\text {orig}}| + 10^{-8})$; for Data Subset, $\Delta $~Ratio is the coefficient of variation across 5 subsets}{table.10}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Identification assumptions, failure modes, and mitigations for C2 (sensitivity filter) and C3 (Lyapunov controller).}}{15}{table.8}\protected@file@percent }
+\newlabel{tab:assumptions}{{8}{15}{Identification assumptions, failure modes, and mitigations for C2 (sensitivity filter) and C3 (Lyapunov controller)}{table.8}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Refutation pass rates by scenario type (mean $\pm $ 95\% CI). Reliable scenarios should pass; fragile scenarios should fail. $\Delta $~Ratio${}= |\text  {ATE}_{\text  {refuted}} - \text  {ATE}_{\text  {orig}}| / (|\text  {ATE}_{\text  {orig}}| + 10^{-8})$; for Data Subset, $\Delta $~Ratio is the coefficient of variation across 5 subsets.}}{15}{table.9}\protected@file@percent }
+\newlabel{tab:refutation}{{9}{15}{Refutation pass rates by scenario type (mean $\pm $ 95\% CI). Reliable scenarios should pass; fragile scenarios should fail. $\Delta $~Ratio${}= |\text {ATE}_{\text {refuted}} - \text {ATE}_{\text {orig}}| / (|\text {ATE}_{\text {orig}}| + 10^{-8})$; for Data Subset, $\Delta $~Ratio is the coefficient of variation across 5 subsets}{table.9}{}}
 \def\@LN@column{1}
 \@writefile{toc}{\contentsline {section}{\numberline {H}E3a Component Ablation}{15}{appendix.H}\protected@file@percent }
 \newlabel{sec:ablation-app}{{H}{15}{E3a Component Ablation}{appendix.H}{}}
-\citation{cinelli2020}
-\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Component ablation: violation rate and convergence by hallucination rate (mean $\pm $ 95\% CI, 20 seeds). Conv.${}= P(V_T < 0.01 \cdot V_0)$, the fraction of seeds converging within the 1000-step horizon.}}{16}{table.11}\protected@file@percent }
-\newlabel{tab:ablation}{{11}{16}{Component ablation: violation rate and convergence by hallucination rate (mean $\pm $ 95\% CI, 20 seeds). Conv.${}= P(V_T < 0.01 \cdot V_0)$, the fraction of seeds converging within the 1000-step horizon}{table.11}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces Conclusion invariance check: perturbing implementation choices does not change method rankings. $\epsilon = 0.15$ relative tolerance.}}{16}{table.12}\protected@file@percent }
-\newlabel{tab:invariance}{{12}{16}{Conclusion invariance check: perturbing implementation choices does not change method rankings. $\epsilon = 0.15$ relative tolerance}{table.12}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {I}Conclusion Invariance Check}{15}{appendix.I}\protected@file@percent }
+\newlabel{sec:invariance-app}{{I}{15}{Conclusion Invariance Check}{appendix.I}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Component ablation: violation rate and convergence by hallucination rate (mean $\pm $ 95\% CI, 20 seeds). Conv.${}= P(V_T < 0.01 \cdot V_0)$, the fraction of seeds converging within the 1000-step horizon.}}{16}{table.10}\protected@file@percent }
+\newlabel{tab:ablation}{{10}{16}{Component ablation: violation rate and convergence by hallucination rate (mean $\pm $ 95\% CI, 20 seeds). Conv.${}= P(V_T < 0.01 \cdot V_0)$, the fraction of seeds converging within the 1000-step horizon}{table.10}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Conclusion invariance check: perturbing implementation choices does not change method rankings. $\epsilon = 0.15$ relative tolerance.}}{16}{table.11}\protected@file@percent }
+\newlabel{tab:invariance}{{11}{16}{Conclusion invariance check: perturbing implementation choices does not change method rankings. $\epsilon = 0.15$ relative tolerance}{table.11}{}}
 \def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {I}Conclusion Invariance Check}{16}{appendix.I}\protected@file@percent }
-\newlabel{sec:invariance-app}{{I}{16}{Conclusion Invariance Check}{appendix.I}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {J}Robustness Value Definition}{16}{appendix.J}\protected@file@percent }
-\newlabel{sec:rv-definition}{{J}{16}{Robustness Value Definition}{appendix.J}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {K}NeurIPS Paper Checklist}{16}{appendix.K}\protected@file@percent }
-\newlabel{sec:checklist}{{K}{16}{NeurIPS Paper Checklist}{appendix.K}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {J}Multi-Model Validation}{16}{appendix.J}\protected@file@percent }
+\newlabel{sec:multi-llm-app}{{J}{16}{Multi-Model Validation}{appendix.J}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces Multi-model SWE-bench Lite results (C2 calibrated). All models maintain the zero-regression guarantee.}}{16}{table.12}\protected@file@percent }
+\newlabel{tab:multi-llm}{{12}{16}{Multi-model SWE-bench Lite results (C2 calibrated). All models maintain the zero-regression guarantee}{table.12}{}}
+\citation{cinelli2020}
 \citation{jimenez2024swebench}
 \def\@LN@column{1}
-\gdef \@abspage@last{17}
+\@writefile{toc}{\contentsline {section}{\numberline {K}Robustness Value Definition}{17}{appendix.K}\protected@file@percent }
+\newlabel{sec:rv-definition}{{K}{17}{Robustness Value Definition}{appendix.K}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {L}NeurIPS Paper Checklist}{17}{appendix.L}\protected@file@percent }
+\newlabel{sec:checklist}{{L}{17}{NeurIPS Paper Checklist}{appendix.L}{}}
+\def\@LN@column{1}
+\gdef \@abspage@last{18}

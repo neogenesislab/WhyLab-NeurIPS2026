@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.22)  17 MAR 2026 17:55
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.22)  25 MAR 2026 13:12
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -891,18 +891,18 @@ LaTeX Font Info:    Trying to load font information for OT1+phv on input line 4
 File: ot1phv.fd 2020/03/25 scalable font definitions for OT1/phv.
 )
 LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 8
-2.
+6.
 
 (C:\Users\yesol\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
-Underfull \hbox (badness 2197) in paragraph at lines 80--92
+Underfull \hbox (badness 2197) in paragraph at lines 84--96
 []\OT1/ptm/m/n/10 Preventing os-cil-la-tion re-quires solv-ing three in-ter-twi
 ned chal-lenges: (1) \OT1/ptm/m/it/10 drift de-tec-tion\OT1/ptm/m/n/10 ---
  []
 
 
-Underfull \hbox (badness 4819) in paragraph at lines 93--104
+Underfull \hbox (badness 4819) in paragraph at lines 97--108
 []\OT1/ptm/m/n/10 We present \OT1/ptm/b/n/10 Why-Lab\OT1/ptm/m/n/10 , a causal 
 safety mon-i-tor-ing frame-work with three con-tri-bu-tions:
  []
@@ -917,37 +917,37 @@ l/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}] [2] [3]
 File: ../experiments/figures/e1_km.pdf Graphic file (type pdf)
 <use ../experiments/figures/e1_km.pdf>
 Package pdftex.def Info: ../experiments/figures/e1_km.pdf  used on input line 5
-08.
+15.
 (pdftex.def)             Requested size: 337.86465pt x 135.73221pt.
  (tables/tab2.tex) [5 <../experiments/figures/e1_km.pdf>]
 <../experiments/figures/e2_filtering.pdf, id=109, 787.6495pt x 316.4598pt>
 File: ../experiments/figures/e2_filtering.pdf Graphic file (type pdf)
 <use ../experiments/figures/e2_filtering.pdf>
 Package pdftex.def Info: ../experiments/figures/e2_filtering.pdf  used on input
- line 576.
+ line 583.
 (pdftex.def)             Requested size: 337.86465pt x 135.74669pt.
  [6 <../experiments/figures/e2_filtering.pdf>]
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \vbox (badness 2435) has occurred while \output is active []
 
  [7]
-Underfull \vbox (badness 3354) has occurred while \output is active []
+[8] [9] (main.bbl [10]) [11]
+Underfull \vbox (badness 6608) has occurred while \output is active []
 
- [8]
-[9] (main.bbl [10]) [11] [12]
+ [12]
 <../experiments/figures/e3a_stationary.pdf, id=219, 785.9392pt x 314.36633pt>
 File: ../experiments/figures/e3a_stationary.pdf Graphic file (type pdf)
 <use ../experiments/figures/e3a_stationary.pdf>
 Package pdftex.def Info: ../experiments/figures/e3a_stationary.pdf  used on inp
-ut line 1149.
+ut line 1143.
 (pdftex.def)             Requested size: 337.86465pt x 135.1461pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 1185--1191
+Underfull \hbox (badness 10000) in paragraph at lines 1179--1185
 \OT1/ptm/m/n/10 The E2 thresh-old sweep eval-u-ates all com-bi-na-tions of $\OM
 L/cmm/m/it/10 E[] \OMS/cmsy/m/n/10 2
  []
 
 
-Overfull \hbox (4.1199pt too wide) in paragraph at lines 1185--1191
+Overfull \hbox (4.1199pt too wide) in paragraph at lines 1179--1185
 \OMS/cmsy/m/n/10 f\OT1/cmr/m/n/10 1\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 0\OML/cmm/
 m/it/10 ; \OT1/cmr/m/n/10 1\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 5\OML/cmm/m/it/10 
 ; \OT1/cmr/m/n/10 2\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 0\OML/cmm/m/it/10 ; \OT1/c
@@ -968,47 +968,47 @@ OML/cmm/m/it/10 :\OT1/cmr/m/n/10 15\OML/cmm/m/it/10 ; \OT1/cmr/m/n/10 0\OML/cmm
  []
 
 [13 <../experiments/figures/e3a_stationary.pdf>]
-Underfull \hbox (badness 3199) in paragraph at lines 1289--1290
+Underfull \hbox (badness 3199) in paragraph at lines 1283--1284
 []\OT1/ptm/m/n/9 Conditional ig-nor-a-bil-ity
  []
 
 
-Underfull \hbox (badness 6592) in paragraph at lines 1291--1292
+Underfull \hbox (badness 6592) in paragraph at lines 1285--1286
 []\OT1/ptm/m/n/9 E-value re-ports min. con-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1294--1295
+Underfull \hbox (badness 10000) in paragraph at lines 1288--1289
 []\OT1/ptm/m/n/9 OLS on bal-anced DGP;
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1294--1295
+Underfull \hbox (badness 10000) in paragraph at lines 1288--1289
 \OT1/ptm/m/n/9 flagged when propen-sity
  []
 
 
-Underfull \hbox (badness 2875) in paragraph at lines 1295--1296
+Underfull \hbox (badness 2875) in paragraph at lines 1289--1290
 []\OT1/ptm/m/n/9 Robustness against un-
  []
 
 
-Underfull \hbox (badness 1005) in paragraph at lines 1296--1297
+Underfull \hbox (badness 1005) in paragraph at lines 1290--1291
 []\OT1/ptm/m/n/9 Weak con-founders by-pass
  []
 
 
-Underfull \hbox (badness 1389) in paragraph at lines 1303--1304
+Underfull \hbox (badness 1389) in paragraph at lines 1297--1298
 []\OT1/ptm/m/n/9 Non-convex land-scape $\OMS/cmsy/m/n/9 !$
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1304--1305
+Underfull \hbox (badness 10000) in paragraph at lines 1298--1299
 []\OT1/ptm/m/n/9 Reward proxy $[]$; EMA
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1306--1307
+Underfull \hbox (badness 10000) in paragraph at lines 1300--1301
 []\OT1/ptm/m/n/9 Heavy-tail $\OMS/cmsy/m/n/9 !$ \OT1/ptm/m/n/9 learn-ing
  []
 
@@ -1022,21 +1022,17 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [15]
-(tables/invariance.tex) [16] [17] (main.aux)
+[15] (tables/invariance.tex) [16] [17] [18] (main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 23395 strings out of 467871
- 439148 string characters out of 5418376
- 851339 words of memory out of 5000000
- 51857 multiletter control sequences out of 15000+600000
+ 23393 strings out of 467871
+ 439096 string characters out of 5418376
+ 851275 words of memory out of 5000000
+ 51855 multiletter control sequences out of 15000+600000
  655043 words of font info for 91 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  84i,15n,94p,635b,981s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1066,9 +1062,9 @@ etic/uhvr8a.pfb><C:/Users/yesol/AppData/Local/Programs/MiKTeX/fonts/type1/urw/t
 imes/utmb8a.pfb><C:/Users/yesol/AppData/Local/Programs/MiKTeX/fonts/type1/urw/t
 imes/utmr8a.pfb><C:/Users/yesol/AppData/Local/Programs/MiKTeX/fonts/type1/urw/t
 imes/utmri8a.pfb>
-Output written on main.pdf (17 pages, 541419 bytes).
+Output written on main.pdf (18 pages, 543871 bytes).
 PDF statistics:
- 414 PDF objects out of 1000 (max. 8388607)
+ 417 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  28 words of extra memory for PDF output out of 10000 (max. 10000000)
 

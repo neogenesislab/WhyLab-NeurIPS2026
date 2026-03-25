@@ -9,6 +9,12 @@
 *.synctex.gz
 *.toc
 
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Legacy Cleanup
+legacy_archive/
+
 # Python
 __pycache__/
 *.pyc
