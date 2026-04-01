@@ -40,25 +40,25 @@
 \newlabel{eq:convergence}{{6}{4}{Convergence rate}{equation.6}{}}
 \newlabel{eq:zeta-raw}{{7}{4}{C3: Lyapunov-Bounded Adaptive Damping}{equation.7}{}}
 \newlabel{eq:controller}{{8}{4}{C3: Lyapunov-Bounded Adaptive Damping}{equation.8}{}}
-\newlabel{par:heavytail}{{3.3}{4}{C3: Lyapunov-Bounded Adaptive Damping}{equation.8}{}}
-\newlabel{eq:floor}{{9}{4}{C3: Lyapunov-Bounded Adaptive Damping}{equation.9}{}}
 \def\@LN@column{1}
+\newlabel{par:heavytail}{{3.3}{5}{C3: Lyapunov-Bounded Adaptive Damping}{equation.8}{}}
+\newlabel{eq:floor}{{9}{5}{C3: Lyapunov-Bounded Adaptive Damping}{equation.9}{}}
 \newlabel{prop:proxy-fidelity}{{2}{5}{Proxy Fidelity}{proposition.2}{}}
 \newlabel{eq:proxy-bound}{{10}{5}{Proxy Fidelity}{equation.10}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}System Overview}{5}{section.4}\protected@file@percent }
 \newlabel{sec:system}{{4}{5}{System Overview}{section.4}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {5}Experiments}{5}{section.5}\protected@file@percent }
 \newlabel{sec:experiments}{{5}{5}{Experiments}{section.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}E9: Oscillation Phase Diagram}{5}{subsection.5.1}\protected@file@percent }
-\newlabel{sec:e9}{{5.1}{5}{E9: Oscillation Phase Diagram}{subsection.5.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Energy divergence phase diagram across three drift regimes (10~seeds per condition). Dark = bounded energy (stable), bright = divergent (unstable). The stability boundary (cyan dashed) lies at $\eta \approx 0.05$, with hallucination rate modulating severity within regimes.}}{6}{figure.2}\protected@file@percent }
-\newlabel{fig:phase}{{2}{6}{Energy divergence phase diagram across three drift regimes (10~seeds per condition). Dark = bounded energy (stable), bright = divergent (unstable). The stability boundary (cyan dashed) lies at $\eta \approx 0.05$, with hallucination rate modulating severity within regimes}{figure.2}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces E6 results under aggressive learning rate ($\eta {=}0.5$, $h{=}0.3$, 20~seeds). \emph  {Energy}: final $V_t$ (lower = better). \emph  {Osc}: oscillation index. \emph  {Delay}: mean drift detection delay in steps (lower = better).}}{6}{table.1}\protected@file@percent }
-\newlabel{tab:e6}{{1}{6}{E6 results under aggressive learning rate ($\eta {=}0.5$, $h{=}0.3$, 20~seeds). \emph {Energy}: final $V_t$ (lower = better). \emph {Osc}: oscillation index. \emph {Delay}: mean drift detection delay in steps (lower = better)}{table.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Oscillation phase diagram (direction-change metric). Green = stable, red = unstable. At $\eta {=}0.01$, a clear phase boundary emerges at $h{\approx }0.2$ (cyan dashed). At $\eta {\geq }0.05$, catastrophic energy divergence dominates.}}{6}{figure.2}\protected@file@percent }
+\newlabel{fig:phase}{{2}{6}{Oscillation phase diagram (direction-change metric). Green = stable, red = unstable. At $\eta {=}0.01$, a clear phase boundary emerges at $h{\approx }0.2$ (cyan dashed). At $\eta {\geq }0.05$, catastrophic energy divergence dominates}{figure.2}{}}
 \def\@LN@column{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}E9: Oscillation Phase Diagram}{6}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:e9}{{5.1}{6}{E9: Oscillation Phase Diagram}{subsection.5.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.2}E6: Controlled Validation}{6}{subsection.5.2}\protected@file@percent }
 \newlabel{sec:e6}{{5.2}{6}{E6: Controlled Validation}{subsection.5.2}{}}
 \citation{jimenez2024swebench}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces E6 results under aggressive learning rate ($\eta {=}0.5$, $h{=}0.3$, 20~seeds). \emph  {Energy}: final $V_t$ (lower = better). \emph  {Osc}: oscillation index. \emph  {Delay}: mean drift detection delay in steps (lower = better).}}{7}{table.1}\protected@file@percent }
+\newlabel{tab:e6}{{1}{7}{E6 results under aggressive learning rate ($\eta {=}0.5$, $h{=}0.3$, 20~seeds). \emph {Energy}: final $V_t$ (lower = better). \emph {Osc}: oscillation index. \emph {Delay}: mean drift detection delay in steps (lower = better)}{table.1}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces E7v2: Adversarial fact-tracking (10~seeds $\times $ 20~epochs, three conditions). \emph  {Fixed}: C2 with static threshold. \emph  {Adaptive}: C2 with instability-conditioned threshold. Best value per model in bold.}}{7}{table.2}\protected@file@percent }
 \newlabel{tab:e7v2}{{2}{7}{E7v2: Adversarial fact-tracking (10~seeds $\times $ 20~epochs, three conditions). \emph {Fixed}: C2 with static threshold. \emph {Adaptive}: C2 with instability-conditioned threshold. Best value per model in bold}{table.2}{}}
 \def\@LN@column{1}
@@ -66,11 +66,6 @@
 \newlabel{sec:e7v2}{{5.3}{7}{E7v2: Adversarial Fact-Tracking Benchmark}{subsection.5.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.4}E5: SWE-bench Lite Scaling Probe}{7}{subsection.5.4}\protected@file@percent }
 \newlabel{sec:e5}{{5.4}{7}{E5: SWE-bench Lite Scaling Probe}{subsection.5.4}{}}
-\citation{shinn2023reflexion}
-\citation{yao2023react}
-\citation{misevolution2025}
-\citation{rjudge2024,agentharm2025}
-\citation{huang2024selfcorrect}
 \@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces E5: Ablation study on SWE-bench Lite (300 $\times $ 5~seeds).}}{8}{table.3}\protected@file@percent }
 \newlabel{tab:e5}{{3}{8}{E5: Ablation study on SWE-bench Lite (300 $\times $ 5~seeds)}{table.3}{}}
 \def\@LN@column{1}
@@ -78,8 +73,11 @@
 \newlabel{tab:multi-llm}{{4}{8}{SWE-bench Lite: baseline vs.\ C2-audited across model families (100~problems $\times $ 3~seeds for Gemini~2.5 and Claude; 300 $\times $ 5 for Gemini~2.0). The audit is transparently inactive on stable models (Claude) and provides a +2~pp improvement on Gemini~2.5~Flash---consistent with the phase diagram's prediction that moderate-capability models benefit most}{table.4}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Cross-Environment Analysis}{8}{subsection.5.5}\protected@file@percent }
 \newlabel{sec:cross-env}{{5.5}{8}{Cross-Environment Analysis}{subsection.5.5}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Related Work}{8}{section.6}\protected@file@percent }
-\newlabel{sec:related}{{6}{8}{Related Work}{section.6}{}}
+\citation{shinn2023reflexion}
+\citation{yao2023react}
+\citation{misevolution2025}
+\citation{rjudge2024,agentharm2025}
+\citation{huang2024selfcorrect}
 \citation{page1954cusum}
 \citation{bifet2007adwin}
 \citation{vanderweele2017}
@@ -93,12 +91,14 @@
 \bibcite{agentharm2025}{{1}{2025}{{Andriushchenko et~al.}}{{Andriushchenko, Souly, Dziemian, Duenas, Lin, Wang, Hendrycks, Zou, Kolter, Fredrikson, Winsor, Wynne, Gal, and Davies}}}
 \bibcite{berkenkamp2017safe}{{2}{2017}{{Berkenkamp et~al.}}{{Berkenkamp, Turchetta, Schoellig, and Krause}}}
 \bibcite{bifet2007adwin}{{3}{2007}{{Bifet and Gavald\`{a}}}{{}}}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Related Work}{9}{section.6}\protected@file@percent }
+\newlabel{sec:related}{{6}{9}{Related Work}{section.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{9}{section.7}\protected@file@percent }
+\newlabel{sec:conclusion}{{7}{9}{Conclusion}{section.7}{}}
 \bibcite{chow2018lyapunov}{{4}{2018}{{Chow et~al.}}{{Chow, Nachum, Duenez-Guzman, and Ghavamzadeh}}}
 \bibcite{cinelli2020}{{5}{2020}{{Cinelli and Hazlett}}{{}}}
 \bibcite{hill2011}{{6}{2011}{{Hill}}{{}}}
-\def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{9}{section.7}\protected@file@percent }
-\newlabel{sec:conclusion}{{7}{9}{Conclusion}{section.7}{}}
 \bibcite{huang2024selfcorrect}{{7}{2024}{{Huang et~al.}}{{Huang, Chen, Mishra, Zheng, Yu, Song, and Zhou}}}
 \bibcite{jimenez2024swebench}{{8}{2024}{{Jimenez et~al.}}{{Jimenez, Yang, Wettig, Yao, Pei, Press, and Narasimhan}}}
 \bibcite{page1954cusum}{{9}{1954}{{Page}}{{}}}
@@ -112,25 +112,25 @@
 \bibcite{rjudge2024}{{17}{2024}{{Yuan et~al.}}{{}}}
 \bibcite{zhang2025whowhen}{{18}{2025}{{Zhang et~al.}}{{Zhang, Li, and Peng}}}
 \def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {A}Full Lyapunov Stability Proof}{10}{appendix.A}\protected@file@percent }
-\newlabel{sec:proof}{{A}{10}{Full Lyapunov Stability Proof}{appendix.A}{}}
 \def\@LN@column{1}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Full Lyapunov Stability Proof}{11}{appendix.A}\protected@file@percent }
+\newlabel{sec:proof}{{A}{11}{Full Lyapunov Stability Proof}{appendix.A}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {B}Corollary~\ref {cor:convergence} Proof (Convergence Rate)}{11}{appendix.B}\protected@file@percent }
 \newlabel{sec:convergence-proof}{{B}{11}{Corollary~\ref {cor:convergence} Proof (Convergence Rate)}{appendix.B}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {C}Proxy Metric Correlation Analysis}{11}{appendix.C}\protected@file@percent }
-\newlabel{sec:proxy-corr}{{C}{11}{Proxy Metric Correlation Analysis}{appendix.C}{}}
 \citation{hill2011}
 \def\@LN@column{1}
+\@writefile{toc}{\contentsline {section}{\numberline {C}Proxy Metric Correlation Analysis}{12}{appendix.C}\protected@file@percent }
+\newlabel{sec:proxy-corr}{{C}{12}{Proxy Metric Correlation Analysis}{appendix.C}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {D}Proposition~\ref {prop:detection} Proof}{12}{appendix.D}\protected@file@percent }
 \newlabel{sec:prop-proof}{{D}{12}{Proposition~\ref {prop:detection} Proof}{appendix.D}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {E}Proposition~\ref {prop:proxy-fidelity} Proof}{12}{appendix.E}\protected@file@percent }
 \newlabel{sec:proxy-fidelity-proof}{{E}{12}{Proposition~\ref {prop:proxy-fidelity} Proof}{appendix.E}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {F}Additional Experimental Details}{12}{appendix.F}\protected@file@percent }
-\newlabel{sec:supp-exp}{{F}{12}{Additional Experimental Details}{appendix.F}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {F.1}C3-Oracle Ablation}{12}{subsection.F.1}\protected@file@percent }
-\newlabel{sec:oracle-ablation}{{F.1}{12}{C3-Oracle Ablation}{subsection.F.1}{}}
 \citation{bifet2007adwin}
 \def\@LN@column{1}
+\@writefile{toc}{\contentsline {section}{\numberline {F}Additional Experimental Details}{13}{appendix.F}\protected@file@percent }
+\newlabel{sec:supp-exp}{{F}{13}{Additional Experimental Details}{appendix.F}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {F.1}C3-Oracle Ablation}{13}{subsection.F.1}\protected@file@percent }
+\newlabel{sec:oracle-ablation}{{F.1}{13}{C3-Oracle Ablation}{subsection.F.1}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Proxy energy $\hat  {V}_t$ trajectories over 1000 steps ($h{=}0.5$, representative seed). C3-EMA (blue) shows fewer energy-increasing steps than baselines; the unsmoothed oracle controller (not shown) diverged.}}{13}{figure.3}\protected@file@percent }
 \newlabel{fig:e3a-proxy}{{3}{13}{Proxy energy $\hat {V}_t$ trajectories over 1000 steps ($h{=}0.5$, representative seed). C3-EMA (blue) shows fewer energy-increasing steps than baselines; the unsmoothed oracle controller (not shown) diverged}{figure.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {F.2}E1: Kaplan--Meier Analysis and ADWIN Calibration}{13}{subsection.F.2}\protected@file@percent }
@@ -154,30 +154,31 @@
 \newlabel{sec:assumptions-app}{{H}{14}{C2 Identification Assumptions}{appendix.H}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {I}E2 Refutation Results}{14}{appendix.I}\protected@file@percent }
 \newlabel{sec:refutation-app}{{I}{14}{E2 Refutation Results}{appendix.I}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {J}E3a Component Ablation}{14}{appendix.J}\protected@file@percent }
-\newlabel{sec:ablation-app}{{J}{14}{E3a Component Ablation}{appendix.J}{}}
-\newlabel{sec:e3a}{{J}{14}{E3a Component Ablation}{appendix.J}{}}
-\newlabel{tab:e3a}{{J}{14}{E3a Component Ablation}{section*.4}{}}
 \citation{shinn2023reflexion}
 \@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Identification assumptions, failure modes, and mitigations for C2 (sensitivity filter) and C3 (Lyapunov controller).}}{15}{table.6}\protected@file@percent }
 \newlabel{tab:assumptions}{{6}{15}{Identification assumptions, failure modes, and mitigations for C2 (sensitivity filter) and C3 (Lyapunov controller)}{table.6}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Refutation pass rates by scenario type (mean $\pm $ 95\% CI). Reliable scenarios should pass; fragile scenarios should fail. $\Delta $~Ratio${}= |\text  {ATE}_{\text  {refuted}} - \text  {ATE}_{\text  {orig}}| / (|\text  {ATE}_{\text  {orig}}| + 10^{-8})$; for Data Subset, $\Delta $~Ratio is the coefficient of variation across 5 subsets.}}{15}{table.7}\protected@file@percent }
 \newlabel{tab:refutation}{{7}{15}{Refutation pass rates by scenario type (mean $\pm $ 95\% CI). Reliable scenarios should pass; fragile scenarios should fail. $\Delta $~Ratio${}= |\text {ATE}_{\text {refuted}} - \text {ATE}_{\text {orig}}| / (|\text {ATE}_{\text {orig}}| + 10^{-8})$; for Data Subset, $\Delta $~Ratio is the coefficient of variation across 5 subsets}{table.7}{}}
 \def\@LN@column{1}
-\@writefile{toc}{\contentsline {section}{\numberline {K}E7: Dynamic ReAct Benchmark (Null Result)}{15}{appendix.K}\protected@file@percent }
-\newlabel{sec:e7-app}{{K}{15}{E7: Dynamic ReAct Benchmark (Null Result)}{appendix.K}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {J}E3a Component Ablation}{15}{appendix.J}\protected@file@percent }
+\newlabel{sec:ablation-app}{{J}{15}{E3a Component Ablation}{appendix.J}{}}
+\newlabel{sec:e3a}{{J}{15}{E3a Component Ablation}{appendix.J}{}}
+\newlabel{tab:e3a}{{J}{15}{E3a Component Ablation}{section*.4}{}}
 \citation{cinelli2020}
 \@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Component ablation: violation rate and convergence by hallucination rate (mean $\pm $ 95\% CI, 20 seeds). Conv.${}= P(V_T < 0.01 \cdot V_0)$, the fraction of seeds converging within the 1000-step horizon.}}{16}{table.8}\protected@file@percent }
 \newlabel{tab:ablation}{{8}{16}{Component ablation: violation rate and convergence by hallucination rate (mean $\pm $ 95\% CI, 20 seeds). Conv.${}= P(V_T < 0.01 \cdot V_0)$, the fraction of seeds converging within the 1000-step horizon}{table.8}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Conclusion invariance check: perturbing implementation choices does not change method rankings. $\epsilon = 0.15$ relative tolerance.}}{16}{table.9}\protected@file@percent }
 \newlabel{tab:invariance}{{9}{16}{Conclusion invariance check: perturbing implementation choices does not change method rankings. $\epsilon = 0.15$ relative tolerance}{table.9}{}}
 \def\@LN@column{1}
+\@writefile{toc}{\contentsline {section}{\numberline {K}E7: Dynamic ReAct Benchmark (Null Result)}{16}{appendix.K}\protected@file@percent }
+\newlabel{sec:e7-app}{{K}{16}{E7: Dynamic ReAct Benchmark (Null Result)}{appendix.K}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {L}Conclusion Invariance Check}{16}{appendix.L}\protected@file@percent }
 \newlabel{sec:invariance-app}{{L}{16}{Conclusion Invariance Check}{appendix.L}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {M}Robustness Value Definition}{16}{appendix.M}\protected@file@percent }
 \newlabel{sec:rv-definition}{{M}{16}{Robustness Value Definition}{appendix.M}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {N}NeurIPS Paper Checklist}{16}{appendix.N}\protected@file@percent }
-\newlabel{sec:checklist}{{N}{16}{NeurIPS Paper Checklist}{appendix.N}{}}
 \citation{jimenez2024swebench}
 \def\@LN@column{1}
-\gdef \@abspage@last{17}
+\@writefile{toc}{\contentsline {section}{\numberline {N}NeurIPS Paper Checklist}{17}{appendix.N}\protected@file@percent }
+\newlabel{sec:checklist}{{N}{17}{NeurIPS Paper Checklist}{appendix.N}{}}
+\def\@LN@column{1}
+\gdef \@abspage@last{18}

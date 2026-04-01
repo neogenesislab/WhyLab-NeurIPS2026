@@ -60,7 +60,9 @@ def run_single(h_rate, lr, drift_freq, seed, ablation="none"):
     c3 = C3LyapunovDamper(cfg.beta_ema, cfg.floor, cfg.ceiling) if use_c3 else None
 
     energies = []
+    rewards = []
     osc_count = 0
+    prev_improving = None
     prev_reward = None
     regressions = 0
     c1_alerts = 0
@@ -72,6 +74,7 @@ def run_single(h_rate, lr, drift_freq, seed, ablation="none"):
         energies.append(V)
 
         reward, grad = env.observe(theta, t)
+        rewards.append(reward)
 
         # C1: drift detection
         drift_alert = False
@@ -97,10 +100,14 @@ def run_single(h_rate, lr, drift_freq, seed, ablation="none"):
         if accepted:
             theta = theta - zeta * grad
 
-        # Track oscillation
+        # Track oscillation (E6-style direction change)
+        improving = reward > np.mean(rewards[-10:]) if len(rewards) > 10 else True
+        if prev_improving is not None and improving != prev_improving:
+            osc_count += 1
+        prev_improving = improving
+
+        # Track regression (reward drop > 2.0)
         if prev_reward is not None:
-            if reward < prev_reward - 0.5:
-                osc_count += 1
             if reward < prev_reward - 2.0:
                 regressions += 1
         prev_reward = reward

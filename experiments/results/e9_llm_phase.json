@@ -1,0 +1,293 @@
+{
+  "experiment": "E9-LLM Phase Diagram",
+  "results": [
+    {
+      "temperature": 0.3,
+      "max_attempts": 1,
+      "audit": "none",
+      "mean_oscillation": 0.0,
+      "mean_regression": 0.0,
+      "pass_rate": 0.933,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 0.3,
+      "max_attempts": 1,
+      "audit": "audit",
+      "mean_oscillation": 0.0,
+      "mean_regression": 0.0,
+      "pass_rate": 1.0,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 0.3,
+      "max_attempts": 3,
+      "audit": "none",
+      "mean_oscillation": 0.067,
+      "mean_regression": 0.0,
+      "pass_rate": 0.933,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 0.3,
+      "max_attempts": 3,
+      "audit": "audit",
+      "mean_oscillation": 0.0,
+      "mean_regression": 0.0,
+      "pass_rate": 1.0,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 0.3,
+      "max_attempts": 5,
+      "audit": "none",
+      "mean_oscillation": 0.0,
+      "mean_regression": 0.0,
+      "pass_rate": 1.0,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 0.3,
+      "max_attempts": 5,
+      "audit": "audit",
+      "mean_oscillation": 0.0,
+      "mean_regression": 0.0,
+      "pass_rate": 1.0,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 0.3,
+      "max_attempts": 7,
+      "audit": "none",
+      "mean_oscillation": 0.4,
+      "mean_regression": 0.333,
+      "pass_rate": 0.667,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 0.3,
+      "max_attempts": 7,
+      "audit": "audit",
+      "mean_oscillation": 0.0,
+      "mean_regression": 0.0,
+      "pass_rate": 1.0,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 0.7,
+      "max_attempts": 1,
+      "audit": "none",
+      "mean_oscillation": 0.0,
+      "mean_regression": 0.0,
+      "pass_rate": 0.667,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 0.7,
+      "max_attempts": 1,
+      "audit": "audit",
+      "mean_oscillation": 0.0,
+      "mean_regression": 0.0,
+      "pass_rate": 0.667,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 0.7,
+      "max_attempts": 3,
+      "audit": "none",
+      "mean_oscillation": 1.333,
+      "mean_regression": 0.667,
+      "pass_rate": 0.667,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 0.7,
+      "max_attempts": 3,
+      "audit": "audit",
+      "mean_oscillation": 0.333,
+      "mean_regression": 0.0,
+      "pass_rate": 1.0,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 0.7,
+      "max_attempts": 5,
+      "audit": "none",
+      "mean_oscillation": 1.933,
+      "mean_regression": 0.867,
+      "pass_rate": 0.733,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 0.7,
+      "max_attempts": 5,
+      "audit": "audit",
+      "mean_oscillation": 0.4,
+      "mean_regression": 0.0,
+      "pass_rate": 0.933,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 0.7,
+      "max_attempts": 7,
+      "audit": "none",
+      "mean_oscillation": 2.0,
+      "mean_regression": 1.0,
+      "pass_rate": 0.6,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 0.7,
+      "max_attempts": 7,
+      "audit": "audit",
+      "mean_oscillation": 0.4,
+      "mean_regression": 0.0,
+      "pass_rate": 1.0,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 1.0,
+      "max_attempts": 1,
+      "audit": "none",
+      "mean_oscillation": 0.0,
+      "mean_regression": 0.0,
+      "pass_rate": 0.667,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 1.0,
+      "max_attempts": 1,
+      "audit": "audit",
+      "mean_oscillation": 0.0,
+      "mean_regression": 0.0,
+      "pass_rate": 0.667,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 1.0,
+      "max_attempts": 3,
+      "audit": "none",
+      "mean_oscillation": 1.2,
+      "mean_regression": 0.533,
+      "pass_rate": 0.733,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 1.0,
+      "max_attempts": 3,
+      "audit": "audit",
+      "mean_oscillation": 0.333,
+      "mean_regression": 0.0,
+      "pass_rate": 0.933,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 1.0,
+      "max_attempts": 5,
+      "audit": "none",
+      "mean_oscillation": 1.733,
+      "mean_regression": 0.733,
+      "pass_rate": 0.6,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 1.0,
+      "max_attempts": 5,
+      "audit": "audit",
+      "mean_oscillation": 0.333,
+      "mean_regression": 0.0,
+      "pass_rate": 0.933,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 1.0,
+      "max_attempts": 7,
+      "audit": "none",
+      "mean_oscillation": 2.0,
+      "mean_regression": 1.0,
+      "pass_rate": 0.667,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 1.0,
+      "max_attempts": 7,
+      "audit": "audit",
+      "mean_oscillation": 0.4,
+      "mean_regression": 0.0,
+      "pass_rate": 0.933,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 1.5,
+      "max_attempts": 1,
+      "audit": "none",
+      "mean_oscillation": 0.0,
+      "mean_regression": 0.0,
+      "pass_rate": 0.333,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 1.5,
+      "max_attempts": 1,
+      "audit": "audit",
+      "mean_oscillation": 0.0,
+      "mean_regression": 0.0,
+      "pass_rate": 0.333,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 1.5,
+      "max_attempts": 3,
+      "audit": "none",
+      "mean_oscillation": 1.667,
+      "mean_regression": 0.667,
+      "pass_rate": 0.667,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 1.5,
+      "max_attempts": 3,
+      "audit": "audit",
+      "mean_oscillation": 0.667,
+      "mean_regression": 0.0,
+      "pass_rate": 1.0,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 1.5,
+      "max_attempts": 5,
+      "audit": "none",
+      "mean_oscillation": 2.333,
+      "mean_regression": 1.333,
+      "pass_rate": 0.0,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 1.5,
+      "max_attempts": 5,
+      "audit": "audit",
+      "mean_oscillation": 0.667,
+      "mean_regression": 0.0,
+      "pass_rate": 1.0,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 1.5,
+      "max_attempts": 7,
+      "audit": "none",
+      "mean_oscillation": 3.333,
+      "mean_regression": 1.667,
+      "pass_rate": 0.333,
+      "n_episodes": 15
+    },
+    {
+      "temperature": 1.5,
+      "max_attempts": 7,
+      "audit": "audit",
+      "mean_oscillation": 0.667,
+      "mean_regression": 0.0,
+      "pass_rate": 1.0,
+      "n_episodes": 15
+    }
+  ]
+}
