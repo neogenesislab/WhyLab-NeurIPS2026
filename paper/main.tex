@@ -49,7 +49,7 @@ We then present \textbf{WhyLab}, a conditional causal audit framework that activ
 
 Four key findings emerge:
 \textbf{(1)}~In the unstable regime, WhyLab reduces oscillation by 48\% across 56/64 tested conditions, with independent contributions from each component (C3: $-$49\% energy, C2: $-$76\% oscillation, C1: $-$16\% detection delay).
-\textbf{(2)}~On an adversarial LLM benchmark (E7v2), the audit reduces regressions by 45\% on Gemini~2.0~Flash ($p{=}0.014$); an adaptive threshold variant eliminates accuracy cost on near-ceiling models.
+\textbf{(2)}~On an adversarial LLM benchmark (E7v2), the audit reduces regressions by 44\% on Gemini~2.0~Flash ($p{=}0.014$); an adaptive threshold variant eliminates accuracy cost on near-ceiling models.
 \textbf{(3)}~The phase boundary transfers to real tasks: on 2{,}430 SWE-bench episodes, the audit reduces oscillation by 13--26\% at high retry counts; across three model families (960 episodes), it eliminates 100\% of regressions on unstable models while remaining inactive on stable ones.
 \textbf{(4)}~In the stable regime (SWE-bench Lite, 10{,}500 episodes), the audit is transparently inactive---confirming the framework activates only when conditions require it.
 Cross-family validation (Gemini~2.0/2.5~Flash, Claude~Sonnet~4) confirms consistent behavior.
@@ -84,7 +84,7 @@ Recent studies on agent \emph{misevolution}~\cite{misevolution2025} and alignmen
 This paper makes three contributions:
 \textbf{(1)~Characterization.} We provide the first oscillation phase diagram for self-improving agents, mapping the instability boundary across hallucination rate, step size, and drift frequency (384 conditions, 3{,}840 episodes). The diagram reveals that oscillation emerges at hallucination rates as low as $h{=}0.05$---far below typical LLM noise levels---and that the stable/unstable boundary is a predictable function of environment parameters.
 \textbf{(2)~Conditional audit framework.} We present \textbf{WhyLab}, comprising an information-theoretic drift index (\textbf{C1}, \S\ref{sec:drift}), a sensitivity-aware E-value filter (\textbf{C2}, \S\ref{sec:sensitivity}), and a Lyapunov-bounded damping controller (\textbf{C3}, \S\ref{sec:lyapunov}). Crucially, the framework activates \emph{only} in the unstable regime identified by the phase diagram, imposing zero overhead in stable conditions.
-\textbf{(3)~Cross-regime validation.} We validate across the full spectrum: the unstable regime via controlled simulation (E6) and adversarial LLM benchmarks (E7v2, regression $-$45\%, $p{=}0.014$ on Gemini~2.0~Flash), and the stable regime via SWE-bench Lite (E5, 10{,}500 episodes confirming transparent inactivity). Cross-family validation (Gemini~2.0/2.5~Flash, Claude~Sonnet~4) confirms consistent behavior.
+\textbf{(3)~Cross-regime validation.} We validate across the full spectrum: the unstable regime via controlled simulation (E6) and adversarial LLM benchmarks (E7v2, regression $-$44\%, $p{=}0.014$ on Gemini~2.0~Flash), and the stable regime via SWE-bench Lite (E5, 10{,}500 episodes confirming transparent inactivity). Cross-family validation (Gemini~2.0/2.5~Flash, Claude~Sonnet~4) confirms consistent behavior.
 
 \begin{figure}[t]
   \centering
@@ -282,6 +282,9 @@ Eq.~\eqref{eq:update}, reducing the effective noise in $\omega_t$.
 
 \textbf{Graceful degradation under heavy tails.}
 The normality assumption underlying the E-value conversion is a known limitation. Appendix~\ref{sec:e3b-app} evaluates C3's Lyapunov controller under Student-$t$(1.5) and Student-$t$(3) noise (20 seeds each). Under extreme heavy tails ($t$(1.5), infinite variance), C3-EMA reduces the violation rate from 0.51 (uncontrolled) to 0.18---a 65\% reduction---while maintaining 35\% convergence rate. The framework thus degrades gracefully rather than catastrophically when distributional assumptions are violated.
+
+\textbf{Distribution-free alternative.}
+To address the normality assumption directly, we provide a permutation-based E-value that requires no distributional assumptions. For each candidate update, we compute the observed effect size $|\bar{R}_{\text{after}} - \bar{R}_{\text{before}}|$ and compare it against a null distribution constructed from $K{=}100$ random permutations of the pooled reward sequence. The E-value is the reciprocal of the rank-based $p$-value: $E_{\text{perm}} = (K+1) / (\text{rank} + 1)$, where rank counts how many permuted effects equal or exceed the observed one. This yields a valid sensitivity bound regardless of whether rewards are binary, heavy-tailed, or otherwise non-normal. In E6 comparisons (20 seeds, $h \in \{0, 0.3, 0.5\}$), the permutation method produces a substantially lower rejection rate (44--58\% vs.\ 75--79\% for parametric), accepting more updates while maintaining comparable energy and regret. The two methods are selectable via the \texttt{e\_value\_method} parameter (\texttt{"parametric"} or \texttt{"permutation"}).
 
 
 \subsection{C3: Lyapunov-Bounded Adaptive Damping}
@@ -612,7 +615,7 @@ On Gemini~2.0~Flash, the adversarial environment elicits substantial
 baseline instability (3.85~regressions per trajectory). The fixed
 audit reduces regressions by 44\%
 ($\Delta{=}{-}1.70$, bootstrap 95\%~CI: $[-3.1, -0.2]$, $p{=}0.014$),
-a statistically significant improvement, at a cost of 3.4~pp accuracy.
+a statistically significant improvement, at a cost of 3.4~pp accuracy.\footnote{This $p$-value reflects the pairwise (2-way) comparison between baseline and fixed audit, each with the full 10~seeds. In the 3-way design (Table~\ref{tab:e7v2}), which splits seeds across three conditions, the fixed audit's regression reduction does not reach significance (bootstrap 95\%~CI includes zero), reflecting the reduced per-condition sample size.}
 On GPT-4o-mini, baseline accuracy is near-ceiling (98.5\%), producing
 minimal instability (0.30~regressions). Here the fixed audit
 \emph{increases} regressions ($+0.55$, $p{<}0.05$) and reduces
@@ -800,7 +803,7 @@ a sharp instability boundary, with the LLM phase diagram confirming
 that the audit \emph{eliminates all regressions} across every tested condition.
 \textbf{(ii)}~On an adversarial LLM fact-tracking benchmark (E7v2),
 the fixed audit reduces regressions by 44\% on Gemini~2.0~Flash
-($p{=}0.014$). An adaptive threshold variant eliminates the accuracy
+($p{=}0.014$, pairwise comparison; the 3-way split does not reach significance due to smaller per-condition $n$). An adaptive threshold variant eliminates the accuracy
 cost of fixed filtering on near-ceiling models, demonstrating that
 instability-conditioned thresholds are essential for safe deployment
 across heterogeneous model capabilities.

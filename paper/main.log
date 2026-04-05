@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.22)  5 APR 2026 10:06
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.2.22)  5 APR 2026 13:35
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -913,24 +913,25 @@ l/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}] [2] [3]
 File: ../experiments/figures/e9_phase_diagram_v2.png Graphic file (type png)
 <use ../experiments/figures/e9_phase_diagram_v2.png>
 Package pdftex.def Info: ../experiments/figures/e9_phase_diagram_v2.png  used o
-n input line 506.
+n input line 509.
 (pdftex.def)             Requested size: 397.48499pt x 123.72757pt.
 <../experiments/figures/e9_llm_multi.png, id=43, 478.1865pt x 193.4427pt>
 File: ../experiments/figures/e9_llm_multi.png Graphic file (type png)
 <use ../experiments/figures/e9_llm_multi.png>
 Package pdftex.def Info: ../experiments/figures/e9_llm_multi.png  used on input
- line 513.
+ line 516.
 (pdftex.def)             Requested size: 397.48499pt x 160.80533pt.
 
-Underfull \vbox (badness 1776) has occurred while \output is active []
+Underfull \vbox (badness 1859) has occurred while \output is active []
 
- [6 <../experiments/figures/e9_phase_diagram_v2.png>] [7 <../experiments/figure
-s/e9_llm_multi.png>]
+ [6]
+[7 <../experiments/figures/e9_phase_diagram_v2.png> <../experiments/figures/e9_
+llm_multi.png>]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \vbox (badness 3907) has occurred while \output is active []
 
  [8]
 [9] (main.bbl [10]) [11] [12] [13]
@@ -938,16 +939,16 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 File: ../experiments/figures/e3a_stationary.pdf Graphic file (type pdf)
 <use ../experiments/figures/e3a_stationary.pdf>
 Package pdftex.def Info: ../experiments/figures/e3a_stationary.pdf  used on inp
-ut line 1107.
+ut line 1110.
 (pdftex.def)             Requested size: 337.86465pt x 135.1461pt.
-
-Underfull \hbox (badness 10000) in paragraph at lines 1145--1151
+ [14 <../experiments/figures/e3a_stationary.pdf>]
+Underfull \hbox (badness 10000) in paragraph at lines 1148--1154
 \OT1/ptm/m/n/10 The E2 thresh-old sweep eval-u-ates all com-bi-na-tions of $\OM
 L/cmm/m/it/10 E[] \OMS/cmsy/m/n/10 2
  []
 
 
-Overfull \hbox (4.1199pt too wide) in paragraph at lines 1145--1151
+Overfull \hbox (4.1199pt too wide) in paragraph at lines 1148--1154
 \OMS/cmsy/m/n/10 f\OT1/cmr/m/n/10 1\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 0\OML/cmm/
 m/it/10 ; \OT1/cmr/m/n/10 1\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 5\OML/cmm/m/it/10 
 ; \OT1/cmr/m/n/10 2\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 0\OML/cmm/m/it/10 ; \OT1/c
@@ -967,76 +968,62 @@ OML/cmm/m/it/10 :\OT1/cmr/m/n/10 15\OML/cmm/m/it/10 ; \OT1/cmr/m/n/10 0\OML/cmm
 /cmr/m/n/10 50\OMS/cmsy/m/n/10 g$
  []
 
-[14 <../experiments/figures/e3a_stationary.pdf>]
-Underfull \hbox (badness 3199) in paragraph at lines 1249--1250
+[15]
+Underfull \hbox (badness 3199) in paragraph at lines 1252--1253
 []\OT1/ptm/m/n/9 Conditional ig-nor-a-bil-ity
  []
 
 
-Underfull \hbox (badness 6592) in paragraph at lines 1251--1252
+Underfull \hbox (badness 6592) in paragraph at lines 1254--1255
 []\OT1/ptm/m/n/9 E-value re-ports min. con-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1254--1255
+Underfull \hbox (badness 10000) in paragraph at lines 1257--1258
 []\OT1/ptm/m/n/9 OLS on bal-anced DGP;
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1254--1255
+Underfull \hbox (badness 10000) in paragraph at lines 1257--1258
 \OT1/ptm/m/n/9 flagged when propen-sity
  []
 
 
-Underfull \hbox (badness 2875) in paragraph at lines 1255--1256
+Underfull \hbox (badness 2875) in paragraph at lines 1258--1259
 []\OT1/ptm/m/n/9 Robustness against un-
  []
 
 
-Underfull \hbox (badness 1005) in paragraph at lines 1256--1257
+Underfull \hbox (badness 1005) in paragraph at lines 1259--1260
 []\OT1/ptm/m/n/9 Weak con-founders by-pass
  []
 
 
-Underfull \hbox (badness 1389) in paragraph at lines 1263--1264
+Underfull \hbox (badness 1389) in paragraph at lines 1266--1267
 []\OT1/ptm/m/n/9 Non-convex land-scape $\OMS/cmsy/m/n/9 !$
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1264--1265
+Underfull \hbox (badness 10000) in paragraph at lines 1267--1268
 []\OT1/ptm/m/n/9 Reward proxy $[]$; EMA
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1266--1267
+Underfull \hbox (badness 10000) in paragraph at lines 1269--1270
 []\OT1/ptm/m/n/9 Heavy-tail $\OMS/cmsy/m/n/9 !$ \OT1/ptm/m/n/9 learn-ing
  []
 
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[15]
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [16]
-(tables/invariance.tex) [17] [18] [19] (main.aux)
+[16] (tables/invariance.tex) [17] [18] [19] (main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 23436 strings out of 467871
- 440075 string characters out of 5418376
- 851897 words of memory out of 5000000
- 51899 multiletter control sequences out of 15000+600000
+ 23437 strings out of 467871
+ 440093 string characters out of 5418376
+ 851898 words of memory out of 5000000
+ 51900 multiletter control sequences out of 15000+600000
  656672 words of font info for 93 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  84i,15n,94p,1218b,981s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1067,7 +1054,7 @@ imes/utmb8a.pfb><C:/Users/yesol/AppData/Local/Programs/MiKTeX/fonts/type1/urw/t
 imes/utmbi8a.pfb><C:/Users/yesol/AppData/Local/Programs/MiKTeX/fonts/type1/urw/
 times/utmr8a.pfb><C:/Users/yesol/AppData/Local/Programs/MiKTeX/fonts/type1/urw/
 times/utmri8a.pfb>
-Output written on main.pdf (19 pages, 657255 bytes).
+Output written on main.pdf (19 pages, 661333 bytes).
 PDF statistics:
  277 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)

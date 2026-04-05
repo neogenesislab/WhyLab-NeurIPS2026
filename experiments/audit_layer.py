@@ -76,11 +76,20 @@ class SensitivityGate:
 
     "Fragile improvement" = cheap eval says improved, but the improvement
     is not robust to evaluation noise / partial testing bias.
+
+    Supports two E-value methods:
+      - "parametric": VanderWeele & Ding (2017) conversion (assumes normality)
+      - "permutation": distribution-free permutation-based E-value (K=100)
     """
 
-    def __init__(self, e_thresh: float = 2.0, rv_thresh: float = 0.1):
+    def __init__(self, e_thresh: float = 2.0, rv_thresh: float = 0.1,
+                 e_value_method: str = "parametric", n_permutations: int = 100,
+                 seed: Optional[int] = None):
         self.e_thresh = e_thresh
         self.rv_thresh = rv_thresh
+        self.e_value_method = e_value_method
+        self.n_permutations = n_permutations
+        self._rng = np.random.default_rng(seed)
         self._history: List[Dict[str, Any]] = []  # track updates for stats
 
     def compute_evalue(self, delta: float, sigma_pooled: float) -> float:
@@ -92,6 +101,41 @@ class SensitivityGate:
         d = min(abs(delta) / max(sigma_pooled, 1e-8), 10.0)
         rr = np.exp(0.91 * d)
         return float(rr + np.sqrt(rr * (rr - 1.0))) if rr > 1.0 else 1.0
+
+    def compute_evalue_permutation(
+        self,
+        scores_before: np.ndarray,
+        scores_after: np.ndarray,
+    ) -> float:
+        """Distribution-free permutation-based E-value.
+
+        Computes observed effect size (mean difference), then generates
+        K permutations of the pooled scores to build a null distribution.
+        E-value = 1 / (rank of observed effect among permutations),
+        which is a valid sensitivity bound regardless of the underlying
+        distribution (no normality assumption required).
+
+        Returns:
+            E-value >= 1.0 (higher = more robust to confounding).
+        """
+        n_before = len(scores_before)
+        observed_delta = abs(float(np.mean(scores_after) - np.mean(scores_before)))
+        pooled = np.concatenate([scores_before, scores_after])
+        n_total = len(pooled)
+
+        # Count how many permutation deltas exceed observed
+        count_geq = 0
+        for _ in range(self.n_permutations):
+            perm = self._rng.permutation(pooled)
+            perm_delta = abs(float(np.mean(perm[n_before:]) - np.mean(perm[:n_before])))
+            if perm_delta >= observed_delta:
+                count_geq += 1
+
+        # Rank-based p-value (add 1 for the observed itself)
+        p_value = (count_geq + 1) / (self.n_permutations + 1)
+        # E-value = 1/p (clamped to a reasonable max)
+        e_value = 1.0 / max(p_value, 1e-10)
+        return float(e_value)
 
     def compute_rv(self, delta: float, se: float, q: float = 0.0) -> float:
         """Robustness Value via Cinelli & Hazlett (2020).
@@ -129,7 +173,10 @@ class SensitivityGate:
         n = min(len(before), len(after))
         se = sigma_pooled / np.sqrt(max(n, 1))
 
-        e_val = self.compute_evalue(delta, sigma_pooled)
+        if self.e_value_method == "permutation":
+            e_val = self.compute_evalue_permutation(before, after)
+        else:
+            e_val = self.compute_evalue(delta, sigma_pooled)
         rv_val = self.compute_rv(delta, se)
 
         is_robust = (e_val >= self.e_thresh) and (rv_val >= self.rv_thresh)
@@ -139,6 +186,7 @@ class SensitivityGate:
             "sigma_pooled": sigma_pooled,
             "se": se,
             "e_value": e_val,
+            "e_value_method": self.e_value_method,
             "rv_value": rv_val,
             "e_pass": e_val >= self.e_thresh,
             "rv_pass": rv_val >= self.rv_thresh,
@@ -225,6 +273,9 @@ class AgentAuditLayer:
         self.c2 = SensitivityGate(
             e_thresh=config.get("c2_e_thresh", 2.0),
             rv_thresh=config.get("c2_rv_thresh", 0.1),
+            e_value_method=config.get("c2_e_value_method", "parametric"),
+            n_permutations=config.get("c2_n_permutations", 100),
+            seed=config.get("c2_seed", None),
         ) if self.enable_c2 else None
 
         self.c3 = DampingController(

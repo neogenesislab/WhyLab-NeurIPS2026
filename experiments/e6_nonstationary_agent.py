@@ -30,6 +30,8 @@ class E6Config:
     beta_ema: float = 0.9          # EMA smoothing for C3
     c2_threshold: float = 1.5      # E-value threshold for C2
     c2_rv_threshold: float = 0.05  # RV threshold for C2
+    c2_e_value_method: str = "parametric"  # "parametric" or "permutation"
+    c2_n_permutations: int = 100   # number of permutations (if method="permutation")
     c1_window: int = 20            # C1 drift detection window
     c1_threshold: float = 2.0      # C1 drift alarm threshold
     floor: float = 0.01            # C3 floor
@@ -122,27 +124,58 @@ class C1DriftDetector:
 
 
 class C2SensitivityFilter:
-    """Sensitivity-aware effect filtering using E-value approximation."""
+    """Sensitivity-aware effect filtering using E-value approximation.
 
-    def __init__(self, e_threshold: float, rv_threshold: float):
+    Supports two E-value methods:
+      - "parametric": original t-statistic-based (assumes normality)
+      - "permutation": distribution-free permutation-based E-value
+    """
+
+    def __init__(self, e_threshold: float, rv_threshold: float,
+                 e_value_method: str = "parametric",
+                 n_permutations: int = 100,
+                 rng: Optional[np.random.Generator] = None):
         self.e_threshold = e_threshold
         self.rv_threshold = rv_threshold
+        self.e_value_method = e_value_method
+        self.n_permutations = n_permutations
+        self._rng = rng or np.random.default_rng(42)
         self.reward_buffer: List[float] = []
+        self._before_buffer: List[float] = []
+        self._after_buffer: List[float] = []
 
     def should_accept(self, reward_before: float, reward_after: float,
                       grad_norm: float) -> bool:
         delta = reward_after - reward_before
         self.reward_buffer.append(delta)
+        self._before_buffer.append(reward_before)
+        self._after_buffer.append(reward_after)
 
         if len(self.reward_buffer) < 3:
             return True  # not enough data
 
-        # E-value: how much would an unmeasured confounder need to explain delta?
         recent = self.reward_buffer[-5:]
-        mu = np.mean(recent)
-        se = max(np.std(recent) / np.sqrt(len(recent)), 1e-8)
 
-        e_value = max(abs(mu) / se, 1e-10)
+        if self.e_value_method == "permutation":
+            # Distribution-free permutation E-value
+            before_arr = np.array(self._before_buffer[-5:])
+            after_arr = np.array(self._after_buffer[-5:])
+            observed_delta = abs(float(np.mean(after_arr) - np.mean(before_arr)))
+            pooled = np.concatenate([before_arr, after_arr])
+            n_b = len(before_arr)
+            count_geq = 0
+            for _ in range(self.n_permutations):
+                perm = self._rng.permutation(pooled)
+                perm_delta = abs(float(np.mean(perm[n_b:]) - np.mean(perm[:n_b])))
+                if perm_delta >= observed_delta:
+                    count_geq += 1
+            p_value = (count_geq + 1) / (self.n_permutations + 1)
+            e_value = 1.0 / max(p_value, 1e-10)
+        else:
+            # Parametric: t-statistic based
+            mu = np.mean(recent)
+            se = max(np.std(recent) / np.sqrt(len(recent)), 1e-8)
+            e_value = max(abs(mu) / se, 1e-10)
 
         # Partial R^2 bound (simplified)
         total_var = max(np.var(self.reward_buffer[-20:]), 1e-8) if len(self.reward_buffer) >= 20 else max(np.var(self.reward_buffer), 1e-8)
@@ -193,7 +226,12 @@ def run_episode(cfg: E6Config, ablation: str) -> dict:
     use_c3 = "C3" in ablation or ablation == "full"
 
     c1 = C1DriftDetector(cfg.c1_window, cfg.c1_threshold) if use_c1 else None
-    c2 = C2SensitivityFilter(cfg.c2_threshold, cfg.c2_rv_threshold) if use_c2 else None
+    c2 = C2SensitivityFilter(
+        cfg.c2_threshold, cfg.c2_rv_threshold,
+        e_value_method=cfg.c2_e_value_method,
+        n_permutations=cfg.c2_n_permutations,
+        rng=rng,
+    ) if use_c2 else None
     c3 = C3LyapunovDamper(cfg.beta_ema, cfg.floor, cfg.ceiling) if use_c3 else None
 
     # Tracking
